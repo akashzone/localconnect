@@ -1,10 +1,13 @@
 require("dotenv").config();
 
-// import
+//routes
 const authRoutes = require("./routes/authRoutes");
 
-const express = require("express");
+//middlewares
+const authMiddleware = require("./middlewares/authMiddleware");
 
+
+const express = require("express");
 const connectDB = require("./config/db");
 connectDB();
 
@@ -20,6 +23,11 @@ app.use(express.json());
 app.get("/", (req, res) => {
   console.log("PORT", process.env.PORT);
   res.send("Hello World");
+});
+
+//protected-routes
+app.get("/api/protected",authMiddleware, (req, res) => {
+  res.json({ message: "This is a protected route" });
 });
 
 app.use("/api/auth",authRoutes);
