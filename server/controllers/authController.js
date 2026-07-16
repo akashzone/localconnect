@@ -2,6 +2,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
+const DeveloperProfile = require("../models/DeveloperProfile");
+const BusinessProfile = require("../models/BusinessProfile");
 
 
 const register = async (req, res) => {
@@ -14,9 +16,22 @@ const register = async (req, res) => {
     }
 
     const newUser = await User.create({ email, password: hashedPassword, name, role });
+    console.log("new User :",newUser);
+
+    if(role == "student"){
+      const newUserDeveloper = await DeveloperProfile.create({
+        userId : newUser._id
+      })
+      console.log("new Developer created :",newUserDeveloper)
+    }else if(role == "businessOwner"){
+      const newUserBusinessOwner = await BusinessProfile.create({
+        userId : newUser._id
+      })
+      console.log("new Business Owner created :",newUserBusinessOwner)
+    }
     res
       .status(201)
-      .json({ message: "User created successfully", user: newUser });
+      .json({ message: "User created successfully", user: newUser});
   } catch (error) {
     return res
       .status(500)
