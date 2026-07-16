@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 
 //middlewares
 const authMiddleware = require("./middlewares/authMiddleware");
+const roleMiddleware = require("./middlewares/roleMiddleware")
 
 
 const express = require("express");
@@ -26,7 +27,7 @@ app.get("/", (req, res) => {
 });
 
 //protected-routes
-app.get("/api/protected",authMiddleware, (req, res) => {
+app.get("/api/protected",authMiddleware,roleMiddleware("student"), (req, res) => {
   res.json({ message: "This is a protected route" });
 });
 
