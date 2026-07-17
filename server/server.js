@@ -2,10 +2,11 @@ require("dotenv").config();
 
 //routes
 const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 
 //middlewares
 const authMiddleware = require("./middlewares/authMiddleware");
-const roleMiddleware = require("./middlewares/roleMiddleware")
+const roleMiddleware = require("./middlewares/roleMiddleware");
 
 
 const express = require("express");
@@ -32,6 +33,7 @@ app.get("/api/protected",authMiddleware,roleMiddleware("student"), (req, res) =>
 });
 
 app.use("/api/auth",authRoutes);
+app.use("/api/profile",profileRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

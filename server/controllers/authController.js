@@ -27,7 +27,7 @@ const register = async (req, res) => {
       const newUserBusinessOwner = await BusinessProfile.create({
         userId : newUser._id
       })
-      console.log("new Business Owner created :",newUserBusinessOwner)
+      // console.log("new Business Owner created :",newUserBusinessOwner)
     }
     res
       .status(201)
