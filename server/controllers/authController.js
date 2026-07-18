@@ -23,7 +23,7 @@ const register = async (req, res) => {
         userId : newUser._id
       })
       console.log("new Developer created :",newUserDeveloper)
-    }else if(role == "businessOwner"){
+    }else if(role == "business"){
       const newUserBusinessOwner = await BusinessProfile.create({
         userId : newUser._id
       })
@@ -52,7 +52,7 @@ const login = async (req,res)=>{
     }
 
     const token = generateToken(user);
-    console.log("Token generated:", token);
+    // console.log("Token generated:", token);
     res.status(200).json({message: "Login successful", user, token});
   } catch (error) {
     return res

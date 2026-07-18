@@ -3,11 +3,11 @@ require("dotenv").config();
 //routes
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const projectRoutes = require("./routes/projectRoutes");
 
 //middlewares
 const authMiddleware = require("./middlewares/authMiddleware");
 const roleMiddleware = require("./middlewares/roleMiddleware");
-
 
 const express = require("express");
 const connectDB = require("./config/db");
@@ -28,12 +28,18 @@ app.get("/", (req, res) => {
 });
 
 //protected-routes
-app.get("/api/protected",authMiddleware,roleMiddleware("student"), (req, res) => {
-  res.json({ message: "This is a protected route" });
-});
+app.get(
+  "/api/protected",
+  authMiddleware,
+  roleMiddleware("student"),
+  (req, res) => {
+    res.json({ message: "This is a protected route" });
+  },
+);
 
-app.use("/api/auth",authRoutes);
-app.use("/api/profile",profileRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/projects", projectRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
