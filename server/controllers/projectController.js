@@ -48,4 +48,21 @@ const createProject = async (req, res) => {
   }
 };
 
-module.exports = { createProject };
+const getAllProjects = async (req,res)=>{
+  try{
+    const projects = await Project.find();
+    console.log("All projects :", projects);
+
+    res.status(201).json({
+      success: true,
+      message: "Project fetched successfully",
+      data: projects,
+    });
+  }catch(error){
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+}
+
+module.exports = { createProject, getAllProjects };
