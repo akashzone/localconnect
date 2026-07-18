@@ -53,7 +53,14 @@ const getAllProjects = async (req, res) => {
     const projects = await Project.find();
     console.log("All projects :", projects);
 
-    res.status(201).json({
+    if (!projects) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+
+    res.status(200).json({
       success: true,
       message: "Projects fetched successfully",
       data: projects,
@@ -67,17 +74,24 @@ const getAllProjects = async (req, res) => {
 
 const getProjectById = async (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    return res.status(401).json({
-      message: "ID not found, send ID :)",
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Project ID.",
     });
   }
   try {
-    const project = await Project.findOne({
-      _id: id,
-    });
+    const project = await Project.findById(id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
     console.log("Project INFO - ", project);
-    res.status(201).json({
+
+    res.status(200).json({
       success: true,
       message: "Project fetched successfully",
       data: project,
@@ -91,26 +105,26 @@ const getProjectById = async (req, res) => {
 
 const updateProject = async (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    return res.status(401).json({
-      message: "ID not found, send ID :)",
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Project ID.",
     });
   }
 
   try {
-    const updatedProject = await Project.findOneAndUpdate(
-      {
-        _id: id,
-      },
-      {
-        title: "Build a Website for My Icecream Shop.",
-      },
-      {
-        new: true,
-      },
-    );
+    const updatedProject = await Project.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedProject) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
     console.log("Updated Project - ", updatedProject);
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Project updated successfully",
       data: updatedProject,
@@ -124,20 +138,23 @@ const updateProject = async (req, res) => {
 
 const deleteProject = async (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    return res.status(401).json({
-      message: "ID not found, send ID :)",
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Project ID.",
     });
   }
 
   try {
-    const deletedProject = await Project.findOneAndDelete(
-      {
-        _id: id,
-      },
-    );
+    const deletedProject = await Project.findByIdAndDelete(id);
     console.log("Deleted Project - ", deletedProject);
-    res.status(201).json({
+    if (!deletedProject) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+    res.status(204).json({
       success: true,
       message: "Project deleted successfully",
       data: deletedProject,
@@ -154,5 +171,5 @@ module.exports = {
   getAllProjects,
   getProjectById,
   updateProject,
-  deleteProject
+  deleteProject,
 };
