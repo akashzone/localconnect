@@ -48,21 +48,44 @@ const createProject = async (req, res) => {
   }
 };
 
-const getAllProjects = async (req,res)=>{
-  try{
+const getAllProjects = async (req, res) => {
+  try {
     const projects = await Project.find();
     console.log("All projects :", projects);
 
     res.status(201).json({
       success: true,
-      message: "Project fetched successfully",
+      message: "Projects fetched successfully",
       data: projects,
     });
-  }catch(error){
+  } catch (error) {
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
   }
-}
+};
 
-module.exports = { createProject, getAllProjects };
+const getProjectById = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(401).json({
+      message: "ID not found, send ID :)",
+    });
+  }
+  try {
+    const project = await Project.findOne({
+      _id: id,
+    });
+    console.log("Project INFO - ", project);
+    res.status(201).json({
+      success: true,
+      message: "Project fetched successfully",
+      data: project,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+module.exports = { createProject, getAllProjects, getProjectById };
