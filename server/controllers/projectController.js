@@ -121,9 +121,38 @@ const updateProject = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+const deleteProject = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(401).json({
+      message: "ID not found, send ID :)",
+    });
+  }
+
+  try {
+    const deletedProject = await Project.findOneAndDelete(
+      {
+        _id: id,
+      },
+    );
+    console.log("Deleted Project - ", deletedProject);
+    res.status(201).json({
+      success: true,
+      message: "Project deleted successfully",
+      data: deletedProject,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
 module.exports = {
   createProject,
   getAllProjects,
   getProjectById,
   updateProject,
+  deleteProject
 };
