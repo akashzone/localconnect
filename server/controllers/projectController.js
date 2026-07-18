@@ -88,4 +88,42 @@ const getProjectById = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
-module.exports = { createProject, getAllProjects, getProjectById };
+
+const updateProject = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(401).json({
+      message: "ID not found, send ID :)",
+    });
+  }
+
+  try {
+    const updatedProject = await Project.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        title: "Build a Website for My Icecream Shop.",
+      },
+      {
+        new: true,
+      },
+    );
+    console.log("Updated Project - ", updatedProject);
+    res.status(201).json({
+      success: true,
+      message: "Project updated successfully",
+      data: updatedProject,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+module.exports = {
+  createProject,
+  getAllProjects,
+  getProjectById,
+  updateProject,
+};
