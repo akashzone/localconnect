@@ -52,7 +52,7 @@ const login = async (req,res)=>{
     }
 
     const token = generateToken(user);
-    // console.log("Token generated:", token);
+    console.log("Token generated:", token);
     res.status(200).json({message: "Login successful", user, token});
   } catch (error) {
     return res

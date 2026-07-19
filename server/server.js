@@ -4,6 +4,7 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const projectRoutes = require("./routes/projectRoutes");
+const applicationRoutes = require("./routes/applicationRoutes");
 
 //middlewares
 const authMiddleware = require("./middlewares/authMiddleware");
@@ -40,6 +41,8 @@ app.get(
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/projects", projectRoutes);
+
+app.use("/api/applications",applicationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
