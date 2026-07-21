@@ -50,17 +50,58 @@ const applyToProject = async (req, res) => {
 };
 
 const getMyApplications = async (req, res) => {
-  const getApplications = await Application.find({
-    developerId: req.user.id,
-  });
-  if (!getApplications) {
-    return res.status(401).json({
-      message: "Applications not found, apply to projects first..",
+  try {
+    const getApplications = await Application.find({
+      developerId: req.user.id,
     });
+    if (!getApplications) {
+      return res.status(401).json({
+        message: "Applications not found, apply to projects first..",
+      });
+    }
+    res.status(200).json({
+      message: "My Applications fetched Successfully :",
+      data: getApplications,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
-  res
-    .status(200)
-    .json({ message: "My Applications fetched Successfully :", data: getApplications });
 };
 
-module.exports = { applyToProject, getMyApplications };
+const getApplicationsForProject = async (req, res) => {
+  const { projectId } = req.params;
+  if (!projectId) {
+    return res.status(401).json({
+      message: "projectID not found.",
+    });
+  }
+  try {
+    const applications = await Application.find({
+      projectId,
+    });
+
+    if (!applications) {
+      return res.status(401).json({
+        message: "Applications not found for this project",
+      });
+    }
+
+    console.log("Applications :", applications);
+    return res.status(200).json({
+      message: "Successfully fetched the applications..",
+      data: applications,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = {
+  applyToProject,
+  getMyApplications,
+  getApplicationsForProject,
+};

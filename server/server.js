@@ -41,7 +41,6 @@ app.get(
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/projects", projectRoutes);
-
 app.use("/api/applications",applicationRoutes);
 
 app.listen(PORT, () => {
