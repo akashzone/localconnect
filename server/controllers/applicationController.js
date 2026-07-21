@@ -192,9 +192,55 @@ const updateApplicationStatus = async (req, res) => {
   }
 };
 
+
+const withdrawApplication = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    const application = await Application.findById(id);
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    if (application.developerId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to withdraw this application.",
+      });
+    }
+
+    if (application.status === "Withdrawn") {
+      return res.status(400).json({
+        success: false,
+        message: "Application has already been withdrawn.",
+      });
+    }
+
+    application.status = "Withdrawn";
+    await application.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Application withdrawn successfully.",
+      data: application,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   applyToProject,
   getMyApplications,
   getApplicationsForProject,
   updateApplicationStatus,
+  withdrawApplication
 };
