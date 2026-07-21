@@ -100,8 +100,101 @@ const getApplicationsForProject = async (req, res) => {
   }
 };
 
+const updateApplicationStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      message: "Application ID is required",
+    });
+  }
+
+  const allowedStatus = ["Pending", "Accepted", "Rejected", "Withdrawn"];
+
+  if (!allowedStatus.includes(status)) {
+    return res.status(400).json({
+      message: "Invalid application status",
+    });
+  }
+
+  try {
+    const application = await Application.findById(id);
+
+    if (!application) {
+      return res.status(404).json({
+        message: "Application not found",
+      });
+    }
+
+    const project = await Project.findById(application.projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        message: "Project not found",
+      });
+    }
+
+    if (!project.businessOwnerId.equals(req.user.id)) {
+      return res.status(403).json({
+        message: "You are not authorized to update this application",
+      });
+    }
+
+    if (application.status === "Accepted") {
+      return res.status(400).json({
+        message: "Application has already been accepted",
+      });
+    }
+
+    application.status = status;
+    await application.save();
+
+    let updatedProject = null;
+
+    if (status === "Accepted") {
+      updatedProject = await Project.findByIdAndUpdate(
+        application.projectId,
+        {
+          status: "In Progress",
+          selectedDeveloper: application.developerId,
+        },
+        {
+          new: true,
+        }
+      );
+
+      await Application.updateMany(
+        {
+          projectId: application.projectId,
+          _id: { $ne: application._id },
+        },
+        {
+          status: "Rejected",
+        }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        status === "Accepted"
+          ? "Developer selected successfully."
+          : "Application status updated successfully.",
+      application,
+      updatedProject,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   applyToProject,
   getMyApplications,
   getApplicationsForProject,
+  updateApplicationStatus,
 };
