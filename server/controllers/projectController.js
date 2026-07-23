@@ -166,10 +166,29 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const getMyProjects = async (req, res) => {
+  const businessOwnerId = req.user.id;
+  try {
+    const projects = await Project.find({
+      businessOwnerId,
+    });
+    console.log("All projects - ", projects);
+    return res.status(200).json({
+      success: true,
+      message: "Projects fetched successfully",
+      data: projects,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
 module.exports = {
   createProject,
   getAllProjects,
   getProjectById,
   updateProject,
   deleteProject,
+  getMyProjects,
 };
