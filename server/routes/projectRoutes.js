@@ -8,6 +8,7 @@ const {
   updateProject,
   deleteProject,
   getMyProjects,
+  getAssignedProjects,
 } = require("../controllers/projectController");
 
 //middlewares
@@ -15,6 +16,10 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const roleMiddleware = require("../middlewares/roleMiddleware");
 
 const router = express.Router();
+
+
+//Can be accessed only by student
+router.get("/assigned",authMiddleware,roleMiddleware("student"),getAssignedProjects);
 
 //Can be accessed only by businessOwner
 router.post("/", authMiddleware, roleMiddleware("business"), createProject);

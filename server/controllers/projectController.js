@@ -1,4 +1,5 @@
 const BusinessProfile = require("../models/BusinessProfile");
+const mongoose = require("mongoose");
 const Project = require("../models/Project");
 
 const createProject = async (req, res) => {
@@ -184,6 +185,27 @@ const getMyProjects = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+const getAssignedProjects = async (req,res)=>{
+  const developerId = req.user.id;
+  try{
+    const accpetedProjects = await Project.find({
+      selectedDeveloper: developerId,
+      status: "In Progress"
+    })
+    console.log("Accepted projects, that we have applied for :",accpetedProjects);
+    return res.status(200).json({
+      success: true,
+      message: "acceptedProjects fetched successfully",
+      data: accpetedProjects,
+    });
+
+  }catch(error){
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+}
 module.exports = {
   createProject,
   getAllProjects,
@@ -191,4 +213,5 @@ module.exports = {
   updateProject,
   deleteProject,
   getMyProjects,
+  getAssignedProjects,
 };
