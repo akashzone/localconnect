@@ -1,7 +1,7 @@
-
 import api from "../api/api.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Register() {
 
@@ -56,96 +56,163 @@ function Register() {
             alert(error.response.data.message);
         }
     };
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-                <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-                    Create Account
-                </h1>
+        <div className="min-h-screen flex items-center justify-center bg-[#FAF8F3] px-4 py-12 font-['IBM_Plex_Sans'] text-[#1B2430]">
+            <div className="w-full max-w-4xl grid md:grid-cols-[0.9fr_1.1fr] rounded-[6px] border border-[#D8D2C4] shadow-[6px_6px_0px_#1B2430] overflow-hidden">
 
-                <p className="text-center text-gray-500 mb-6">
-                    Join as a Developer or Business Owner
-                </p>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Left: brand panel */}
+                <div className="hidden md:flex flex-col justify-between bg-[#1B2430] text-[#FAF8F3] p-10">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Full Name
-                        </label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Enter your name"
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <span className="font-['Space_Grotesk'] text-2xl font-bold">
+                            Local<span className="text-[#F5C445]">Connect</span>
+                        </span>
+                        <p className="mt-6 font-['IBM_Plex_Mono'] text-[11px] tracking-widest uppercase text-[#9B9384]">
+                            Join the board
+                        </p>
+                        <h2 className="font-['Space_Grotesk'] font-bold text-3xl leading-tight mt-3">
+                            Post the work.
+                            <br />
+                            Or go find it.
+                        </h2>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Enter your email"
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                    <div className="flex gap-6 font-['IBM_Plex_Mono'] text-sm text-[#9B9384]">
+                        <span><strong className="text-[#FAF8F3]">128</strong> postings</span>
+                        <span><strong className="text-[#FAF8F3]">340</strong> developers</span>
                     </div>
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
+                {/* Right: form */}
+                <div className="bg-white p-8 sm:p-10">
+                    <span className="font-['IBM_Plex_Mono'] text-[11px] tracking-widest uppercase text-[#0F6B5C]">
+                        Create account
+                    </span>
+                    <h1 className="font-['Space_Grotesk'] font-bold text-3xl mt-2 mb-1">
+                        Join LocalConnect
+                    </h1>
+                    <p className="text-[14.5px] text-[#6B6459] mb-7">
+                        Start posting projects or picking them up.
+                    </p>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Confirm Password
-                        </label>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            placeholder="Confirm your password"
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                            <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
+                                Full name
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Enter your name"
+                                className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Register As
-                        </label>
-                        <select
-                            name="role"
-                            value={formData.role}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        <div>
+                            <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="you@example.com"
+                                className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
+                                               focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                               transition-colors"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
+                                    Confirm
+                                </label>
+                                <input
+                                    type="password"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
+                                               focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                               transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
+                                Register as
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, role: "student" })}
+                                    className={`px-4 py-2.5 rounded-[4px] border text-sm font-semibold transition-all duration-150 ${
+                                        formData.role === "student"
+                                            ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3] shadow-[3px_3px_0px_#F5C445]"
+                                            : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430]"
+                                    }`}
+                                >
+                                    Developer
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, role: "business" })}
+                                    className={`px-4 py-2.5 rounded-[4px] border text-sm font-semibold transition-all duration-150 ${
+                                        formData.role === "business"
+                                            ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3] shadow-[3px_3px_0px_#F5C445]"
+                                            : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430]"
+                                    }`}
+                                >
+                                    Business Owner
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full bg-[#1B2430] text-[#FAF8F3] py-3 rounded-[4px] font-semibold text-[15px]
+                                       shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                                       transition-all duration-150"
                         >
-                            <option value="student">Developer</option>
-                            <option value="business">Business Owner</option>
-                        </select>
-                    </div>
+                            Create account
+                        </button>
+                    </form>
 
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
-                    >
-                        Create Account
-                    </button>
-                </form>
+                    <p className="text-center text-sm text-[#6B6459] mt-7">
+                        Already have an account?{" "}
+                        <Link
+                            to="/login"
+                            className="text-[#0F6B5C] font-semibold hover:underline"
+                        >
+                            Log in
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
