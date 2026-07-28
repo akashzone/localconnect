@@ -93,7 +93,7 @@ function Home() {
               </div>
 
               <div className="flex items-center justify-between border-t border-dashed border-[#D8D2C4] pt-4">
-                <span className="font-['Space_Grotesk'] font-bold text-[#0F6B5C]">$400 budget</span>
+                <span className="font-['Space_Grotesk'] font-bold text-[#0F6B5C]">₹2500 budget</span>
                 <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">2 weeks</span>
               </div>
             </div>

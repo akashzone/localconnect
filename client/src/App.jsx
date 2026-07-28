@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 
 //components 
 import Navbar from "./components/Navbar"
@@ -20,6 +21,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/projects/:id" element={<ProjectDetails/>} />
         </Routes>
       </>
        
