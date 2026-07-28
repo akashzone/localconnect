@@ -32,17 +32,17 @@ router.delete(
 );
 router.get("/my", authMiddleware, roleMiddleware("business"), getMyProjects);
 
-//Can be accesed by both of them
+//Can be accesed by both of them even without login
 router.get(
   "/",
-  authMiddleware,
-  roleMiddleware("student", "business"),
+  // authMiddleware,
+  // roleMiddleware("student", "business"),
   getAllProjects,
 );
 router.get(
   "/:id",
-  authMiddleware,
-  roleMiddleware("student", "business"),
+  // authMiddleware,
+  // roleMiddleware("student", "business"),
   getProjectById,
 );
 
