@@ -52,7 +52,7 @@ const createProject = async (req, res) => {
 const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find();
-    console.log("All projects :", projects);
+    // console.log("All projects :", projects);
 
     if (!projects) {
       return res.status(404).json({

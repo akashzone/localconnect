@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/api.js";
-import ProjectCard from "../components/ProjectCard";
+import ProjectCard from "../components/project/ProjectCard";
 
 function Projects() {
   const [projects, setProjects] = useState([]);
