@@ -14,7 +14,7 @@ const applyToProject = async (req, res) => {
     const isAlreadyApplied = await Application.findOne({
       projectId,
       developerId: req.user.id,
-    });
+    }).p;
     if (isAlreadyApplied) {
       return res
         .status(400)

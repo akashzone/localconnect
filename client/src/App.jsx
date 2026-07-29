@@ -13,6 +13,7 @@ import Contact from "./pages/Contact";
 
 //components 
 import Navbar from "./components/Navbar"
+import DeveloperDashboard from "./pages/DeveloperDashBoard";
 
 function App() {
     return (
@@ -26,8 +27,13 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-
             <Route path="/projects/:id" element={<ProjectDetails/>} />
+
+            //if logged in as developer
+            <Route path="/dashboard/developer" element={<DeveloperDashboard />} />
+
+
+            
         </Routes>
       </>
        

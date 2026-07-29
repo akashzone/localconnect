@@ -66,7 +66,7 @@ function Navbar() {
           {user?.role === "student" && (
             <>
               <NavItem to="/projects" label="Projects" />
-              <NavItem to="/dashboard" label="Dashboard" />
+              <NavItem to="/dashboard/developer" label="Dashboard" />
               <NavItem to="/my-applications" label="My Applications" />
               <NavItem to="/profile" label="Profile" />
             </>
@@ -76,7 +76,7 @@ function Navbar() {
           {user?.role === "business" && (
             <>
               <NavItem to="/my-projects" label="My Projects" />
-              <NavItem to="/dashboard" label="Dashboard" />
+              <NavItem to="/dashboard/business" label="Dashboard" />
               <NavItem to="/profile" label="Profile" />
             </>
           )}

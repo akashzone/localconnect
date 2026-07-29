@@ -51,7 +51,7 @@ const getDeveloperDashboard = async (req, res) => {
     const developerId = req.user.id;
     const applications = await Application.find({
         developerId
-    })
+    }).populate("projectId");
 
     const dashboardData = {
       totalApplications: applications.length,
