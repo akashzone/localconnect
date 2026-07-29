@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/api.js";
+import { AuthContext } from "../context/AuthContext";
+import ApplicationForm from "../components/application/ApplicationForm";
 
 const statusStyles = {
   open: "bg-[#E9F5F1] text-[#0F6B5C]",
@@ -11,10 +13,19 @@ const statusStyles = {
 
 function ProjectDetails() {
   const { id } = useParams();
+  const { token, user } = useContext(AuthContext);
+
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [checkingApplication, setCheckingApplication] = useState(true);
+
+  const [showForm, setShowForm] = useState(false);
+  const [justApplied, setJustApplied] = useState(false);
+
+  // Fetch the project itself
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -32,6 +43,48 @@ function ProjectDetails() {
 
     fetchProject();
   }, [id]);
+
+  // Check if the current developer already applied to this project
+  useEffect(() => {
+    const checkApplied = async () => {
+      // Only developers can apply, so only bother checking for that role
+      if (!token || user?.role !== "student") {
+        setCheckingApplication(false);
+        return;
+      }
+
+      try {
+        setCheckingApplication(true);
+        const res = await api.get("/applications/my", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const myApplications = res.data.data || [];
+
+        const hasApplied = myApplications.some((app) => {
+          const appProjectId =
+            typeof app.projectId === "object" ? app.projectId?._id : app.projectId;
+          return appProjectId === id;
+        });
+
+        setAlreadyApplied(hasApplied);
+      } catch (err) {
+        console.log(err);
+        // Fail quietly here — worst case the Apply button shows when it
+        // maybe shouldn't, and the backend still rejects a duplicate on submit.
+      } finally {
+        setCheckingApplication(false);
+      }
+    };
+
+    checkApplied();
+  }, [id, token, user]);
+
+  const handleApplicationSuccess = () => {
+    setShowForm(false);
+    setAlreadyApplied(true);
+    setJustApplied(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF8F3] flex items-center justify-center">
@@ -62,6 +115,7 @@ function ProjectDetails() {
   } = project;
 
   const statusClass = statusStyles[status?.toLowerCase()] || statusStyles.open;
+  const isOpen = status?.toLowerCase() === "open";
   const formattedDeadline = deadline
     ? new Date(deadline).toLocaleDateString("en-US", {
       month: "long",
@@ -150,15 +204,41 @@ function ProjectDetails() {
             </div>
           )}
 
-          <button
-            className="w-full font-semibold px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
-                       shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                       transition-all duration-150"
-          >
-            Apply to this project
-          </button>
+          {!isOpen ? (
+            <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#6B6459] border border-dashed border-[#D8D2C4] rounded-[4px] py-3.5">
+              This project is {status?.toLowerCase()} and no longer accepting applications.
+            </div>
+          ) : checkingApplication ? (
+            <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#9B9384] py-3.5">
+              Checking application status...
+            </div>
+          ) : alreadyApplied ? (
+            <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#0F6B5C] border border-dashed border-[#0F6B5C]/40 bg-[#E9F5F1] rounded-[4px] py-3.5">
+              {justApplied
+                ? "✓ Application submitted successfully"
+                : "✓ You've already applied to this project"}
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-full font-semibold cursor-pointer px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                         shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                         transition-all duration-150"
+            >
+              Apply to this project
+            </button>
+          )}
         </div>
       </div>
+
+      {showForm && (
+        <ApplicationForm
+          projectId={id}
+          projectTitle={title}
+          onClose={() => setShowForm(false)}
+          onSuccess={handleApplicationSuccess}
+        />
+      )}
     </div>
   );
 }

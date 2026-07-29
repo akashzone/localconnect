@@ -14,7 +14,7 @@ const applyToProject = async (req, res) => {
     const isAlreadyApplied = await Application.findOne({
       projectId,
       developerId: req.user.id,
-    }).p;
+    });
     if (isAlreadyApplied) {
       return res
         .status(400)
@@ -37,7 +37,7 @@ const applyToProject = async (req, res) => {
       coverLetter,
       estimatedDuration,
       developerId: req.user.id,
-    });
+    }).populate("projectId");
     console.log("Applied to project successfully : ", apply);
     res
       .status(201)
@@ -53,12 +53,17 @@ const getMyApplications = async (req, res) => {
   try {
     const getApplications = await Application.find({
       developerId: req.user.id,
-    });
+    }).populate(
+      "projectId",
+      "title budget deadline category status businessOwnerId",
+    );
+
     if (!getApplications) {
       return res.status(401).json({
         message: "Applications not found, apply to projects first..",
       });
     }
+    console.log("Applications - ", getApplications);
     res.status(200).json({
       message: "My Applications fetched Successfully :",
       data: getApplications,
@@ -80,7 +85,7 @@ const getApplicationsForProject = async (req, res) => {
   try {
     const applications = await Application.find({
       projectId,
-    });
+    }).populate("projectId");
 
     if (!applications) {
       return res.status(401).json({
@@ -161,7 +166,7 @@ const updateApplicationStatus = async (req, res) => {
         },
         {
           new: true,
-        }
+        },
       );
 
       await Application.updateMany(
@@ -171,7 +176,7 @@ const updateApplicationStatus = async (req, res) => {
         },
         {
           status: "Rejected",
-        }
+        },
       );
     }
 
@@ -191,7 +196,6 @@ const updateApplicationStatus = async (req, res) => {
     });
   }
 };
-
 
 const withdrawApplication = async (req, res) => {
   const { id } = req.params;
@@ -242,5 +246,5 @@ module.exports = {
   getMyApplications,
   getApplicationsForProject,
   updateApplicationStatus,
-  withdrawApplication
+  withdrawApplication,
 };

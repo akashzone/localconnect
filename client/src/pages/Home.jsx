@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBriefcase,
@@ -7,8 +8,11 @@ import {
   faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import { Footer } from "../components/Footer";
+import { AuthContext } from "../context/AuthContext";
 
 function Home() {
+  const { user } = useContext(AuthContext);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430]">
 
@@ -46,13 +50,15 @@ function Home() {
                 Browse projects
               </Link>
 
-              <Link
-                to="/register"
-                className="font-semibold px-6 py-3.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                           hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
-              >
-                Join as a developer
-              </Link>
+              {!user && (
+                <Link
+                  to="/register"
+                  className="font-semibold px-6 py-3.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                             hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+                >
+                  Join as a developer
+                </Link>
+              )}
             </div>
 
             <div className="mt-10 flex gap-8 font-['IBM_Plex_Mono'] text-sm text-[#6B6459]">

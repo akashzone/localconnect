@@ -10,6 +10,7 @@ import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import MyApplications from "./pages/MyApplications";
 
 //components 
 import Navbar from "./components/Navbar"
@@ -31,6 +32,7 @@ function App() {
 
             //if logged in as developer
             <Route path="/dashboard/developer" element={<DeveloperDashboard />} />
+            <Route path="/my-applications" element={<MyApplications />} />
 
 
             
