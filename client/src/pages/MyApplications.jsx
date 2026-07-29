@@ -4,11 +4,43 @@ import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 
 const statusConfig = {
-  pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
-  accepted: { label: "Accepted", dot: "🟢", classes: "bg-[#E9F5F1] text-[#0F6B5C]" },
-  rejected: { label: "Rejected", dot: "🔴", classes: "bg-[#FBE7E4] text-[#B3452F]" },
-  withdrawn: { label: "Withdrawn", dot: "⚪", classes: "bg-[#EAEAEA] text-[#4A473F]" },
+  pending: {
+    label: "Pending",
+    dot: "🟡",
+    classes: "bg-[#FDF3D6] text-[#8A6D1D]",
+    message: "Waiting for the business owner to review your application.",
+    messageClasses: "bg-[#FDF3D6] text-[#8A6D1D]",
+  },
+  accepted: {
+    label: "Accepted",
+    dot: "🟢",
+    classes: "bg-[#E9F5F1] text-[#0F6B5C]",
+    message: "Congratulations! Your application has been accepted.",
+    messageClasses: "bg-[#E9F5F1] text-[#0F6B5C]",
+  },
+  rejected: {
+    label: "Rejected",
+    dot: "🔴",
+    classes: "bg-[#FBE7E4] text-[#B3452F]",
+    message: "Your application was not selected.",
+    messageClasses: "bg-[#FBE7E4] text-[#B3452F]",
+  },
+  withdrawn: {
+    label: "Withdrawn",
+    dot: "⚪",
+    classes: "bg-[#EAEAEA] text-[#4A473F]",
+    message: "You withdrew this application.",
+    messageClasses: "bg-[#EAEAEA] text-[#4A473F]",
+  },
 };
+
+const filterTabs = [
+  { key: "all", label: "All" },
+  { key: "pending", label: "Pending" },
+  { key: "accepted", label: "Accepted" },
+  { key: "rejected", label: "Rejected" },
+  { key: "withdrawn", label: "Withdrawn" },
+];
 
 const formatDate = (date) =>
   date
@@ -42,12 +74,12 @@ function ApplicationCard({ app, onWithdraw }) {
     <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 shadow-[3px_3px_0px_#D8D2C4]">
 
       {/* Top: title + status */}
-      <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="flex items-start justify-between gap-4 mb-3">
         <div>
-          <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-1">
+          <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-2">
             {project.title || "Untitled project"}
           </h3>
-          <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384] uppercase tracking-wide">
+          <span className="inline-block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wide px-2 py-1 border border-[#D8D2C4] rounded-[3px] text-[#4A473F]">
             {project.category || "General"}
           </span>
         </div>
@@ -57,6 +89,11 @@ function ApplicationCard({ app, onWithdraw }) {
         >
           {badge.dot} {badge.label}
         </span>
+      </div>
+
+      {/* Status message */}
+      <div className={`font-['IBM_Plex_Sans'] text-[13.5px] font-medium px-4 py-2.5 rounded-[4px] mb-4 ${badge.messageClasses}`}>
+        {badge.message}
       </div>
 
       {/* Project info row */}
@@ -79,7 +116,7 @@ function ApplicationCard({ app, onWithdraw }) {
 
         <div>
           <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
-            Duration
+            Your Estimated Duration
           </span>
           <span className="font-medium text-sm">{app.estimatedDuration || "—"}</span>
         </div>
@@ -131,7 +168,7 @@ function ApplicationCard({ app, onWithdraw }) {
           </button>
         )}
 
-        {/* {status === "accepted" && (
+        {status === "accepted" && (
           <Link
             to={`/assigned-projects/${project._id}`}
             className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
@@ -140,7 +177,7 @@ function ApplicationCard({ app, onWithdraw }) {
           >
             Go to Assigned Project
           </Link>
-        )} */}
+        )}
       </div>
     </div>
   );
@@ -151,6 +188,9 @@ function MyApplications() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -174,11 +214,9 @@ function MyApplications() {
 
   const handleWithdraw = async (applicationId) => {
     try {
-      await api.patch(
-        `/applications/${applicationId}/withdraw`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.delete(`/applications/${applicationId}/withdraw`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setApplications((prev) =>
         prev.map((app) =>
           app._id === applicationId ? { ...app, status: "Withdrawn" } : app
@@ -190,15 +228,74 @@ function MyApplications() {
     }
   };
 
+  // Counts per status, computed off the full list (independent of search/filter)
+  const counts = applications.reduce(
+    (acc, app) => {
+      const status = app.status?.toLowerCase() || "pending";
+      acc.all += 1;
+      if (acc[status] !== undefined) acc[status] += 1;
+      return acc;
+    },
+    { all: 0, pending: 0, accepted: 0, rejected: 0, withdrawn: 0 }
+  );
+
+  // Apply filter + search together
+  const visibleApplications = applications.filter((app) => {
+    const status = app.status?.toLowerCase() || "pending";
+    const matchesFilter = activeFilter === "all" || status === activeFilter;
+
+    const title = app.projectId?.title || "";
+    const matchesSearch = title.toLowerCase().includes(searchTerm.trim().toLowerCase());
+
+    return matchesFilter && matchesSearch;
+  });
+
   return (
     <div className="min-h-screen bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430]">
       <div className="max-w-4xl mx-auto px-6 py-14">
         <span className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#0F6B5C]">
           Your history
         </span>
-        <h1 className="font-['Space_Grotesk'] font-bold text-3xl md:text-4xl mt-2 mb-10">
+        <h1 className="font-['Space_Grotesk'] font-bold text-3xl md:text-4xl mt-2 mb-6">
           My Applications
         </h1>
+
+        {/* Filter bar */}
+        {!loading && !error && applications.length > 0 && (
+          <>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {filterTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveFilter(tab.key)}
+                  className={`font-['IBM_Plex_Mono'] text-[12px] px-3.5 py-2 rounded-[4px] border transition-colors duration-150 ${
+                    activeFilter === tab.key
+                      ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3]"
+                      : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430] hover:text-[#1B2430]"
+                  }`}
+                >
+                  {tab.label} ({counts[tab.key]})
+                </button>
+              ))}
+            </div>
+
+            {/* Search bar */}
+            <div className="relative mb-10">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9B9384] text-sm pointer-events-none">
+                🔍
+              </span>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by project title..."
+                className="w-full border border-[#D8D2C4] rounded-[4px] pl-10 pr-3.5 py-2.5 text-[14.5px]
+                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                           transition-colors"
+              />
+            </div>
+          </>
+        )}
 
         {loading && (
           <p className="font-['IBM_Plex_Mono'] text-sm text-[#6B6459] text-center py-16">
@@ -212,15 +309,33 @@ function MyApplications() {
           </p>
         )}
 
+        {/* True empty state — no applications at all */}
         {!loading && !error && applications.length === 0 && (
+          <div className="flex flex-col items-center justify-center text-center py-20 border border-dashed border-[#D8D2C4] rounded-[6px]">
+            <p className="font-['IBM_Plex_Mono'] text-sm text-[#6B6459] mb-6">
+              You haven't applied to any projects yet.
+            </p>
+            <Link
+              to="/projects"
+              className="font-semibold text-sm px-6 py-3 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                         shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                         transition-all duration-150"
+            >
+              Browse Projects
+            </Link>
+          </div>
+        )}
+
+        {/* No results for current filter/search */}
+        {!loading && !error && applications.length > 0 && visibleApplications.length === 0 && (
           <p className="font-['IBM_Plex_Mono'] text-sm text-[#6B6459] text-center py-16">
-            No applications yet.
+            No applications match your filters.
           </p>
         )}
 
-        {!loading && !error && applications.length > 0 && (
+        {!loading && !error && visibleApplications.length > 0 && (
           <div className="space-y-5">
-            {applications.map((app) => (
+            {visibleApplications.map((app) => (
               <ApplicationCard key={app._id} app={app} onWithdraw={handleWithdraw} />
             ))}
           </div>

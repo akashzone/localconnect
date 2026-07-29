@@ -199,7 +199,6 @@ const updateApplicationStatus = async (req, res) => {
 
 const withdrawApplication = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
   try {
     const application = await Application.findById(id);
 
