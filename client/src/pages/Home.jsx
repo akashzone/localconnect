@@ -12,102 +12,129 @@ import { AuthContext } from "../context/AuthContext";
 
 function Home() {
   const { user } = useContext(AuthContext);
+  const isBusiness = user?.role === "business";
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430]">
 
       {/* ================= HERO ================= */}
       <section className="border-b border-[#D8D2C4]">
-        <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-16 items-center">
-
-          {/* Left: copy */}
-          <div>
+        {isBusiness ? (
+          // Business owner hero
+          <div className="max-w-4xl mx-auto px-6 py-24 md:py-32 text-center">
             <span className="inline-block font-['IBM_Plex_Mono'] text-[12px] tracking-widest uppercase bg-[#F5C445] px-2.5 py-1 rounded-[3px] mb-6">
-              Now posting in 40+ cities
+              Welcome back
             </span>
 
-            <h1 className="font-['Space_Grotesk'] font-bold text-[44px] sm:text-[56px] md:text-[64px] leading-[1.04] tracking-tight">
-              Real projects.
-              <br />
-              Real students.
-              <br />
-              <span className="text-[#0F6B5C]">No middlemen.</span>
+            <h1 className="font-['Space_Grotesk'] font-bold text-[36px] sm:text-[48px] leading-[1.1] tracking-tight mb-4">
+              Welcome back, {user.name?.split(" ")[0]}
             </h1>
 
-            <p className="mt-6 max-w-md text-[17px] text-[#4A473F] leading-relaxed">
-              Local businesses post the work they need done. Student developers
-              pick it up, build it, and get paid — while you get a portfolio
-              instead of a certificate.
+            <p className="text-[19px] text-[#4A473F] mb-10">
+              Need another developer?
             </p>
 
-            <div className="mt-9 flex flex-wrap gap-4">
-              <Link
-                to="/projects"
-                className="font-semibold px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
-                           shadow-[4px_4px_0px_#0F6B5C] hover:shadow-[2px_2px_0px_#0F6B5C] hover:translate-x-[2px] hover:translate-y-[2px]
-                           transition-all duration-150"
-              >
-                Browse projects
-              </Link>
-
-              {!user && (
-                <Link
-                  to="/register"
-                  className="font-semibold px-6 py-3.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                             hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
-                >
-                  Join as a developer
-                </Link>
-              )}
-            </div>
-
-            <div className="mt-10 flex gap-8 font-['IBM_Plex_Mono'] text-sm text-[#6B6459]">
-              <span><strong className="text-[#1B2430]">128</strong> open postings</span>
-              <span><strong className="text-[#1B2430]">340</strong> developers</span>
-            </div>
-          </div>
-
-          {/* Right: mock posting card */}
-          <div className="relative hidden md:block">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#1B2430] z-10" />
-            <div
-              className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 rotate-[-2.5deg]
-                         shadow-[6px_6px_0px_#1B2430]"
+            <Link
+              to="/create-project"
+              className="inline-block font-semibold px-7 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                         shadow-[4px_4px_0px_#0F6B5C] hover:shadow-[2px_2px_0px_#0F6B5C] hover:translate-x-[2px] hover:translate-y-[2px]
+                         transition-all duration-150"
             >
-              <div className="flex items-center justify-between font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384] mb-4">
-                <span>POSTING #014</span>
-                <span className="text-[#0F6B5C]">● OPEN</span>
-              </div>
+              + Create New Project
+            </Link>
+          </div>
+        ) : (
+          // Default / developer hero
+          <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-[1.1fr_0.9fr] gap-16 items-center">
 
-              <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-2">
-                E-commerce site redesign
-              </h3>
-              <p className="text-sm text-[#4A473F] mb-5 leading-relaxed">
-                Rebuild our storefront on React, need cart + checkout flow.
-                Flexible on timeline.
+            {/* Left: copy */}
+            <div>
+              <span className="inline-block font-['IBM_Plex_Mono'] text-[12px] tracking-widest uppercase bg-[#F5C445] px-2.5 py-1 rounded-[3px] mb-6">
+                Now posting in 40+ cities
+              </span>
+
+              <h1 className="font-['Space_Grotesk'] font-bold text-[44px] sm:text-[56px] md:text-[64px] leading-[1.04] tracking-tight">
+                Real projects.
+                <br />
+                Real students.
+                <br />
+                <span className="text-[#0F6B5C]">No middlemen.</span>
+              </h1>
+
+              <p className="mt-6 max-w-md text-[17px] text-[#4A473F] leading-relaxed">
+                Local businesses post the work they need done. Student developers
+                pick it up, build it, and get paid — while you get a portfolio
+                instead of a certificate.
               </p>
 
-              <div className="flex flex-wrap gap-2 mb-5">
-                {["React", "Stripe", "Tailwind"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="font-['IBM_Plex_Mono'] text-[11px] px-2 py-1 border border-[#D8D2C4] rounded-[3px] text-[#4A473F]"
+              <div className="mt-9 flex flex-wrap gap-4">
+                <Link
+                  to="/projects"
+                  className="font-semibold px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                             shadow-[4px_4px_0px_#0F6B5C] hover:shadow-[2px_2px_0px_#0F6B5C] hover:translate-x-[2px] hover:translate-y-[2px]
+                             transition-all duration-150"
+                >
+                  Browse projects
+                </Link>
+
+                {!user && (
+                  <Link
+                    to="/register"
+                    className="font-semibold px-6 py-3.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                               hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
                   >
-                    {tag}
-                  </span>
-                ))}
+                    Join as a developer
+                  </Link>
+                )}
               </div>
 
-              <div className="flex items-center justify-between border-t border-dashed border-[#D8D2C4] pt-4">
-                <span className="font-['Space_Grotesk'] font-bold text-[#0F6B5C]">₹2500 budget</span>
-                <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">2 weeks</span>
+              <div className="mt-10 flex gap-8 font-['IBM_Plex_Mono'] text-sm text-[#6B6459]">
+                <span><strong className="text-[#1B2430]">128</strong> open postings</span>
+                <span><strong className="text-[#1B2430]">340</strong> developers</span>
+              </div>
+            </div>
+
+            {/* Right: mock posting card */}
+            <div className="relative hidden md:block">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#1B2430] z-10" />
+              <div
+                className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 rotate-[-2.5deg]
+                           shadow-[6px_6px_0px_#1B2430]"
+              >
+                <div className="flex items-center justify-between font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384] mb-4">
+                  <span>POSTING #014</span>
+                  <span className="text-[#0F6B5C]">● OPEN</span>
+                </div>
+
+                <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-2">
+                  E-commerce site redesign
+                </h3>
+                <p className="text-sm text-[#4A473F] mb-5 leading-relaxed">
+                  Rebuild our storefront on React, need cart + checkout flow.
+                  Flexible on timeline.
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {["React", "Stripe", "Tailwind"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="font-['IBM_Plex_Mono'] text-[11px] px-2 py-1 border border-[#D8D2C4] rounded-[3px] text-[#4A473F]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between border-t border-dashed border-[#D8D2C4] pt-4">
+                  <span className="font-['Space_Grotesk'] font-bold text-[#0F6B5C]">₹2500 budget</span>
+                  <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">2 weeks</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
-      {/* ================= FEATURES ================= */}
       <section className="py-20 border-b border-[#D8D2C4]">
         <div className="max-w-7xl mx-auto px-6">
           <span className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#0F6B5C]">
@@ -151,7 +178,6 @@ function Home() {
         </div>
       </section>
 
-      {/* ================= HOW IT WORKS ================= */}
       <section className="py-20 border-b border-[#D8D2C4]">
         <div className="max-w-6xl mx-auto px-6">
           <span className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#0F6B5C]">
