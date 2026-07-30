@@ -11,7 +11,7 @@ const statusStyles = {
 };
 
 function DeveloperDashboard() {
-  const { token } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,9 +22,7 @@ function DeveloperDashboard() {
       try {
         setLoading(true);
         setError(false);
-        const res = await api.get("/dashboard/developer", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/dashboard/developer");
         setApplications(res.data.data.applications || []);
         setStats(res.data.data.dashboard || null);
       } catch (err) {
@@ -35,8 +33,8 @@ function DeveloperDashboard() {
       }
     };
 
-    if (token) fetchDashboard();
-  }, [token]);
+    if (isAuthenticated) fetchDashboard();
+  }, [isAuthenticated]);
 
   if (loading) {
     return (

@@ -13,7 +13,7 @@ const statusStyles = {
 
 function ProjectDetails() {
   const { id } = useParams();
-  const { token, user } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,16 +48,14 @@ function ProjectDetails() {
   useEffect(() => {
     const checkApplied = async () => {
       // Only developers can apply, so only bother checking for that role
-      if (!token || user?.role !== "student") {
+      if (!isAuthenticated || user?.role !== "student") {
         setCheckingApplication(false);
         return;
       }
 
       try {
         setCheckingApplication(true);
-        const res = await api.get("/applications/my", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/applications/my");
         const myApplications = res.data.data || [];
 
         const hasApplied = myApplications.some((app) => {
@@ -77,7 +75,7 @@ function ProjectDetails() {
     };
 
     checkApplied();
-  }, [id, token, user]);
+  }, [id, isAuthenticated, user]);
 
   const handleApplicationSuccess = () => {
     setShowForm(false);

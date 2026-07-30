@@ -29,12 +29,9 @@ function Login() {
 
         try {
             const res = await api.post("/auth/login", formData);
-            console.log(res.data.user);
-            login(res.data.user, res.data.token);
+            login(res.data.user);
             navigate("/");
         } catch (error) {
-            console.log(error);
-
             alert(error.response?.data?.message || "Something went wrong");
         }
     }

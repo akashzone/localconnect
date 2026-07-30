@@ -1,9 +1,8 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import api from "../../api/api.js";
-import { AuthContext } from "../../context/AuthContext";
 
 function ApplicationForm({ projectId, projectTitle, onClose, onSuccess }) {
-  const { token } = useContext(AuthContext);
+
 
   const [formData, setFormData] = useState({
     coverLetter: "",
@@ -32,8 +31,7 @@ function ApplicationForm({ projectId, projectTitle, onClose, onSuccess }) {
           projectId,
           coverLetter: formData.coverLetter,
           estimatedDuration: formData.estimatedDuration,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       onSuccess(res.data.data);

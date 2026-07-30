@@ -8,36 +8,26 @@ export default function AuthProvider({ children }) {
         JSON.parse(localStorage.getItem("user"))
     );
 
-    const [token, setToken] = useState(
-        localStorage.getItem("token")
-    );
-
-    const login = (userData, tokenData) => {
-
+    const login = (userData) => {
         localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("token", tokenData);
-
         setUser(userData);
-        setToken(tokenData);
     };
 
     const logout = () => {
 
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
 
         setUser(null);
-        setToken(null);
     };
 
     return (
         <AuthContext.Provider
             value={{
                 user,
-                token,
+                userData: user,
                 login,
                 logout,
-                isAuthenticated: !!token
+                isAuthenticated: !!user
             }}
         >
             {children}

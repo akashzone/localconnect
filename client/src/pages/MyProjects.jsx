@@ -114,7 +114,7 @@ function ProjectRow({ project, onDelete }) {
 }
 
 function MyProjects() {
-  const { token } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -127,9 +127,7 @@ function MyProjects() {
       try {
         setLoading(true);
         setError(false);
-        const res = await api.get("/projects/my", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/projects/my");
         setProjects(res.data.data || []);
       } catch (err) {
         console.log(err);
@@ -139,14 +137,12 @@ function MyProjects() {
       }
     };
 
-    if (token) fetchProjects();
-  }, [token]);
+    if (isAuthenticated) fetchProjects();
+  }, [isAuthenticated]);
 
   const handleDelete = async (projectId) => {
     try {
-      await api.delete(`/projects/${projectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/projects/${projectId}`);
       setProjects((prev) => prev.filter((p) => p._id !== projectId));
     } catch (err) {
       console.log(err);

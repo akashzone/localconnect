@@ -184,7 +184,7 @@ function ApplicationCard({ app, onWithdraw }) {
 }
 
 function MyApplications() {
-  const { token } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -197,9 +197,7 @@ function MyApplications() {
       try {
         setLoading(true);
         setError(false);
-        const res = await api.get("/applications/my", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/applications/my");
         setApplications(res.data.data || []);
       } catch (err) {
         console.log(err);
@@ -209,14 +207,12 @@ function MyApplications() {
       }
     };
 
-    if (token) fetchApplications();
-  }, [token]);
+    if (isAuthenticated) fetchApplications();
+  }, [isAuthenticated]);
 
   const handleWithdraw = async (applicationId) => {
     try {
-      await api.delete(`/applications/${applicationId}/withdraw`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/applications/${applicationId}/withdraw`);
       setApplications((prev) =>
         prev.map((app) =>
           app._id === applicationId ? { ...app, status: "Withdrawn" } : app

@@ -14,5 +14,28 @@ const generateToken = (user) => {
   );
 };
 
+const accessToken = (user) => {
+  return jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" },
+  );
+};
 
-module.exports = generateToken;
+
+const refreshToken = (user) => {
+  return jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" },
+  );
+};
+
+
+module.exports = { accessToken, refreshToken };

@@ -20,7 +20,7 @@ const formatDate = (date) =>
     : "—";
 
 function BusinessDashboard() {
-  const { token } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [projects, setProjects] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,9 +31,7 @@ function BusinessDashboard() {
       try {
         setLoading(true);
         setError(false);
-        const res = await api.get("/dashboard/business", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/dashboard/business");
         setProjects(res.data.data.projects || []);
         setStats(res.data.data.dashboard || null);
       } catch (err) {
@@ -44,8 +42,8 @@ function BusinessDashboard() {
       }
     };
 
-    if (token) fetchDashboard();
-  }, [token]);
+    if (isAuthenticated) fetchDashboard();
+  }, [isAuthenticated]);
 
   if (loading) {
     return (
