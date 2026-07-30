@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import api from "../../api/api.js";
-import { AuthContext } from "../../context/AuthContext.jsx";
+import api from "../api/api.js";
+import { AuthContext } from "../context/AuthContext.jsx";
 
 const statusConfig = {
   pending: {

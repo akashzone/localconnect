@@ -10,12 +10,17 @@ import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import MyApplications from "./pages/developer/MyApplications";
+import MyApplications from "./pages/MyApplications";
 
-//components 
+//componentes
 import Navbar from "./components/Navbar"
+
+//developer components 
 import DeveloperDashboard from "./pages/DeveloperDashBoard";
+
+//business components
 import BusinessDashboard from "./pages/BusinessDashboard";
+import MyProjects from "./pages/MyProjects";
 
 function App() {
   return (
@@ -37,9 +42,8 @@ function App() {
 
             //if logged in as businessOwner
         <Route path="/dashboard/business" element={<BusinessDashboard />} />
-
-
-
+        <Route path="/my-projects" element={<MyProjects />} />
+        
       </Routes>
     </>
 
