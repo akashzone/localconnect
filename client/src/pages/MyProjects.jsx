@@ -21,10 +21,10 @@ const filterTabs = [
 const formatDate = (date) =>
   date
     ? new Date(date).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : "—";
 
 function ProjectRow({ project, onDelete }) {
@@ -93,7 +93,7 @@ function ProjectRow({ project, onDelete }) {
         </Link>
 
         <Link
-          to={`/projects/${project._id}/edit`}
+          to={`/${project._id}/edit-project`}
           className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#D8D2C4] text-[#4A473F]
                      hover:border-[#0F6B5C] hover:text-[#0F6B5C] transition-colors duration-150"
         >
@@ -128,7 +128,27 @@ function MyProjects() {
         setLoading(true);
         setError(false);
         const res = await api.get("/projects/my");
-        setProjects(res.data.data || []);
+        const fetchedProjects = res.data.data || [];
+
+        const projectsWithApplications = await Promise.all(
+          fetchedProjects.map(async (project) => {
+            try {
+              const appRes = await api.get(`/applications/project/${project._id}`);
+              return {
+                ...project,
+                applicationsCount: appRes.data.data ? appRes.data.data.length : 0,
+              };
+            } catch (err) {
+              console.error(`Failed to fetch applications for project ${project._id}`, err);
+              return {
+                ...project,
+                applicationsCount: 0,
+              };
+            }
+          })
+        );
+
+        setProjects(projectsWithApplications);
       } catch (err) {
         console.log(err);
         setError(true);
@@ -202,11 +222,10 @@ function MyProjects() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveFilter(tab.key)}
-                  className={`font-['IBM_Plex_Mono'] text-[12px] px-3.5 py-2 rounded-[4px] border transition-colors duration-150 ${
-                    activeFilter === tab.key
+                  className={`font-['IBM_Plex_Mono'] text-[12px] px-3.5 py-2 rounded-[4px] border transition-colors duration-150 ${activeFilter === tab.key
                       ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3]"
                       : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430] hover:text-[#1B2430]"
-                  }`}
+                    }`}
                 >
                   {tab.label} ({counts[tab.key]})
                 </button>

@@ -32,8 +32,33 @@ function BusinessDashboard() {
         setLoading(true);
         setError(false);
         const res = await api.get("/dashboard/business");
-        setProjects(res.data.data.projects || []);
-        setStats(res.data.data.dashboard || null);
+        const fetchedProjects = res.data.data.projects || [];
+        const initialStats = res.data.data.dashboard || null;
+
+        // Fetch applications for each project to get the applications count
+        let calculatedTotalApplications = 0;
+        const projectsWithApplications = await Promise.all(
+          fetchedProjects.map(async (project) => {
+            try {
+              const appRes = await api.get(`/applications/project/${project._id}`);
+              const count = appRes.data.data ? appRes.data.data.length : 0;
+              calculatedTotalApplications += count;
+              return {
+                ...project,
+                applicationsCount: count,
+              };
+            } catch (err) {
+              console.error(`Failed to fetch applications for project ${project._id}`, err);
+              return {
+                ...project,
+                applicationsCount: 0,
+              };
+            }
+          })
+        );
+
+        setProjects(projectsWithApplications);
+        setStats(initialStats ? { ...initialStats, totalApplications: calculatedTotalApplications } : null);
       } catch (err) {
         console.log(err);
         setError(true);

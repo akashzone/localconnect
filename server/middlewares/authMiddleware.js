@@ -7,7 +7,11 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.log(error);
+    if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
+      console.log(`Auth failed: ${error.message}`);
+    } else {
+      console.error("Unexpected Auth Error:", error);
+    }
     return res.status(401).json({
       message: error.message,
     });
