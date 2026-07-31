@@ -26,6 +26,32 @@ function ProjectDetails() {
   const [showForm, setShowForm] = useState(false);
   const [justApplied, setJustApplied] = useState(false);
 
+  const isBusiness = user?.role === "business";
+  const isOwner = isAuthenticated && isBusiness && project && (project.businessOwnerId === user?._id || project.businessOwnerId?._id === user?._id);
+
+  const [applications, setApplications] = useState([]);
+  const [loadingApps, setLoadingApps] = useState(false);
+
+  // Fetch applications for the project if user is owner
+  useEffect(() => {
+    const fetchApplications = async () => {
+      if (!isOwner) return;
+      try {
+        setLoadingApps(true);
+        const res = await api.get(`/applications/project/${id}`);
+        setApplications(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch applications:", err);
+      } finally {
+        setLoadingApps(false);
+      }
+    };
+
+    if (project) {
+      fetchApplications();
+    }
+  }, [id, isOwner, project]);
+
   // Fetch the project itself
   useEffect(() => {
     const fetchProject = async () => {
@@ -84,14 +110,38 @@ function ProjectDetails() {
     setJustApplied(true);
   };
 
-  // Guests get redirected to login, with the current page remembered
-  // so Login.jsx can send them back here after signing in.
   const handleApplyClick = () => {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: `/projects/${id}` } });
       return;
     }
     setShowForm(true);
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${project.title}"? This can't be undone.`)) return;
+    try {
+      await api.delete(`/projects/${project._id}`);
+      navigate("/my-projects");
+    } catch (err) {
+      console.log(err);
+      alert(err.response?.data?.message || "Failed to delete project");
+    }
+  };
+
+  const handleUpdateStatus = async (appId, newStatus) => {
+    if (!window.confirm(`Are you sure you want to set this application to ${newStatus}?`)) return;
+    try {
+      await api.put(`/applications/${appId}/status`, { status: newStatus });
+      // Refresh applications and project details
+      const appRes = await api.get(`/applications/project/${id}`);
+      setApplications(appRes.data.data || []);
+      const projRes = await api.get(`/projects/${id}`);
+      setProject(projRes.data.data);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to update status");
+    }
   };
 
   if (loading) {
@@ -213,7 +263,26 @@ function ProjectDetails() {
             </div>
           )}
 
-          {!isOpen ? (
+          {isBusiness ? (
+            isOwner && (
+              <div className="flex gap-3">
+                <Link
+                  to={`/${project._id}/edit-project`}
+                  className="flex-1 text-center font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                             hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+                >
+                  Edit
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
+                             hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
+                >
+                  Delete
+                </button>
+              </div>
+            )
+          ) : !isOpen ? (
             <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#6B6459] border border-dashed border-[#D8D2C4] rounded-[4px] py-3.5">
               This project is {status?.toLowerCase()} and no longer accepting applications.
             </div>
@@ -236,6 +305,84 @@ function ProjectDetails() {
             >
               {isAuthenticated ? "Apply to this project" : "Log in to apply"}
             </button>
+          )}
+
+          {/* Applications list for project owner */}
+          {isOwner && (
+            <div className="mt-10 border-t border-[#D8D2C4] pt-8">
+              <h2 className="font-['Space_Grotesk'] font-bold text-2xl mb-6">
+                Applications ({applications.length})
+              </h2>
+
+              {loadingApps ? (
+                <p className="font-['IBM_Plex_Mono'] text-xs text-[#9B9384]">Loading applications...</p>
+              ) : applications.length === 0 ? (
+                <p className="font-['IBM_Plex_Mono'] text-xs text-[#6B6459] italic">
+                  No applications received yet for this project.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {applications.map((app) => (
+                    <div
+                      key={app._id}
+                      className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]"
+                    >
+                      <div className="flex justify-between items-start flex-wrap gap-2 mb-3">
+                        <div>
+                          <h4 className="font-semibold text-base">{app.developerId?.name || "Developer"}</h4>
+                          <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">
+                            {app.developerId?.email}
+                          </span>
+                        </div>
+                        <span
+                          className={`font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-[3px] ${
+                            app.status === "Accepted"
+                              ? "bg-[#E9F5F1] text-[#0F6B5C]"
+                              : app.status === "Rejected"
+                              ? "bg-[#FBE7E4] text-[#B3452F]"
+                              : "bg-[#FDF3D6] text-[#8A6D1D]"
+                          }`}
+                        >
+                          {app.status}
+                        </span>
+                      </div>
+
+                      <div className="text-[13.5px] text-[#4A473F] space-y-2.5">
+                        <div>
+                          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                            Estimated Duration
+                          </span>
+                          <p>{app.estimatedDuration}</p>
+                        </div>
+                        <div>
+                          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                            Cover Letter
+                          </span>
+                          <p className="whitespace-pre-line leading-relaxed">{app.coverLetter}</p>
+                        </div>
+                      </div>
+
+                      {app.status === "Pending" && isOpen && (
+                        <div className="flex gap-2.5 mt-4 pt-3 border-t border-dashed border-[#D8D2C4]">
+                          <button
+                            onClick={() => handleUpdateStatus(app._id, "Accepted")}
+                            className="font-semibold text-xs px-3.5 py-2 rounded-[4px] bg-[#0F6B5C] text-white hover:bg-[#0C5449] cursor-pointer transition-colors"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleUpdateStatus(app._id, "Rejected")}
+                            className="font-semibold text-xs px-3.5 py-2 rounded-[4px] border border-[#B3452F] text-[#B3452F] hover:bg-[#FBE7E4] cursor-pointer transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

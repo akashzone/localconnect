@@ -85,7 +85,7 @@ const getApplicationsForProject = async (req, res) => {
   try {
     const applications = await Application.find({
       projectId,
-    }).populate("projectId");
+    }).populate("projectId").populate("developerId", "name email");
 
     if (!applications) {
       return res.status(401).json({

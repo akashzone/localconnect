@@ -9,7 +9,7 @@ const getProfile = async (req, res) => {
             profile = await DeveloperProfile.findOne({
                 userId: req.user.id,
             }).populate("userId", "name email role");
-        } else if (req.user.role === "businessOwner") {
+        } else if (req.user.role === "business") {
             profile = await BusinessProfile.findOne({
                 userId: req.user.id,
             }).populate("userId", "name email role");
@@ -41,24 +41,20 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        let profile;
+        const { bio, businessName } = req.body;
 
         if (req.user.role === "student") {
             profile = await DeveloperProfile.findOneAndUpdate(
                 { userId: req.user.id },
-                {
-                    bio: "Hey, I'm a full stack developer and I build scalable web applications.",
-                },
+                { bio },
                 { new: true }
-            );
-        } else if (req.user.role === "businessOwner") {
+            ).populate("userId", "name email role");
+        } else if (req.user.role === "business") {
             profile = await BusinessProfile.findOneAndUpdate(
                 { userId: req.user.id },
-                {
-                    businessName: "Cake & Snacks Business",
-                },
+                { businessName },
                 { new: true }
-            );
+            ).populate("userId", "name email role");
         } else {
             return res.status(400).json({
                 message: "Invalid user role",

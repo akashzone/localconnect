@@ -11,6 +11,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import MyApplications from "./pages/MyApplications";
+import Profile from "./pages/Profile";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -37,6 +38,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/projects/:id" element={<ProjectDetails />} />
+        <Route path="/profile" element={<Profile />} />
 
             //if logged in as developer
         <Route path="/dashboard/developer" element={<DeveloperDashboard />} />
