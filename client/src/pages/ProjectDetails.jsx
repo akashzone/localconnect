@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import ApplicationForm from "../components/application/ApplicationForm";
@@ -13,6 +13,7 @@ const statusStyles = {
 
 function ProjectDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useContext(AuthContext);
 
   const [project, setProject] = useState(null);
@@ -81,6 +82,16 @@ function ProjectDetails() {
     setShowForm(false);
     setAlreadyApplied(true);
     setJustApplied(true);
+  };
+
+  // Guests get redirected to login, with the current page remembered
+  // so Login.jsx can send them back here after signing in.
+  const handleApplyClick = () => {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: `/projects/${id}` } });
+      return;
+    }
+    setShowForm(true);
   };
 
   if (loading) {
@@ -218,12 +229,12 @@ function ProjectDetails() {
             </div>
           ) : (
             <button
-              onClick={() => setShowForm(true)}
+              onClick={handleApplyClick}
               className="w-full font-semibold cursor-pointer px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
                          shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
                          transition-all duration-150"
             >
-              Apply to this project
+              {isAuthenticated ? "Apply to this project" : "Log in to apply"}
             </button>
           )}
         </div>
