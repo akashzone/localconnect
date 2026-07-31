@@ -44,8 +44,36 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and password are required.",
+    });
+  }
+
+  // Trim email
+  const trimmedEmail = email.trim();
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(trimmedEmail)) {
+    return res.status(400).json({
+      success: false,
+      message: "Please enter a valid email address.",
+    });
+  }
+
+  // Password validation
+  if (password.length < 8) {
+    return res.status(400).json({
+      success: false,
+      message: "Password must be at least 8 characters long.",
+    });
+  }
+
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: trimmedEmail });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
@@ -75,4 +103,37 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const refreshAccessToken = (req, res) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Refresh token missing",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const newAccessToken = accessToken({
+      _id: decoded.id,
+      role: decoded.role,
+    });
+
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+
+    res.json({
+      message: "Access token refreshed",
+    });
+  } catch (err) {
+    return res.status(403).json({
+      message: "Invalid refresh token",
+    });
+  }
+};
+
+module.exports = { register, login, refreshAccessToken };
