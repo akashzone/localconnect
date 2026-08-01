@@ -166,42 +166,211 @@ function Profile() {
                         </div>
 
                         {!editing ? (
-                            <p className="text-[14.5px] text-[#4A473F] leading-relaxed">
-                                {isStudent ? profile.bio : profile.businessName || "Not set yet."}
-                            </p>
+                            <div className="space-y-6">
+                                <p className="text-[14.5px] text-[#4A473F] leading-relaxed">
+                                    {isStudent ? profile.bio || "No bio set yet." : profile.businessName || "Not set yet."}
+                                </p>
+
+                                {isStudent && (
+                                    <>
+                                        {/* Skills */}
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6">
+                                            <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-2">
+                                                Skills
+                                            </span>
+                                            {profile.skills && profile.skills.length > 0 ? (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {profile.skills.map((skill, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="font-['IBM_Plex_Mono'] text-xs font-semibold px-2.5 py-1 bg-[#1B2430]/5 text-[#1B2430] border border-[#D8D2C4] rounded-[4px]"
+                                                        >
+                                                            {skill}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-[14.5px] text-[#9B9384] italic">No skills listed yet.</p>
+                                            )}
+                                        </div>
+
+                                        {/* Professional Links */}
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6 grid sm:grid-cols-3 gap-6">
+                                            <div>
+                                                <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                    GitHub
+                                                </span>
+                                                {profile.github ? (
+                                                    <a
+                                                        href={profile.github.startsWith("http") ? profile.github : `https://${profile.github}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[14px] text-[#0F6B5C] font-semibold hover:underline"
+                                                    >
+                                                        View GitHub
+                                                    </a>
+                                                ) : (
+                                                    <p className="text-[14.5px] text-[#9B9384] italic">Not set</p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                    LinkedIn
+                                                </span>
+                                                {profile.linkedIn ? (
+                                                    <a
+                                                        href={profile.linkedIn.startsWith("http") ? profile.linkedIn : `https://${profile.linkedIn}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[14px] text-[#0F6B5C] font-semibold hover:underline"
+                                                    >
+                                                        View LinkedIn
+                                                    </a>
+                                                ) : (
+                                                    <p className="text-[14.5px] text-[#9B9384] italic">Not set</p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                    Portfolio
+                                                </span>
+                                                {profile.portfolio ? (
+                                                    <a
+                                                        href={profile.portfolio.startsWith("http") ? profile.portfolio : `https://${profile.portfolio}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[14px] text-[#0F6B5C] font-semibold hover:underline"
+                                                    >
+                                                        View Portfolio
+                                                    </a>
+                                                ) : (
+                                                    <p className="text-[14.5px] text-[#9B9384] italic">Not set</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {isStudent ? (
-                                    <textarea
-                                        value={fieldValue}
-                                        onChange={(e) => setFieldValue(e.target.value)}
-                                        rows={4}
-                                        placeholder="Tell businesses a bit about yourself..."
-                                        className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px] resize-none
-                               focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                               transition-colors"
-                                    />
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                Bio
+                                            </label>
+                                            <textarea
+                                                name="bio"
+                                                value={formData.bio}
+                                                onChange={handleChange}
+                                                rows={4}
+                                                placeholder="Tell businesses a bit about yourself..."
+                                                className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px] resize-none
+                                       focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                       transition-colors"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                Skills (comma-separated)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="skills"
+                                                value={formData.skills}
+                                                onChange={handleChange}
+                                                placeholder="e.g. React, Node.js, Python, Tailwind"
+                                                className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
+                                       focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                       transition-colors"
+                                            />
+                                        </div>
+
+                                        <div className="grid sm:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    GitHub URL
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="github"
+                                                    value={formData.github}
+                                                    onChange={handleChange}
+                                                    placeholder="github.com/username"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    LinkedIn URL
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="linkedIn"
+                                                    value={formData.linkedIn}
+                                                    onChange={handleChange}
+                                                    placeholder="linkedin.com/in/username"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    Portfolio URL
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="portfolio"
+                                                    value={formData.portfolio}
+                                                    onChange={handleChange}
+                                                    placeholder="yourportfolio.com"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 ) : (
-                                    <input
-                                        type="text"
-                                        value={fieldValue}
-                                        onChange={(e) => setFieldValue(e.target.value)}
-                                        placeholder="Your business name"
-                                        className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
-                               focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                               transition-colors"
-                                    />
+                                    <div>
+                                        <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                            Business Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="businessName"
+                                            value={formData.businessName}
+                                            onChange={handleChange}
+                                            placeholder="Your business name"
+                                            className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
+                                   focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                   transition-colors"
+                                        />
+                                    </div>
                                 )}
 
                                 {saveError && (
                                     <p className="font-['IBM_Plex_Mono'] text-[12px] text-[#B3452F]">{saveError}</p>
                                 )}
 
-                                <div className="flex gap-3">
+                                <div className="flex gap-3 pt-2">
                                     <button
                                         onClick={() => {
                                             setEditing(false);
-                                            setFieldValue(isStudent ? profile.bio || "" : profile.businessName || "");
+                                            setFormData({
+                                                bio: profile.bio || "",
+                                                businessName: profile.businessName || "",
+                                                github: profile.github || "",
+                                                linkedIn: profile.linkedIn || "",
+                                                portfolio: profile.portfolio || "",
+                                                skills: profile.skills ? profile.skills.join(", ") : ""
+                                            });
                                             setSaveError("");
                                         }}
                                         className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]

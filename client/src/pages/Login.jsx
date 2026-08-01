@@ -62,7 +62,7 @@ function Login() {
                             <span className="text-[#F5C445]">● OPEN</span>
                         </div>
                         <p className="text-sm font-medium">E-commerce site redesign</p>
-                        <p className="text-xs text-[#9B9384] mt-1">$400 budget · 2 weeks</p>
+                        <p className="text-xs text-[#9B9384] mt-1">₹4000 budget · 2 weeks</p>
                     </div>
                 </div>
 
