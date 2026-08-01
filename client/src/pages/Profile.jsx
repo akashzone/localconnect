@@ -10,7 +10,14 @@ function Profile() {
     const [error, setError] = useState(false);
 
     const [editing, setEditing] = useState(false);
-    const [fieldValue, setFieldValue] = useState("");
+    const [formData, setFormData] = useState({
+        bio: "",
+        businessName: "",
+        github: "",
+        linkedIn: "",
+        portfolio: "",
+        skills: ""
+    });
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState("");
 
@@ -19,16 +26,29 @@ function Profile() {
     // Using both here so the page still renders correctly regardless of which is actually true.
     const isBusiness = user?.role === "business" || user?.role === "businessOwner";
 
+    const handleChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
                 setError(false);
                 const res = await api.get("/profile");
-                setProfile(res.data.profile);
-                setFieldValue(
-                    isStudent ? res.data.profile?.bio || "" : res.data.profile?.businessName || ""
-                );
+                const prof = res.data.profile;
+                setProfile(prof);
+                setFormData({
+                    bio: prof?.bio || "",
+                    businessName: prof?.businessName || "",
+                    github: prof?.github || "",
+                    linkedIn: prof?.linkedIn || "",
+                    portfolio: prof?.portfolio || "",
+                    skills: prof?.skills ? prof.skills.join(", ") : ""
+                });
             } catch (err) {
                 console.log(err);
                 setError(true);
@@ -44,10 +64,19 @@ function Profile() {
         setSaving(true);
         setSaveError("");
         try {
-            const res = await api.put("/profile", {
-                bio: isStudent ? fieldValue : undefined,
-                businessName: isBusiness ? fieldValue : undefined,
-            });
+            const dataToSave = isStudent
+                ? {
+                    bio: formData.bio,
+                    github: formData.github,
+                    linkedIn: formData.linkedIn,
+                    portfolio: formData.portfolio,
+                    skills: formData.skills
+                  }
+                : {
+                    businessName: formData.businessName
+                  };
+
+            const res = await api.put("/profile", dataToSave);
             setProfile(res.data.profile);
             setEditing(false);
         } catch (err) {

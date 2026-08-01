@@ -15,7 +15,10 @@ const developerProfileSchema = new mongoose.Schema(
         trim: true,
       },
     ],
-
+    linkedIn: {
+      type: String,
+      trim: true,
+    },
     bio: {
       type: String,
       trim: true,

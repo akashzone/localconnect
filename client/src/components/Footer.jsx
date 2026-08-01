@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
+import { useAuth } from "../context/AuthContext";
 
 export const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <>
       <footer className="bg-[#1B2430] text-[#C9C4B7] mt-auto font-['IBM_Plex_Sans']">
@@ -47,8 +50,12 @@ export const Footer = () => {
           <div className="flex gap-8 text-sm">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <Link to="/projects" className="hover:text-white transition-colors">Projects</Link>
-            <Link to="/login" className="hover:text-white transition-colors">Login</Link>
-            <Link to="/register" className="hover:text-white transition-colors">Register</Link>
+            {!user && (
+              <>
+                <Link to="/login" className="hover:text-white transition-colors">Login</Link>
+                <Link to="/register" className="hover:text-white transition-colors">Register</Link>
+              </>
+            )}
           </div>
         </div>
 

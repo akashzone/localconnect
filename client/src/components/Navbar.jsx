@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -37,7 +38,7 @@ function Navbar() {
 
   return (
     <nav className="bg-[#FAF8F3] border-b border-[#D8D2C4] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto min-h-[68px] px-6 py-3 flex items-center justify-between gap-6 flex-wrap lg:flex-nowrap">
+      <div className="max-w-7xl mx-auto min-h-[68px] px-6 py-3 flex items-center justify-between gap-4">
 
         {/* Logo */}
         <NavLink to="/" className="flex items-baseline gap-2 shrink-0">
@@ -49,8 +50,8 @@ function Navbar() {
           </span>
         </NavLink>
 
-        {/* Navigation */}
-        <div className="hidden md:flex items-center gap-6 lg:gap-8 flex-wrap order-3 lg:order-2 basis-full lg:basis-auto justify-center lg:justify-start">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-6 lg:gap-8 flex-wrap justify-center lg:justify-start">
           <NavItem to="/" label="Home" />
 
           {/* Guest */}
@@ -82,8 +83,8 @@ function Navbar() {
           )}
         </div>
 
-        {/* Right side */}
-        <div className="flex items-center gap-3 shrink-0 order-2 lg:order-3">
+        {/* Desktop Right side Actions */}
+        <div className="hidden md:flex items-center gap-3 shrink-0">
           {!user ? (
             <>
               <NavLink
@@ -113,7 +114,208 @@ function Navbar() {
             </button>
           )}
         </div>
+
+        {/* Mobile Hamburger Button */}
+        <div className="flex md:hidden items-center">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-[#1B2430] hover:text-[#0F6B5C] p-2 focus:outline-none transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-[#D8D2C4] bg-[#FAF8F3] px-6 py-4 space-y-4 animate-fadeIn">
+          <div className="flex flex-col gap-3">
+            <NavLink
+              to="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                  isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                }`
+              }
+            >
+              Home
+            </NavLink>
+
+            {/* Guest Mobile Links */}
+            {!user && (
+              <>
+                <NavLink
+                  to="/projects"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Projects
+                </NavLink>
+                <NavLink
+                  to="/about"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  About
+                </NavLink>
+                <NavLink
+                  to="/contact"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Contact
+                </NavLink>
+              </>
+            )}
+
+            {/* Developer Mobile Links */}
+            {user?.role === "student" && (
+              <>
+                <NavLink
+                  to="/projects"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Projects
+                </NavLink>
+                <NavLink
+                  to="/dashboard/developer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/my-applications"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  My Applications
+                </NavLink>
+                <NavLink
+                  to="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Profile
+                </NavLink>
+              </>
+            )}
+
+            {/* Business Owner Mobile Links */}
+            {user?.role === "business" && (
+              <>
+                <NavLink
+                  to="/my-projects"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  My Projects
+                </NavLink>
+                <NavLink
+                  to="/dashboard/business"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
+                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  Profile
+                </NavLink>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Action Buttons */}
+          <div className="border-t border-[#D8D2C4]/60 pt-4 flex flex-col gap-3">
+            {!user ? (
+              <>
+                <NavLink
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="font-['IBM_Plex_Sans'] text-center px-4 py-2 text-sm font-medium border border-[#D8D2C4] rounded-[4px] text-[#1B2430] hover:bg-[#1B2430]/5 transition-colors"
+                >
+                  Log in
+                </NavLink>
+
+                <NavLink
+                  to="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="font-['IBM_Plex_Sans'] text-center px-4 py-2.5 text-sm font-semibold bg-[#1B2430] text-[#FAF8F3] rounded-[4px]
+                             shadow-[3px_3px_0px_#F5C445] active:shadow-[1px_1px_0px_#F5C445] transition-all duration-150"
+                >
+                  Post a project
+                </NavLink>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="font-['IBM_Plex_Sans'] w-full text-center px-4 py-2.5 text-sm font-semibold bg-[#1B2430] text-[#FAF8F3] rounded-[4px]
+                           shadow-[3px_3px_0px_#F5C445] transition-all duration-150"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -19,18 +19,15 @@ const register = async (req, res) => {
       name,
       role,
     });
-    console.log("new User :", newUser);
 
     if (role == "student") {
       const newUserDeveloper = await DeveloperProfile.create({
         userId: newUser._id,
       });
-      console.log("new Developer created :", newUserDeveloper);
     } else if (role == "business") {
       const newUserBusinessOwner = await BusinessProfile.create({
         userId: newUser._id,
       });
-      // console.log("new Business Owner created :",newUserBusinessOwner)
     }
     res
       .status(201)
@@ -51,10 +48,8 @@ const login = async (req, res) => {
     });
   }
 
-  // Trim email
   const trimmedEmail = email.trim();
 
-  // Email format validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(trimmedEmail)) {
