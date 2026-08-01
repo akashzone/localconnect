@@ -15,9 +15,11 @@ import Profile from "./pages/Profile";
 
 //componentes
 import Navbar from "./components/Navbar"
+import PublicRoute from "./components/PublicRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 //developer components 
-import DeveloperDashboard from "./pages/DeveloperDashBoard";
+import DeveloperDashboard from "./pages/DeveloperDashboard";
 
 //business components
 import BusinessDashboard from "./pages/BusinessDashboard";
@@ -33,22 +35,85 @@ function App() {
             // anyone can access logged in or new user
         <Route path="/" element={<Home />} />
         <Route path="/projects" element={<Projects />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/projects/:id" element={<ProjectDetails />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
 
             //if logged in as developer
-        <Route path="/dashboard/developer" element={<DeveloperDashboard />} />
-        <Route path="/my-applications" element={<MyApplications />} />
+        <Route
+          path="/dashboard/developer"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <DeveloperDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-applications"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <MyApplications />
+            </ProtectedRoute>
+          }
+        />
 
             //if logged in as businessOwner
-        <Route path="/dashboard/business" element={<BusinessDashboard />} />
-        <Route path="/my-projects" element={<MyProjects />} />
-        <Route path="/create-project" element={<CreateProject />} />
-        <Route path="/:id/edit-project" element={<EditProject />} />
+        <Route
+          path="/dashboard/business"
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-projects"
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <MyProjects />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-project"
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <CreateProject />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/:id/edit-project"
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <EditProject />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
     </>

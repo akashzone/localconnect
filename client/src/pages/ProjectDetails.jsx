@@ -169,7 +169,7 @@ function ProjectDetails() {
     description,
     budget,
     deadline,
-    skills = [],
+    skillsRequired = [],
     status = "open",
   } = project;
 
@@ -245,13 +245,13 @@ function ProjectDetails() {
           </div>
 
           {/* Skills */}
-          {skills.length > 0 && (
+          {skillsRequired.length > 0 && (
             <div className="mb-9">
               <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-2">
                 Required skills
               </span>
               <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
+                {skillsRequired.map((skill) => (
                   <span
                     key={skill}
                     className="font-['IBM_Plex_Mono'] text-[12px] px-2.5 py-1.5 border border-[#D8D2C4] rounded-[3px] text-[#4A473F]"

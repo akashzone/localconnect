@@ -161,7 +161,7 @@ function ApplicationCard({ app, onWithdraw }) {
           <button
             onClick={handleWithdraw}
             disabled={withdrawing}
-            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
+            className="font-semibold text-sm px-4 cursor-pointer py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
                        hover:bg-[#B3452F] hover:text-white transition-colors duration-150 disabled:opacity-50"
           >
             {withdrawing ? "Withdrawing..." : "Withdraw"}
