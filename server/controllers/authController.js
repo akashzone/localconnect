@@ -79,17 +79,14 @@ const login = async (req, res) => {
     const accToken = accessToken(user);
     const refToken = refreshToken(user);
 
-    res.cookie("accessToken", accToken, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
 
-    res.cookie("refreshToken", refToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
+    res.cookie("accessToken", accToken, cookieOptions);
+    res.cookie("refreshToken", refToken, cookieOptions);
     res.status(200).json({ message: "Login successful", user });
   } catch (error) {
     return res
@@ -115,11 +112,13 @@ const refreshAccessToken = (req, res) => {
       role: decoded.role,
     });
 
-    res.cookie("accessToken", newAccessToken, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
+
+    res.cookie("accessToken", newAccessToken, cookieOptions);
 
     res.json({
       message: "Access token refreshed",

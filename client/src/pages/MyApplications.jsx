@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
+import WithdrawModal from "../components/application/WithdrawModal";
 
 const statusConfig = {
   pending: {
@@ -54,6 +55,7 @@ const formatDate = (date) =>
 function ApplicationCard({ app, onWithdraw }) {
   const [expanded, setExpanded] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const status = app.status?.toLowerCase() || "pending";
   const badge = statusConfig[status] || statusConfig.pending;
@@ -63,11 +65,11 @@ function ApplicationCard({ app, onWithdraw }) {
   const isLong = coverLetter.length > 160;
   const preview = isLong && !expanded ? coverLetter.slice(0, 160).trim() + "…" : coverLetter;
 
-  const handleWithdraw = async () => {
-    if (!window.confirm("Withdraw this application? This can't be undone.")) return;
+  const handleWithdrawConfirm = async () => {
     setWithdrawing(true);
     await onWithdraw(app._id);
     setWithdrawing(false);
+    setShowWithdrawModal(false);
   };
 
   return (
@@ -159,12 +161,12 @@ function ApplicationCard({ app, onWithdraw }) {
 
         {status === "pending" && (
           <button
-            onClick={handleWithdraw}
+            onClick={() => setShowWithdrawModal(true)}
             disabled={withdrawing}
             className="font-semibold text-sm px-4 cursor-pointer py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
                        hover:bg-[#B3452F] hover:text-white transition-colors duration-150 disabled:opacity-50"
           >
-            {withdrawing ? "Withdrawing..." : "Withdraw"}
+            Withdraw
           </button>
         )}
 
@@ -179,6 +181,15 @@ function ApplicationCard({ app, onWithdraw }) {
           </Link>
         )}
       </div>
+
+      {showWithdrawModal && (
+        <WithdrawModal
+          projectTitle={project.title || "Untitled project"}
+          onConfirm={handleWithdrawConfirm}
+          onCancel={() => setShowWithdrawModal(false)}
+          withdrawing={withdrawing}
+        />
+      )}
     </div>
   );
 }

@@ -37,7 +37,8 @@ const applyToProject = async (req, res) => {
       coverLetter,
       estimatedDuration,
       developerId: req.user.id,
-    }).populate("projectId");
+    });
+    await apply.populate("projectId");
     console.log("Applied to project successfully : ", apply);
     res
       .status(201)
