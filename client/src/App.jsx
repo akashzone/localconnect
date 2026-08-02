@@ -23,6 +23,7 @@ import DeveloperDashboard from "./pages/DeveloperDashboard";
 
 //business components
 import BusinessDashboard from "./pages/BusinessDashboard";
+import BusinessApplications from "./pages/BusinessApplications";
 import MyProjects from "./pages/MyProjects";
 import CreateProject from "./pages/CreateProject";
 import EditProject from "./pages/EditProject";
@@ -95,6 +96,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["business"]}>
               <MyProjects />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/applications/business"
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessApplications />
             </ProtectedRoute>
           }
         />

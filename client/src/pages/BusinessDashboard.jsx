@@ -182,7 +182,7 @@ function BusinessDashboard() {
           {[
             { label: "+ Create Project", to: "/create-project" },
             { label: "Manage Projects", to: "/my-projects" },
-            { label: "View Applications", to: "/my-projects" },
+            { label: "View Applications", to: "/applications/business" },
             { label: "Edit Profile", to: "/profile" },
           ].map((action) => (
             <Link

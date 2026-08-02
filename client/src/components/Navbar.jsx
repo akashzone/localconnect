@@ -76,6 +76,7 @@ function Navbar() {
             <>
               <NavItem to="/dashboard/business" label="Dashboard" />
               <NavItem to="/my-projects" label="My Projects" />
+              <NavItem to="/applications/business" label="Applications" />
               <NavItem to="/profile" label="Profile" />
             </>
           )}
