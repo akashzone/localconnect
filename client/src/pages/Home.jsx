@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBriefcase,
@@ -12,6 +12,14 @@ import { AuthContext } from "../context/AuthContext";
 
 function Home() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.role === "business") {
+      navigate("/dashboard/business", { replace: true });
+    }
+  }, [user, navigate]);
+
   const isBusiness = user?.role === "business";
 
   return (

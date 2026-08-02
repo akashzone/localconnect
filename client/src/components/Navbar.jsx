@@ -13,15 +13,13 @@ function Navbar() {
   };
 
   const navLinkStyle = ({ isActive }) =>
-    `group relative font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 whitespace-nowrap transition-colors ${
-      isActive ? "text-[#1B2430]" : "text-[#6B6459] hover:text-[#1B2430]"
+    `group relative font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 whitespace-nowrap transition-colors ${isActive ? "text-[#1B2430]" : "text-[#6B6459] hover:text-[#1B2430]"
     }`;
 
   const Underline = ({ isActive }) => (
     <span
-      className={`absolute left-0 -bottom-0.5 h-[2px] w-full bg-[#0F6B5C] origin-left transition-transform duration-200 ${
-        isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-      }`}
+      className={`absolute left-0 -bottom-0.5 h-[2px] w-full bg-[#0F6B5C] origin-left transition-transform duration-200 ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+        }`}
     />
   );
 
@@ -41,7 +39,7 @@ function Navbar() {
       <div className="max-w-7xl mx-auto min-h-[68px] px-6 py-3 flex items-center justify-between gap-4">
 
         {/* Logo */}
-        <NavLink to="/" className="flex items-baseline gap-2 shrink-0">
+        <NavLink to={user?.role === "business" ? "/dashboard/business" : "/"} className="flex items-baseline gap-2 shrink-0">
           <span className="font-['Space_Grotesk'] text-2xl font-bold text-[#1B2430]">
             Local<span className="text-[#0F6B5C]">Connect</span>
           </span>
@@ -52,7 +50,7 @@ function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8 flex-wrap justify-center lg:justify-start">
-          <NavItem to="/" label="Home" />
+          {user?.role !== "business" && <NavItem to="/" label="Home" />}
 
           {/* Guest */}
           {!user && (
@@ -76,8 +74,8 @@ function Navbar() {
           {/* Business Owner */}
           {user?.role === "business" && (
             <>
-              <NavItem to="/my-projects" label="My Projects" />
               <NavItem to="/dashboard/business" label="Dashboard" />
+              <NavItem to="/my-projects" label="My Projects" />
               <NavItem to="/profile" label="Profile" />
             </>
           )}
@@ -139,17 +137,18 @@ function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-[#D8D2C4] bg-[#FAF8F3] px-6 py-4 space-y-4 animate-fadeIn">
           <div className="flex flex-col gap-3">
-            <NavLink
-              to="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                  isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
-                }`
-              }
-            >
-              Home
-            </NavLink>
+            {user?.role !== "business" && (
+              <NavLink
+                to="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                  }`
+                }
+              >
+                Home
+              </NavLink>
+            )}
 
             {/* Guest Mobile Links */}
             {!user && (
@@ -158,8 +157,7 @@ function Navbar() {
                   to="/projects"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -169,8 +167,7 @@ function Navbar() {
                   to="/about"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -180,8 +177,7 @@ function Navbar() {
                   to="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -197,8 +193,7 @@ function Navbar() {
                   to="/projects"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -208,8 +203,7 @@ function Navbar() {
                   to="/dashboard/developer"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -219,8 +213,7 @@ function Navbar() {
                   to="/my-applications"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -230,8 +223,7 @@ function Navbar() {
                   to="/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
@@ -244,33 +236,30 @@ function Navbar() {
             {user?.role === "business" && (
               <>
                 <NavLink
-                  to="/my-projects"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
-                    }`
-                  }
-                >
-                  My Projects
-                </NavLink>
-                <NavLink
                   to="/dashboard/business"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >
                   Dashboard
                 </NavLink>
                 <NavLink
+                  to="/my-projects"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  My Projects
+                </NavLink>
+                <NavLink
                   to="/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${
-                      isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
                     }`
                   }
                 >

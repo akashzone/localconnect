@@ -30,7 +30,11 @@ function Login() {
         try {
             const res = await api.post("/auth/login", formData);
             login(res.data.user);
-            navigate("/");
+            if (res.data.user?.role === "business") {
+                navigate("/dashboard/business");
+            } else {
+                navigate("/");
+            }
         } catch (error) {
             alert(error.response?.data?.message || "Something went wrong");
         }

@@ -256,9 +256,6 @@ function Profile() {
                                 {isStudent ? (
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
-                                                Bio
-                                            </label>
                                             <textarea
                                                 name="bio"
                                                 value={formData.bio}
@@ -339,9 +336,6 @@ function Profile() {
                                     </div>
                                 ) : (
                                     <div>
-                                        <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
-                                            Business Name
-                                        </label>
                                         <input
                                             type="text"
                                             name="businessName"
