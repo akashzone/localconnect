@@ -76,6 +76,43 @@ const getMyApplications = async (req, res) => {
   }
 };
 
+const getBusinessApplications = async (req, res) => {
+  try {
+    const projects = await Project.find({
+      businessOwnerId: req.user.id,
+    }).select("_id");
+
+    if (!projects) {
+      return res.status(404).json({
+        message: "Projects not found",
+      });
+    }
+
+    const projectIds = projects.map((project) => project._id);
+
+    const applications = await Application.find({
+      projectId: { $in: projectIds },
+    })
+      .populate("developerId", "name email")
+      .populate("projectId", "title budget status")
+      .sort({ createdAt: -1 });
+
+    console.log("Applications - ", applications);
+    return res.status(200).json({
+      success: true,
+      count: applications.length,
+      applications,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch applications.",
+    });
+  }
+};
+
 const getApplicationsForProject = async (req, res) => {
   const { projectId } = req.params;
   if (!projectId) {
@@ -244,6 +281,7 @@ const withdrawApplication = async (req, res) => {
 module.exports = {
   applyToProject,
   getMyApplications,
+  getBusinessApplications,
   getApplicationsForProject,
   updateApplicationStatus,
   withdrawApplication,
