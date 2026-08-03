@@ -1,13 +1,21 @@
 import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faFolderOpen,
+  faCircleCheck,
+  faBolt,
+  faCircleDot,
+  faUserGroup,
+} from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 
 const statusConfig = {
-  open: { label: "Open", dot: "🟢", classes: "bg-[#E9F5F1] text-[#0F6B5C]" },
-  "in progress": { label: "In Progress", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
-  completed: { label: "Completed", dot: "🔵", classes: "bg-[#EAEAEA] text-[#4A473F]" },
-  cancelled: { label: "Cancelled", dot: "🔴", classes: "bg-[#FBE7E4] text-[#B3452F]" },
+  open: { label: "Open", icon: faCircleDot, classes: "bg-[#E9F5F1] text-[#0F6B5C]" },
+  "in progress": { label: "In Progress", icon: faBolt, classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
+  completed: { label: "Completed", icon: faCircleCheck, classes: "bg-[#EAEAEA] text-[#4A473F]" },
+  cancelled: { label: "Cancelled", icon: faCircleDot, classes: "bg-[#FBE7E4] text-[#B3452F]" },
 };
 
 const applicationStatusStyles = {
@@ -64,8 +72,6 @@ function BusinessDashboard() {
         const fetchedProjects = res.data.data.projects || [];
         const initialStats = res.data.data.dashboard || null;
 
-        // Fetch applications for each project — keep the full list, not just the count,
-        // so we can flatten everything for "Recent Applications" below.
         let flatApplications = [];
         const projectsWithApplications = await Promise.all(
           fetchedProjects.map(async (project) => {
@@ -126,24 +132,21 @@ function BusinessDashboard() {
   } = stats;
 
   const statCards = [
-    { icon: "📁", label: "Total Projects", value: totalProjects },
-    { icon: "🟢", label: "Open Projects", value: openProjects, tone: "text-[#0F6B5C]" },
-    { icon: "⚡", label: "In Progress", value: inProgressProjects, tone: "text-[#8A6D1D]" },
-    { icon: "✅", label: "Completed", value: completedProjects },
-    { icon: "👨‍💻", label: "Applications", value: totalApplications },
+    { icon: faFolderOpen, label: "Total Projects", value: totalProjects },
+    { icon: faCircleDot, label: "Open Projects", value: openProjects, tone: "text-[#0F6B5C]" },
+    { icon: faBolt, label: "In Progress", value: inProgressProjects, tone: "text-[#8A6D1D]" },
+    { icon: faCircleCheck, label: "Completed", value: completedProjects },
+    { icon: faUserGroup, label: "Applications", value: totalApplications },
   ];
 
-  // Recent projects — newest 5, by createdAt if present, else just the first 5 as returned
   const recentProjects = [...projects]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 5);
 
-  // Recent applications — flattened across all projects, newest first, top 5
   const recentApplications = [...allApplications]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 5);
 
-  // Upcoming deadlines — open/in-progress projects with a future deadline, soonest first, top 5
   const upcomingDeadlines = projects
     .filter((p) => {
       const status = p.status?.toLowerCase();
@@ -160,7 +163,7 @@ function BusinessDashboard() {
         <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
           <div>
             <h1 className="font-['Space_Grotesk'] font-bold text-2xl md:text-[28px]">
-              Welcome back, {user?.name?.split(" ")[0] || "there"} 👋
+              Welcome back, {user?.name?.split(" ")[0] || "there"}
             </h1>
             <p className="text-[14.5px] text-[#6B6459] mt-1">
               Manage your projects and hire developers.
@@ -178,7 +181,7 @@ function BusinessDashboard() {
         </div>
 
         {/* Quick actions */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex flex-wrap gap-3 mb-8">
           {[
             { label: "+ Create Project", to: "/create-project" },
             { label: "Manage Projects", to: "/my-projects" },
@@ -188,8 +191,9 @@ function BusinessDashboard() {
             <Link
               key={action.label}
               to={action.to}
-              className="font-['IBM_Plex_Mono'] text-[11px] px-3.5 py-2 rounded-[4px] border border-[#D8D2C4] text-[#4A473F]
-                         hover:border-[#1B2430] hover:text-[#1B2430] transition-colors duration-150"
+              className="font-['IBM_Plex_Mono'] text-[12px] px-4 py-2.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                         shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                         transition-all duration-150"
             >
               {action.label}
             </Link>
@@ -203,8 +207,9 @@ function BusinessDashboard() {
               key={s.label}
               className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]"
             >
-              <span className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384]">
-                {s.icon} {s.label}
+              <span className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] flex items-center gap-1.5">
+                <FontAwesomeIcon icon={s.icon} className={`text-[11px] ${s.tone || "text-[#9B9384]"}`} />
+                {s.label}
               </span>
               <p className={`font-['Space_Grotesk'] font-bold text-2xl mt-1 ${s.tone || "text-[#1B2430]"}`}>
                 {s.value}
@@ -242,7 +247,7 @@ function BusinessDashboard() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto no-scrollbar">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] border-b border-[#D8D2C4]">
@@ -260,30 +265,36 @@ function BusinessDashboard() {
                         <td className="py-3.5 font-medium">{p.title}</td>
                         <td className="py-3.5">
                           <span
-                            className={`font-['IBM_Plex_Mono'] text-[10px] uppercase px-2 py-1 rounded-[3px] whitespace-nowrap ${statusInfo.classes}`}
+                            className={`font-['IBM_Plex_Mono'] text-[10px] uppercase px-2 py-1 rounded-[3px] whitespace-nowrap inline-flex items-center gap-1.5 ${statusInfo.classes}`}
                           >
-                            {statusInfo.dot} {statusInfo.label}
+                            <FontAwesomeIcon icon={statusInfo.icon} className="text-[9px]" />
+                            {statusInfo.label}
                           </span>
                         </td>
                         <td className="py-3.5 text-[#6B6459]">{formatDate(p.deadline)}</td>
                         <td className="py-3.5">
-                          <div className="flex items-center gap-4 justify-end">
+                          <div className="flex items-center gap-2 justify-end flex-wrap">
                             <Link
                               to={`/projects/${p._id}`}
-                              className="font-['IBM_Plex_Mono'] text-xs text-[#0F6B5C] hover:underline whitespace-nowrap"
+                              className="font-['IBM_Plex_Mono'] text-[11px] px-3 py-1.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                                         shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
+                                         transition-all duration-150 whitespace-nowrap"
                             >
                               View Details
                             </Link>
                             <Link
                               to={`/${p._id}/edit-project`}
-                              className="font-['IBM_Plex_Mono'] text-xs text-[#6B6459] hover:text-[#1B2430] hover:underline whitespace-nowrap"
+                              className="font-['IBM_Plex_Mono'] text-[11px] px-3 py-1.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                                         shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
+                                         transition-all duration-150 whitespace-nowrap"
                             >
                               Edit
                             </Link>
                             <Link
                               to={`/projects/${p._id}`}
-                              className={`font-['IBM_Plex_Mono'] text-xs whitespace-nowrap ${p.applicationsCount > 0 ? "text-[#0F6B5C] font-semibold" : "text-[#9B9384]"
-                                } hover:underline`}
+                              className="font-['IBM_Plex_Mono'] text-[11px] px-3 py-1.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                                         shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
+                                         transition-all duration-150 whitespace-nowrap"
                             >
                               Applications ({p.applicationsCount ?? 0})
                             </Link>
@@ -305,7 +316,7 @@ function BusinessDashboard() {
               Recent Applications
             </h2>
             <Link
-              to="/my-projects"
+              to="/applications/business"
               className="font-['IBM_Plex_Mono'] text-xs text-[#0F6B5C] hover:underline"
             >
               View all →
@@ -356,8 +367,9 @@ function BusinessDashboard() {
                       </span>
                       <Link
                         to={`/projects/${app.projectId}`}
-                        className="font-semibold text-xs px-3.5 py-2 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                                   hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+                        className="font-semibold text-xs px-3.5 py-2 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                                   shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
+                                   transition-all duration-150"
                       >
                         View
                       </Link>

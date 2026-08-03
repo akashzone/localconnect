@@ -18,7 +18,7 @@ function EditProject() {
     // Guard: only business owners can access this page
     useEffect(() => {
         if (!isAuthenticated) {
-            navigate("/login", { state: { from: `/projects/${id}/edit` } });
+            navigate("/login", { state: { from: `/${id}/edit-project` } });
         } else if (user?.role !== "business") {
             navigate("/");
         }

@@ -114,7 +114,7 @@ function DeveloperDashboard() {
               No applications yet.
             </p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto no-scrollbar">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] border-b border-[#D8D2C4]">

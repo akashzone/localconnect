@@ -172,7 +172,7 @@ function ApplicationCard({ app, onWithdraw }) {
 
         {status === "accepted" && (
           <Link
-            to={`/assigned-projects/${project._id}`}
+            to={`/projects/${project._id}`}
             className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
                        shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
                        transition-all duration-150"

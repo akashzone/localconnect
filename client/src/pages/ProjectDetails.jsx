@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import ApplicationForm from "../components/application/ApplicationForm";
+import AcceptRejectModal from "../components/application/AcceptRejectModal";
 
 const statusStyles = {
   open: "bg-[#E9F5F1] text-[#0F6B5C]",
@@ -31,6 +32,10 @@ function ProjectDetails() {
 
   const [applications, setApplications] = useState([]);
   const [loadingApps, setLoadingApps] = useState(false);
+
+  // Which application's Accept/Reject modal is currently open
+  const [modalTarget, setModalTarget] = useState(null); // { app, action }
+  const [submittingStatus, setSubmittingStatus] = useState(false);
 
   // Fetch applications for the project if user is owner
   useEffect(() => {
@@ -129,18 +134,24 @@ function ProjectDetails() {
     }
   };
 
-  const handleUpdateStatus = async (appId, newStatus) => {
-    if (!window.confirm(`Are you sure you want to set this application to ${newStatus}?`)) return;
+  const confirmStatusUpdate = async () => {
+    if (!modalTarget) return;
+    const { app, action } = modalTarget;
+
+    setSubmittingStatus(true);
     try {
-      await api.put(`/applications/${appId}/status`, { status: newStatus });
+      await api.put(`/applications/${app._id}/status`, { status: action });
       // Refresh applications and project details
       const appRes = await api.get(`/applications/project/${id}`);
       setApplications(appRes.data.data || []);
       const projRes = await api.get(`/projects/${id}`);
       setProject(projRes.data.data);
+      setModalTarget(null);
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Failed to update status");
+    } finally {
+      setSubmittingStatus(false);
     }
   };
 
@@ -335,13 +346,12 @@ function ProjectDetails() {
                           </span>
                         </div>
                         <span
-                          className={`font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-[3px] ${
-                            app.status === "Accepted"
+                          className={`font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-[3px] ${app.status === "Accepted"
                               ? "bg-[#E9F5F1] text-[#0F6B5C]"
                               : app.status === "Rejected"
-                              ? "bg-[#FBE7E4] text-[#B3452F]"
-                              : "bg-[#FDF3D6] text-[#8A6D1D]"
-                          }`}
+                                ? "bg-[#FBE7E4] text-[#B3452F]"
+                                : "bg-[#FDF3D6] text-[#8A6D1D]"
+                            }`}
                         >
                           {app.status}
                         </span>
@@ -365,13 +375,13 @@ function ProjectDetails() {
                       {app.status === "Pending" && isOpen && (
                         <div className="flex gap-2.5 mt-4 pt-3 border-t border-dashed border-[#D8D2C4]">
                           <button
-                            onClick={() => handleUpdateStatus(app._id, "Accepted")}
+                            onClick={() => setModalTarget({ app, action: "Accepted" })}
                             className="font-semibold text-xs px-3.5 py-2 rounded-[4px] bg-[#0F6B5C] text-white hover:bg-[#0C5449] cursor-pointer transition-colors"
                           >
                             Accept
                           </button>
                           <button
-                            onClick={() => handleUpdateStatus(app._id, "Rejected")}
+                            onClick={() => setModalTarget({ app, action: "Rejected" })}
                             className="font-semibold text-xs px-3.5 py-2 rounded-[4px] border border-[#B3452F] text-[#B3452F] hover:bg-[#FBE7E4] cursor-pointer transition-colors"
                           >
                             Reject
@@ -393,6 +403,16 @@ function ProjectDetails() {
           projectTitle={title}
           onClose={() => setShowForm(false)}
           onSuccess={handleApplicationSuccess}
+        />
+      )}
+
+      {modalTarget && (
+        <AcceptRejectModal
+          applicationName={modalTarget.app.developerId?.name || "This developer"}
+          action={modalTarget.action}
+          onConfirm={confirmStatusUpdate}
+          onCancel={() => setModalTarget(null)}
+          submitting={submittingStatus}
         />
       )}
     </div>
