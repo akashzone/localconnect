@@ -36,6 +36,7 @@ const developerProfileSchema = new mongoose.Schema(
 
     resume: {
       type: String,
+      trim: true,
     },
 
     profilePicture: {

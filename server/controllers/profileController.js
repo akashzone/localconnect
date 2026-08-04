@@ -41,7 +41,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills } = req.body;
+        const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills, resume } = req.body;
         let profile;
 
         if (req.user.role === "student") {
@@ -54,7 +54,7 @@ const updateProfile = async (req, res) => {
                 }
             }
 
-            const updateData = { bio, github, linkedIn, portfolio };
+            const updateData = { bio, github, linkedIn, portfolio, resume };
             if (skillsArray !== undefined) {
                 updateData.skills = skillsArray;
             }

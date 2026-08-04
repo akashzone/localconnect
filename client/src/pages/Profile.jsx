@@ -26,6 +26,7 @@ function Profile() {
         github: "",
         linkedIn: "",
         portfolio: "",
+        resume: "",
         skills: ""
     });
     const [saving, setSaving] = useState(false);
@@ -82,6 +83,7 @@ function Profile() {
                     github: prof?.github || "",
                     linkedIn: prof?.linkedIn || "",
                     portfolio: prof?.portfolio || "",
+                    resume: prof?.resume || "",
                     skills: prof?.skills ? prof.skills.join(", ") : ""
                 });
             } catch (err) {
@@ -105,6 +107,7 @@ function Profile() {
                     github: formData.github,
                     linkedIn: formData.linkedIn,
                     portfolio: formData.portfolio,
+                    resume: formData.resume,
                     skills: formData.skills
                 }
                 : {
@@ -145,6 +148,7 @@ function Profile() {
             github: profile.github || "",
             linkedIn: profile.linkedIn || "",
             portfolio: profile.portfolio || "",
+            resume: profile.resume || "",
             skills: profile.skills ? profile.skills.join(", ") : ""
         });
         setSaveError("");
@@ -265,7 +269,7 @@ function Profile() {
                                         </div>
 
                                         {/* Professional Links */}
-                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6 grid sm:grid-cols-3 gap-6">
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6 grid sm:grid-cols-4 gap-6">
                                             <div>
                                                 <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
                                                     GitHub
@@ -312,6 +316,23 @@ function Profile() {
                                                         className="text-[14px] text-[#0F6B5C] font-semibold hover:underline"
                                                     >
                                                         View Portfolio
+                                                    </a>
+                                                ) : (
+                                                    <p className="text-[14.5px] text-[#9B9384] italic">Not set</p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                    Resume
+                                                </span>
+                                                {profile.resume ? (
+                                                    <a
+                                                        href={profile.resume.startsWith("http") ? profile.resume : `https://${profile.resume}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[14px] text-[#0F6B5C] font-semibold hover:underline"
+                                                    >
+                                                        View Resume
                                                     </a>
                                                 ) : (
                                                     <p className="text-[14.5px] text-[#9B9384] italic">Not set</p>
@@ -425,7 +446,7 @@ function Profile() {
                                             />
                                         </div>
 
-                                        <div className="grid sm:grid-cols-3 gap-4">
+                                        <div className="grid sm:grid-cols-4 gap-4">
                                             <div>
                                                 <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
                                                     GitHub URL
@@ -468,6 +489,22 @@ function Profile() {
                                                     value={formData.portfolio}
                                                     onChange={handleChange}
                                                     placeholder="yourportfolio.com"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    Resume URL
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="resume"
+                                                    value={formData.resume}
+                                                    onChange={handleChange}
+                                                    placeholder="drive.google.com/..."
                                                     className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14px]
                                            focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
                                            transition-colors"
