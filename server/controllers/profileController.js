@@ -41,7 +41,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { bio, businessName, github, linkedIn, portfolio, skills } = req.body;
+        const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills } = req.body;
         let profile;
 
         if (req.user.role === "student") {
@@ -67,7 +67,16 @@ const updateProfile = async (req, res) => {
         } else if (req.user.role === "business") {
             profile = await BusinessProfile.findOneAndUpdate(
                 { userId: req.user.id },
-                { businessName },
+                {
+                    businessName,
+                    businessType,
+                    address,
+                    phone,
+                    description,
+                    socialLinks: {
+                        ...socialLinks
+                    }
+                },
                 { new: true }
             ).populate("userId", "name email role");
         } else {
@@ -97,6 +106,6 @@ const updateProfile = async (req, res) => {
 
 
 module.exports = {
-    getProfile, 
+    getProfile,
     updateProfile,
 };

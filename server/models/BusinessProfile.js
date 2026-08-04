@@ -11,13 +11,11 @@ const businessProfileSchema = new mongoose.Schema(
 
     businessName: {
       type: String,
-      // required: true,
       trim: true,
     },
 
     businessType: {
       type: String,
-      // required: true,
       trim: true,
     },
 

@@ -13,6 +13,16 @@ function Profile() {
     const [formData, setFormData] = useState({
         bio: "",
         businessName: "",
+        businessType: "",
+        description: "",
+        phone: "",
+        address: "",
+        socialLinks: {
+            website: "",
+            instagram: "",
+            facebook: "",
+            linkedin: ""
+        },
         github: "",
         linkedIn: "",
         portfolio: "",
@@ -27,9 +37,24 @@ function Profile() {
     const isBusiness = user?.role === "business" || user?.role === "businessOwner";
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        // Support nested fields via name="socialLinks.website"
+        if (name.includes(".")) {
+            const [parent, child] = name.split(".");
+            setFormData((prev) => ({
+                ...prev,
+                [parent]: {
+                    ...prev[parent],
+                    [child]: value
+                }
+            }));
+            return;
+        }
+
         setFormData((prev) => ({
             ...prev,
-            [e.target.name]: e.target.value
+            [name]: value
         }));
     };
 
@@ -44,6 +69,16 @@ function Profile() {
                 setFormData({
                     bio: prof?.bio || "",
                     businessName: prof?.businessName || "",
+                    businessType: prof?.businessType || "",
+                    description: prof?.description || "",
+                    phone: prof?.phone || "",
+                    address: prof?.address || "",
+                    socialLinks: {
+                        website: prof?.socialLinks?.website || "",
+                        instagram: prof?.socialLinks?.instagram || "",
+                        facebook: prof?.socialLinks?.facebook || "",
+                        linkedin: prof?.socialLinks?.linkedin || ""
+                    },
                     github: prof?.github || "",
                     linkedIn: prof?.linkedIn || "",
                     portfolio: prof?.portfolio || "",
@@ -71,10 +106,15 @@ function Profile() {
                     linkedIn: formData.linkedIn,
                     portfolio: formData.portfolio,
                     skills: formData.skills
-                  }
+                }
                 : {
-                    businessName: formData.businessName
-                  };
+                    businessName: formData.businessName,
+                    businessType: formData.businessType,
+                    description: formData.description,
+                    phone: formData.phone,
+                    address: formData.address,
+                    socialLinks: formData.socialLinks
+                };
 
             const res = await api.put("/profile", dataToSave);
             setProfile(res.data.profile);
@@ -85,6 +125,29 @@ function Profile() {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleCancel = () => {
+        setEditing(false);
+        setFormData({
+            bio: profile.bio || "",
+            businessName: profile.businessName || "",
+            businessType: profile.businessType || "",
+            description: profile.description || "",
+            phone: profile.phone || "",
+            address: profile.address || "",
+            socialLinks: {
+                website: profile.socialLinks?.website || "",
+                instagram: profile.socialLinks?.instagram || "",
+                facebook: profile.socialLinks?.facebook || "",
+                linkedin: profile.socialLinks?.linkedin || ""
+            },
+            github: profile.github || "",
+            linkedIn: profile.linkedIn || "",
+            portfolio: profile.portfolio || "",
+            skills: profile.skills ? profile.skills.join(", ") : ""
+        });
+        setSaveError("");
     };
 
     if (loading) {
@@ -109,6 +172,13 @@ function Profile() {
     const initials = name
         ? name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
         : "?";
+
+    const socialLinkFields = [
+        { key: "website", label: "Website" },
+        { key: "instagram", label: "Instagram" },
+        { key: "facebook", label: "Facebook" },
+        { key: "linkedin", label: "LinkedIn" }
+    ];
 
     return (
         <div className="min-h-screen bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430] px-4 py-16">
@@ -152,7 +222,7 @@ function Profile() {
                     <div className="border-t border-dashed border-[#D8D2C4] pt-6">
                         <div className="flex items-center justify-between mb-2">
                             <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384]">
-                                {isStudent ? "Bio" : "Business Name"}
+                                {isStudent ? "Bio" : (editing ? "Business Details" : "Business Name")}
                             </span>
 
                             {!editing && (
@@ -250,6 +320,77 @@ function Profile() {
                                         </div>
                                     </>
                                 )}
+
+                                {isBusiness && (
+                                    <>
+                                        {/* Business Type + Phone */}
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6 grid sm:grid-cols-2 gap-6">
+                                            <div>
+                                                <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                    Business Type
+                                                </span>
+                                                <p className="text-[14.5px] text-[#4A473F]">
+                                                    {profile.businessType || <span className="text-[#9B9384] italic">Not set</span>}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                    Phone
+                                                </span>
+                                                <p className="text-[14.5px] text-[#4A473F]">
+                                                    {profile.phone || <span className="text-[#9B9384] italic">Not set</span>}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Address */}
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6">
+                                            <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                Address
+                                            </span>
+                                            <p className="text-[14.5px] text-[#4A473F]">
+                                                {profile.address || <span className="text-[#9B9384] italic">Not set</span>}
+                                            </p>
+                                        </div>
+
+                                        {/* Description */}
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6">
+                                            <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                Description
+                                            </span>
+                                            <p className="text-[14.5px] text-[#4A473F] leading-relaxed">
+                                                {profile.description || <span className="text-[#9B9384] italic">Not set</span>}
+                                            </p>
+                                        </div>
+
+                                        {/* Social Links */}
+                                        <div className="border-t border-dashed border-[#D8D2C4] pt-6 grid sm:grid-cols-2 gap-6">
+                                            {socialLinkFields.map(({ key, label }) => (
+                                                <div key={key}>
+                                                    <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
+                                                        {label}
+                                                    </span>
+                                                    {profile.socialLinks?.[key] ? (
+                                                        <a
+                                                            href={
+                                                                profile.socialLinks[key].startsWith("http")
+                                                                    ? profile.socialLinks[key]
+                                                                    : `https://${profile.socialLinks[key]}`
+                                                            }
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-[14px] text-[#0F6B5C] font-semibold hover:underline"
+                                                        >
+                                                            View {label}
+                                                        </a>
+                                                    ) : (
+                                                        <p className="text-[14.5px] text-[#9B9384] italic">Not set</p>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -335,17 +476,110 @@ function Profile() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div>
-                                        <input
-                                            type="text"
-                                            name="businessName"
-                                            value={formData.businessName}
-                                            onChange={handleChange}
-                                            placeholder="Your business name"
-                                            className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
-                                   focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                                   transition-colors"
-                                        />
+                                    <div className="space-y-4">
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    Business Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="businessName"
+                                                    value={formData.businessName}
+                                                    onChange={handleChange}
+                                                    placeholder="Your business name"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    Business Type
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="businessType"
+                                                    value={formData.businessType}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. Restaurant, Retail, Agency"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    Phone
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="phone"
+                                                    value={formData.phone}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. +91 98765 43210"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                    Address
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="address"
+                                                    value={formData.address}
+                                                    onChange={handleChange}
+                                                    placeholder="Street, city, state"
+                                                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                Description
+                                            </label>
+                                            <textarea
+                                                name="description"
+                                                value={formData.description}
+                                                onChange={handleChange}
+                                                rows={4}
+                                                placeholder="Tell developers a bit about your business..."
+                                                className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14.5px] resize-none
+                                       focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                       transition-colors"
+                                            />
+                                        </div>
+
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            {socialLinkFields.map(({ key, label }) => (
+                                                <div key={key}>
+                                                    <label className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+                                                        {label}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name={`socialLinks.${key}`}
+                                                        value={formData.socialLinks[key]}
+                                                        onChange={handleChange}
+                                                        placeholder={`${label.toLowerCase()}.com/yourbusiness`}
+                                                        className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[14px]
+                                           focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
+                                           transition-colors"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
 
@@ -355,18 +589,7 @@ function Profile() {
 
                                 <div className="flex gap-3 pt-2">
                                     <button
-                                        onClick={() => {
-                                            setEditing(false);
-                                            setFormData({
-                                                bio: profile.bio || "",
-                                                businessName: profile.businessName || "",
-                                                github: profile.github || "",
-                                                linkedIn: profile.linkedIn || "",
-                                                portfolio: profile.portfolio || "",
-                                                skills: profile.skills ? profile.skills.join(", ") : ""
-                                            });
-                                            setSaveError("");
-                                        }}
+                                        onClick={handleCancel}
                                         className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                                hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
                                     >
