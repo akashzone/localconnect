@@ -38,6 +38,38 @@ const getProfile = async (req, res) => {
     }
 };
 
+const getDeveloperProfileById = async (req, res) => {
+    try {
+        const { developerId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(developerId)) {
+            return res.status(400).json({
+                message: "Invalid developer ID",
+            });
+        }
+
+        const profile = await DeveloperProfile.findOne({
+            userId: developerId,
+        }).populate("userId", "name email role skills linkedIn github portfolio resume");
+
+        if (!profile) {
+            return res.status(404).json({
+                message: "Profile not found",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Profile fetched successfully",
+            profile,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error",
+        });
+    }
+}
 
 const updateProfile = async (req, res) => {
     try {
@@ -107,5 +139,6 @@ const updateProfile = async (req, res) => {
 
 module.exports = {
     getProfile,
+    getDeveloperProfileById,
     updateProfile,
 };
