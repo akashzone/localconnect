@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 
@@ -28,6 +28,7 @@ const formatDate = (date) =>
     : "—";
 
 function ProjectRow({ project, onDelete }) {
+  const location = useLocation();
   const [deleting, setDeleting] = useState(false);
   const status = project.status?.toLowerCase() || "open";
   const statusClass = statusStyles[status] || statusStyles.open;
@@ -86,6 +87,7 @@ function ProjectRow({ project, onDelete }) {
       <div className="flex flex-wrap gap-3">
         <Link
           to={`/projects/${project._id}`}
+          state={{ from: location }}
           className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                      hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
         >

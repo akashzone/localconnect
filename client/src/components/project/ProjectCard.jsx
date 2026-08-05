@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const statusStyles = {
   open: "bg-[#E9F5F1] text-[#0F6B5C]",
@@ -8,6 +8,7 @@ const statusStyles = {
 };
 
 function ProjectCard({ project }) {
+  const location = useLocation();
   const {
     _id,
     title,
@@ -77,6 +78,7 @@ function ProjectCard({ project }) {
       {/* CTA */}
       <Link
         to={`/projects/${_id}`}
+        state={{ from: location }}
         className="text-center font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                    hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
       >

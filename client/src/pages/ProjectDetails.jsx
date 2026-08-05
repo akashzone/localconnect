@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import ApplicationForm from "../components/application/ApplicationForm";
@@ -15,7 +15,28 @@ const statusStyles = {
 function ProjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, user } = useContext(AuthContext);
+
+  const handleBack = (e) => {
+    e.preventDefault();
+    if (location.state?.from) {
+      navigate(location.state.from);
+    } else {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/projects");
+      }
+    }
+  };
+
+  const getBackLabel = () => {
+    const fromPath = location.state?.from?.pathname || location.state?.from;
+    if (fromPath === "/my-projects") return "← Back to My Projects";
+    if (fromPath === "/projects") return "← Back to projects";
+    return "← Back";
+  };
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -198,12 +219,12 @@ function ProjectDetails() {
     <div className="min-h-screen bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430] px-4 py-16">
       <div className="max-w-3xl mx-auto">
 
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-2 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#0F6B5C] hover:underline mb-8"
+        <button
+          onClick={handleBack}
+          className="inline-flex items-center gap-2 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#0F6B5C] hover:underline mb-8 cursor-pointer border-0 bg-transparent p-0"
         >
-          ← Back to projects
-        </Link>
+          {getBackLabel()}
+        </button>
 
         <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-8 sm:p-10 shadow-[6px_6px_0px_#1B2430]">
 
@@ -279,6 +300,7 @@ function ProjectDetails() {
               <div className="flex gap-3">
                 <Link
                   to={`/${project._id}/edit-project`}
+                  state={{ from: location.state?.from }}
                   className="flex-1 text-center font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                              hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
                 >

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
 
 const statusConfig = {
@@ -27,6 +27,7 @@ const formatDate = (date) =>
         : "—";
 
 function ApplicationRow({ app }) {
+    const location = useLocation();
     const status = app.status?.toLowerCase() || "pending";
     const badge = statusConfig[status] || statusConfig.pending;
     const developer = app.developerId || {};
@@ -58,6 +59,7 @@ function ApplicationRow({ app }) {
                     </span>
                     <Link
                         to={`/projects/${project._id}`}
+                        state={{ from: location }}
                         className="font-medium text-sm text-[#0F6B5C] hover:underline"
                     >
                         {project.title || "—"}
@@ -101,6 +103,7 @@ function ApplicationRow({ app }) {
 
             <Link
                 to={`/projects/${project._id}`}
+                state={{ from: location }}
                 className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                    hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
             >

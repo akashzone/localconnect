@@ -47,7 +47,7 @@ function CreateProject() {
       });
 
       const newProjectId = res.data?.data?._id;
-      navigate(newProjectId ? `/projects/${newProjectId}` : "/my-projects");
+      navigate(newProjectId ? `/projects/${newProjectId}` : "/my-projects", { state: { from: "/my-projects" } });
     } catch (err) {
       console.log(err);
       setErrorMsg(err.response?.data?.message || "Failed to create project");

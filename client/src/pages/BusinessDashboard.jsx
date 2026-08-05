@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFolderOpen,
@@ -56,6 +56,7 @@ const daysUntil = (date) => {
 };
 
 function BusinessDashboard() {
+  const location = useLocation();
   const { isAuthenticated, user } = useContext(AuthContext);
   const [projects, setProjects] = useState([]);
   const [allApplications, setAllApplications] = useState([]);
@@ -276,6 +277,7 @@ function BusinessDashboard() {
                           <div className="flex items-center gap-2 justify-end flex-wrap">
                             <Link
                               to={`/projects/${p._id}`}
+                              state={{ from: location }}
                               className="font-['IBM_Plex_Mono'] text-[11px] px-3 py-1.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
                                          shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
                                          transition-all duration-150 whitespace-nowrap"
@@ -292,6 +294,7 @@ function BusinessDashboard() {
                             </Link>
                             <Link
                               to={`/projects/${p._id}`}
+                              state={{ from: location }}
                               className="font-['IBM_Plex_Mono'] text-[11px] px-3 py-1.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
                                          shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
                                          transition-all duration-150 whitespace-nowrap"
@@ -367,6 +370,7 @@ function BusinessDashboard() {
                       </span>
                       <Link
                         to={`/projects/${app.projectId}`}
+                        state={{ from: location }}
                         className="font-semibold text-xs px-3.5 py-2 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
                                    shadow-[2px_2px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[1px] hover:translate-y-[1px]
                                    transition-all duration-150"
@@ -402,6 +406,7 @@ function BusinessDashboard() {
                   >
                     <Link
                       to={`/projects/${p._id}`}
+                      state={{ from: location }}
                       className="font-medium text-[14.5px] hover:text-[#0F6B5C] transition-colors"
                     >
                       {p.title}

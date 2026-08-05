@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import EditProjectForm from "../components/project/EditProjectForm";
@@ -7,6 +7,7 @@ import EditProjectForm from "../components/project/EditProjectForm";
 function EditProject() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { isAuthenticated, user } = useContext(AuthContext);
 
     const [project, setProject] = useState(null);
@@ -72,7 +73,7 @@ function EditProject() {
                 skillsRequired,
             });
 
-            navigate(`/projects/${id}`);
+            navigate(`/projects/${id}`, { state: { from: location.state?.from } });
         } catch (err) {
             console.log(err);
             setErrorMsg(err.response?.data?.message || "Failed to update project");
@@ -107,6 +108,7 @@ function EditProject() {
 
                 <Link
                     to={`/projects/${id}`}
+                    state={{ from: location.state?.from }}
                     className="inline-flex items-center gap-2 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#0F6B5C] hover:underline mb-6"
                 >
                     ← Back to project

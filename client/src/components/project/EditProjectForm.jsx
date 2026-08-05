@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const statusOptions = ["Open", "In Progress", "Completed", "Cancelled"];
 
 function EditProjectForm({ initialData, onSubmit, submitting, errorMsg, cancelTo }) {
+    const location = useLocation();
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -215,6 +216,7 @@ function EditProjectForm({ initialData, onSubmit, submitting, errorMsg, cancelTo
                 <div className="flex gap-3 pt-1">
                     <Link
                         to={cancelTo}
+                        state={{ from: location.state?.from }}
                         className="flex-1 text-center font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                        hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
                     >
