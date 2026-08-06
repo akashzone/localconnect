@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { accessToken, refreshToken } = require("../utils/generateToken");
 const DeveloperProfile = require("../models/DeveloperProfile");
@@ -85,8 +86,15 @@ const login = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     };
 
-    res.cookie("accessToken", accToken, cookieOptions);
-    res.cookie("refreshToken", refToken, cookieOptions);
+
+    res.cookie("accessToken", accToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+    res.cookie("refreshToken", refToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
     res.status(200).json({ message: "Login successful", user });
   } catch (error) {
     return res
@@ -94,6 +102,7 @@ const login = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
 
 const refreshAccessToken = (req, res) => {
   const token = req.cookies.refreshToken;
