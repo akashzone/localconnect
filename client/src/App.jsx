@@ -12,6 +12,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import MyApplications from "./pages/MyApplications";
 import Profile from "./pages/Profile";
+import DeveloperProfile from "./pages/DeveloperProfile";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -96,6 +97,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["business"]}>
               <MyProjects />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile/developer/:developerId"
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <DeveloperProfile />
             </ProtectedRoute>
           }
         />

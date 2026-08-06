@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const mongoose = require("mongoose");
 const DeveloperProfile = require("../models/DeveloperProfile");
 const BusinessProfile = require("../models/BusinessProfile");
 
@@ -50,14 +51,13 @@ const getDeveloperProfileById = async (req, res) => {
 
         const profile = await DeveloperProfile.findOne({
             userId: developerId,
-        }).populate("userId", "name email role skills linkedIn github portfolio resume");
-
+        }).populate("userId", "name email role");
         if (!profile) {
             return res.status(404).json({
                 message: "Profile not found",
             });
         }
-
+        console.log("Profile Data - ", profile)
         return res.status(200).json({
             message: "Profile fetched successfully",
             profile,

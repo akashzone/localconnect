@@ -102,12 +102,11 @@ function ApplicationRow({ app }) {
             )}
 
             <Link
-                to={`/projects/${project._id}`}
-                state={{ from: location }}
-                className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                to={`/profile/developer/${developer._id}`}
+                className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] mx-4 border-2 border-[#1B2430] text-[#1B2430]
                    hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
             >
-                View Project
+                View Profile
             </Link>
         </div>
     );
@@ -181,8 +180,8 @@ function BusinessApplications() {
                                     key={tab.key}
                                     onClick={() => setActiveFilter(tab.key)}
                                     className={`font-['IBM_Plex_Mono'] text-[12px] px-3.5 py-2 rounded-[4px] border transition-colors duration-150 ${activeFilter === tab.key
-                                            ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3]"
-                                            : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430] hover:text-[#1B2430]"
+                                        ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3]"
+                                        : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430] hover:text-[#1B2430]"
                                         }`}
                                 >
                                     {tab.label} ({counts[tab.key]})
