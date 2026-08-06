@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
+import AcceptRejectModal from "../components/application/AcceptRejectModal";
 
 const statusConfig = {
     pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
@@ -26,12 +27,22 @@ const formatDate = (date) =>
         })
         : "—";
 
-function ApplicationRow({ app }) {
+function ApplicationRow({ app, onStatusUpdate }) {
     const location = useLocation();
     const status = app.status?.toLowerCase() || "pending";
     const badge = statusConfig[status] || statusConfig.pending;
     const developer = app.developerId || {};
     const project = app.projectId || {};
+
+    const [modalAction, setModalAction] = useState(null); // "Accepted" | "Rejected" | null
+    const [submitting, setSubmitting] = useState(false);
+
+    const confirmAction = async () => {
+        setSubmitting(true);
+        await onStatusUpdate(app._id, modalAction);
+        setSubmitting(false);
+        setModalAction(null);
+    };
 
     return (
         <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 shadow-[3px_3px_0px_#D8D2C4]">
@@ -101,13 +112,46 @@ function ApplicationRow({ app }) {
                 </div>
             )}
 
-            <Link
-                to={`/profile/developer/${developer._id}`}
-                className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] mx-4 border-2 border-[#1B2430] text-[#1B2430]
-                   hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
-            >
-                View Profile
-            </Link>
+            <div className="flex flex-wrap gap-3">
+                <Link
+                    to={`/profile/developer/${developer._id}`}
+                    state={{ from: location }}
+                    className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                       hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+                >
+                    View Profile
+                </Link>
+
+                {status === "pending" && (
+                    <>
+                        <button
+                            onClick={() => setModalAction("Accepted")}
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
+                                       shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px]
+                                       transition-all duration-150"
+                        >
+                            Accept
+                        </button>
+                        <button
+                            onClick={() => setModalAction("Rejected")}
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
+                                       hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
+                        >
+                            Reject
+                        </button>
+                    </>
+                )}
+            </div>
+
+            {modalAction && (
+                <AcceptRejectModal
+                    applicationName={developer.name || "This developer"}
+                    action={modalAction}
+                    onConfirm={confirmAction}
+                    onCancel={() => setModalAction(null)}
+                    submitting={submitting}
+                />
+            )}
         </div>
     );
 }
@@ -137,6 +181,39 @@ function BusinessApplications() {
 
         fetchApplications();
     }, []);
+
+    const handleStatusUpdate = async (applicationId, newStatus) => {
+        try {
+            const res = await api.put(`/applications/${applicationId}/status`, { status: newStatus });
+
+            // Accepting one application auto-rejects all other pending applications
+            // for the same project (per the backend's updateMany) — reflect that locally
+            // instead of just updating the one row, so the list stays accurate without a refetch.
+            const acceptedApp = applications.find((a) => a._id === applicationId);
+            const acceptedProjectId =
+                typeof acceptedApp?.projectId === "object" ? acceptedApp.projectId?._id : acceptedApp?.projectId;
+
+            setApplications((prev) =>
+                prev.map((app) => {
+                    if (app._id === applicationId) {
+                        return { ...app, status: newStatus };
+                    }
+                    const appProjectId = typeof app.projectId === "object" ? app.projectId?._id : app.projectId;
+                    if (
+                        newStatus === "Accepted" &&
+                        appProjectId === acceptedProjectId &&
+                        app.status?.toLowerCase() === "pending"
+                    ) {
+                        return { ...app, status: "Rejected" };
+                    }
+                    return app;
+                })
+            );
+        } catch (err) {
+            console.log(err);
+            alert(err.response?.data?.message || "Failed to update application status");
+        }
+    };
 
     const counts = applications.reduce(
         (acc, app) => {
@@ -238,7 +315,7 @@ function BusinessApplications() {
                 {!loading && !error && visibleApplications.length > 0 && (
                     <div className="space-y-5">
                         {visibleApplications.map((app) => (
-                            <ApplicationRow key={app._id} app={app} />
+                            <ApplicationRow key={app._id} app={app} onStatusUpdate={handleStatusUpdate} />
                         ))}
                     </div>
                 )}
