@@ -6,7 +6,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const roleMiddleware = require("../middlewares/roleMiddleware");
 
 //controller functions
-const { getBusinessDashboard, getDeveloperDashboard } = require("../controllers/dashboardController")
+const { getBusinessDashboard, getStudentDashboard } = require("../controllers/dashboardController")
 
 const router = express.Router();
 
@@ -18,10 +18,10 @@ router.get(
 )
 
 router.get(
-    "/developer",
+    "/student",
     authMiddleware,
-    roleMiddleware("developer"),
-    getDeveloperDashboard
+    roleMiddleware("student"),
+    getStudentDashboard
 )
 
 module.exports = router;

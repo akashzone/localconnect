@@ -186,21 +186,21 @@ const getMyProjects = async (req, res) => {
   }
 };
 
-const getAssignedProjects = async (req,res)=>{
-  const developerId = req.user.id;
-  try{
+const getAssignedProjects = async (req, res) => {
+  const studentId = req.user.id;
+  try {
     const accpetedProjects = await Project.find({
-      selectedDeveloper: developerId,
+      selectedStudent: studentId,
       status: "In Progress"
     })
-    console.log("Accepted projects, that we have applied for :",accpetedProjects);
+    console.log("Accepted projects, that we have applied for :", accpetedProjects);
     return res.status(200).json({
       success: true,
       message: "acceptedProjects fetched successfully",
       data: accpetedProjects,
     });
 
-  }catch(error){
+  } catch (error) {
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });

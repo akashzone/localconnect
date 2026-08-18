@@ -46,11 +46,11 @@ const getBusinessDashboard = async (req, res) => {
   }
 };
 
-const getDeveloperDashboard = async (req, res) => {
+const getStudentDashboard = async (req, res) => {
   try {
-    const developerId = req.user.id;
+    const studentId = req.user.id;
     const applications = await Application.find({
-        developerId
+      studentId
     }).populate("projectId");
 
     const dashboardData = {
@@ -90,5 +90,5 @@ const getDeveloperDashboard = async (req, res) => {
 
 module.exports = {
   getBusinessDashboard,
-  getDeveloperDashboard,
+  getStudentDashboard,
 };

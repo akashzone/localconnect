@@ -19,7 +19,7 @@ const router = express.Router();
 
 
 //Can be accessed only by developer
-router.get("/assigned",authMiddleware,roleMiddleware("developer"),getAssignedProjects);
+router.get("/assigned", authMiddleware, roleMiddleware("student"), getAssignedProjects);
 
 //Can be accessed only by businessOwner
 router.post("/", authMiddleware, roleMiddleware("business"), createProject);

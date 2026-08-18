@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
 
-function DeveloperProfile() {
-    const { developerId } = useParams();
+function StudentProfile() {
+    const { studentId } = useParams();
     const location = useLocation();
 
     const [profile, setProfile] = useState(null);
@@ -16,7 +16,7 @@ function DeveloperProfile() {
                 setLoading(true);
                 setError(false);
 
-                const res = await api.get(`/profile/developer/${developerId}`);
+                const res = await api.get(`/profile/student/${studentId}`);
 
                 setProfile(res.data.profile);
             } catch (err) {
@@ -28,7 +28,7 @@ function DeveloperProfile() {
         };
 
         fetchProfile();
-    }, [developerId]);
+    }, [studentId]);
 
     if (loading) {
         return (
@@ -111,7 +111,7 @@ function DeveloperProfile() {
                             </h1>
 
                             <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-widest text-[#0F6B5C]">
-                                Developer
+                                Student
                             </span>
                         </div>
                     </div>
@@ -220,4 +220,4 @@ function DeveloperProfile() {
     );
 }
 
-export default DeveloperProfile;
+export default StudentProfile;

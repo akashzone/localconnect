@@ -5,8 +5,8 @@ const PublicRoute = ({ children }) => {
   const { user } = useAuth();
 
   if (user) {
-    if (user.role === "developer") {
-      return <Navigate to="/dashboard/developer" replace />;
+    if (user.role === "student") {
+      return <Navigate to="/dashboard/student" replace />;
     }
 
     if (user.role === "business") {

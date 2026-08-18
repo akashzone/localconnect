@@ -61,11 +61,11 @@ function Navbar() {
             </>
           )}
 
-          {/* Developer */}
-          {user?.role === "developer" && (
+          {/* Student */}
+          {user?.role === "student" && (
             <>
               <NavItem to="/projects" label="Projects" />
-              <NavItem to="/dashboard/developer" label="Dashboard" />
+              <NavItem to="/dashboard/student" label="Dashboard" />
               <NavItem to="/my-applications" label="My Applications" />
               <NavItem to="/profile" label="Profile" />
             </>
@@ -187,8 +187,8 @@ function Navbar() {
               </>
             )}
 
-            {/* Developer Mobile Links */}
-            {user?.role === "developer" && (
+            {/* Student Mobile Links */}
+            {user?.role === "student" && (
               <>
                 <NavLink
                   to="/projects"
@@ -201,7 +201,7 @@ function Navbar() {
                   Projects
                 </NavLink>
                 <NavLink
-                  to="/dashboard/developer"
+                  to="/dashboard/student"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
                     `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"

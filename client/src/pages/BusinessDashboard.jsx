@@ -339,10 +339,10 @@ function BusinessDashboard() {
             <div className="space-y-4">
               {recentApplications.map((app) => {
                 const appStatus = app.status?.toLowerCase() || "pending";
-                const developerName =
-                  app.developerId?.name ||
-                  app.developerId?.userId?.name ||
-                  "A developer";
+                const studentName =
+                  app.studentId?.name ||
+                  app.studentId?.userId?.name ||
+                  "A student";
 
                 return (
                   <div
@@ -351,7 +351,7 @@ function BusinessDashboard() {
                   >
                     <div>
                       <p className="font-['Space_Grotesk'] font-bold text-[15px] mb-0.5">
-                        {developerName}
+                        {studentName}
                       </p>
                       <p className="text-[13.5px] text-[#4A473F]">
                         Applied to {app.projectTitle}

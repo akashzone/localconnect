@@ -31,7 +31,7 @@ function ApplicationRow({ app, onStatusUpdate }) {
     const location = useLocation();
     const status = app.status?.toLowerCase() || "pending";
     const badge = statusConfig[status] || statusConfig.pending;
-    const developer = app.developerId || {};
+    const student = app.studentId || {};
     const project = app.projectId || {};
 
     const [modalAction, setModalAction] = useState(null); // "Accepted" | "Rejected" | null
@@ -49,10 +49,10 @@ function ApplicationRow({ app, onStatusUpdate }) {
             <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
                 <div>
                     <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-1">
-                        {developer.name || "Unknown developer"}
+                        {student.name || "Unknown student"}
                     </h3>
                     <p className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">
-                        {developer.email || "—"}
+                        {student.email || "—"}
                     </p>
                 </div>
 
@@ -114,7 +114,7 @@ function ApplicationRow({ app, onStatusUpdate }) {
 
             <div className="flex flex-wrap gap-3">
                 <Link
-                    to={`/profile/developer/${developer._id}`}
+                    to={`/profile/student/${student._id}`}
                     state={{ from: location }}
                     className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
                        hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
@@ -145,7 +145,7 @@ function ApplicationRow({ app, onStatusUpdate }) {
 
             {modalAction && (
                 <AcceptRejectModal
-                    applicationName={developer.name || "This developer"}
+                    applicationName={student.name || "This student"}
                     action={modalAction}
                     onConfirm={confirmAction}
                     onCancel={() => setModalAction(null)}
@@ -232,7 +232,7 @@ function BusinessApplications() {
         const term = searchTerm.trim().toLowerCase();
         const matchesSearch =
             !term ||
-            app.developerId?.name?.toLowerCase().includes(term) ||
+            app.studentId?.name?.toLowerCase().includes(term) ||
             app.projectId?.title?.toLowerCase().includes(term);
 
         return matchesFilter && matchesSearch;

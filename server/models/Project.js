@@ -50,9 +50,9 @@ const projectSchema = new mongoose.Schema(
       required: true,
     },
 
-    selectedDeveloper: {
+    selectedStudent: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "DeveloperProfile",
+      ref: "StudentProfile",
       default: null,
     },
   },

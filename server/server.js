@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 app.get(
   "/api/protected",
   authMiddleware,
-  roleMiddleware("developer"),
+  roleMiddleware("student"),
   (req, res) => {
     res.json({ message: "This is a protected route" });
   },

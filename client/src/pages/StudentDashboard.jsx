@@ -10,7 +10,7 @@ const statusStyles = {
   withdrawn: "bg-[#EAEAEA] text-[#4A473F]",
 };
 
-function DeveloperDashboard() {
+function StudentDashboard() {
   const { isAuthenticated } = useContext(AuthContext);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState(null);
@@ -22,7 +22,7 @@ function DeveloperDashboard() {
       try {
         setLoading(true);
         setError(false);
-        const res = await api.get("/dashboard/developer");
+        const res = await api.get("/dashboard/student");
         setApplications(res.data.data.applications || []);
         setStats(res.data.data.dashboard || null);
       } catch (err) {
@@ -75,7 +75,7 @@ function DeveloperDashboard() {
           Overview
         </span>
         <h1 className="font-['Space_Grotesk'] font-bold text-3xl md:text-4xl mt-2 mb-10">
-          Developer Dashboard
+          Student Dashboard
         </h1>
 
         {/* Stats */}
@@ -168,4 +168,4 @@ function DeveloperDashboard() {
   );
 }
 
-export default DeveloperDashboard;
+export default StudentDashboard;

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const developerProfileSchema = new mongoose.Schema(
+const studentProfileSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -48,6 +48,6 @@ const developerProfileSchema = new mongoose.Schema(
   }
 );
 
-const DeveloperProfile = mongoose.model("DeveloperProfile", developerProfileSchema);
+const StudentProfile = mongoose.model("StudentProfile", studentProfileSchema);
 
-module.exports = DeveloperProfile;
+module.exports = StudentProfile;

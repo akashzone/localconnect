@@ -101,7 +101,7 @@ function ProjectDetails() {
   useEffect(() => {
     const checkApplied = async () => {
       // Only developers can apply, so only bother checking for that role
-      if (!isAuthenticated || user?.role !== "developer") {
+      if (!isAuthenticated || user?.role !== "student") {
         setCheckingApplication(false);
         return;
       }
@@ -362,9 +362,9 @@ function ProjectDetails() {
                     >
                       <div className="flex justify-between items-start flex-wrap gap-2 mb-3">
                         <div>
-                          <h4 className="font-semibold text-base">{app.developerId?.name || "Developer"}</h4>
+                          <h4 className="font-semibold text-base">{app.studentId?.name || "Student"}</h4>
                           <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">
-                            {app.developerId?.email}
+                            {app.studentId?.email}
                           </span>
                         </div>
                         <span
@@ -430,7 +430,7 @@ function ProjectDetails() {
 
       {modalTarget && (
         <AcceptRejectModal
-          applicationName={modalTarget.app.developerId?.name || "This developer"}
+          applicationName={modalTarget.app.studentId?.name || "This student"}
           action={modalTarget.action}
           onConfirm={confirmStatusUpdate}
           onCancel={() => setModalTarget(null)}

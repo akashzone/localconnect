@@ -2,7 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { accessToken, refreshToken } = require("../utils/generateToken");
-const DeveloperProfile = require("../models/DeveloperProfile");
+const StudentProfile = require("../models/StudentProfile");
 const BusinessProfile = require("../models/BusinessProfile");
 
 const register = async (req, res) => {
@@ -21,8 +21,8 @@ const register = async (req, res) => {
       role,
     });
 
-    if (role == "developer") {
-      const newUserDeveloper = await DeveloperProfile.create({
+    if (role == "student") {
+      const newUserDeveloper = await StudentProfile.create({
         userId: newUser._id,
       });
     } else if (role == "business") {

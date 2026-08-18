@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["developer", "business", "admin"],
+      enum: ["student", "business", "admin"],
     },
   },
   {
@@ -28,5 +28,5 @@ const userSchema = new mongoose.Schema(
 );
 
 
-const User = mongoose.model("User",userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;

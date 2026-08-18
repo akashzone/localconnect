@@ -32,7 +32,7 @@ function Profile() {
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState("");
 
-    const isDeveloper = user?.role === "developer";
+    const isStudent = user?.role === "student";
     // Flagged above: backend expects "businessOwner", rest of the app uses "business".
     // Using both here so the page still renders correctly regardless of which is actually true.
     const isBusiness = user?.role === "business" || user?.role === "businessOwner";
@@ -95,13 +95,13 @@ function Profile() {
         };
 
         fetchProfile();
-    }, [isDeveloper]);
+    }, [isStudent]);
 
     const handleSave = async () => {
         setSaving(true);
         setSaveError("");
         try {
-            const dataToSave = isDeveloper
+            const dataToSave = isStudent
                 ? {
                     bio: formData.bio,
                     github: formData.github,
@@ -200,7 +200,7 @@ function Profile() {
                         <div>
                             <h1 className="font-['Space_Grotesk'] font-bold text-2xl">{name}</h1>
                             <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-widest text-[#0F6B5C]">
-                                {isDeveloper ? "Developer" : "Business Owner"}
+                                {isStudent ? "Student" : "Business Owner"}
                             </span>
                         </div>
                     </div>
@@ -226,7 +226,7 @@ function Profile() {
                     <div className="border-t border-dashed border-[#D8D2C4] pt-6">
                         <div className="flex items-center justify-between mb-2">
                             <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384]">
-                                {isDeveloper ? "Bio" : (editing ? "Business Details" : "Business Name")}
+                                {isStudent ? "Bio" : (editing ? "Business Details" : "Business Name")}
                             </span>
 
                             {!editing && (
@@ -242,10 +242,10 @@ function Profile() {
                         {!editing ? (
                             <div className="space-y-6">
                                 <p className="text-[14.5px] text-[#4A473F] leading-relaxed">
-                                    {isDeveloper ? profile.bio || "No bio set yet." : profile.businessName || "Not set yet."}
+                                    {isStudent ? profile.bio || "No bio set yet." : profile.businessName || "Not set yet."}
                                 </p>
 
-                                {isDeveloper && (
+                                {isStudent && (
                                     <>
                                         {/* Skills */}
                                         <div className="border-t border-dashed border-[#D8D2C4] pt-6">
@@ -415,7 +415,7 @@ function Profile() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {isDeveloper ? (
+                                {isStudent ? (
                                     <div className="space-y-4">
                                         <div>
                                             <textarea

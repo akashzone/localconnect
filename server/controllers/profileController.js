@@ -1,13 +1,13 @@
 const User = require("../models/User");
 const mongoose = require("mongoose");
-const DeveloperProfile = require("../models/DeveloperProfile");
+const StudentProfile = require("../models/StudentProfile");
 const BusinessProfile = require("../models/BusinessProfile");
 
 const getProfile = async (req, res) => {
     try {
         let profile;
-        if (req.user.role === "developer") {
-            profile = await DeveloperProfile.findOne({
+        if (req.user.role === "student") {
+            profile = await StudentProfile.findOne({
                 userId: req.user.id,
             }).populate("userId", "name email role");
         } else if (req.user.role === "business") {
@@ -39,18 +39,18 @@ const getProfile = async (req, res) => {
     }
 };
 
-const getDeveloperProfileById = async (req, res) => {
+const getStudentProfileById = async (req, res) => {
     try {
-        const { developerId } = req.params;
+        const { studentId } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(developerId)) {
+        if (!mongoose.Types.ObjectId.isValid(studentId)) {
             return res.status(400).json({
-                message: "Invalid developer ID",
+                message: "Invalid student ID",
             });
         }
 
-        const profile = await DeveloperProfile.findOne({
-            userId: developerId,
+        const profile = await StudentProfile.findOne({
+            userId: studentId,
         }).populate("userId", "name email role");
         if (!profile) {
             return res.status(404).json({
@@ -91,7 +91,7 @@ const updateProfile = async (req, res) => {
                 updateData.skills = skillsArray;
             }
 
-            profile = await DeveloperProfile.findOneAndUpdate(
+            profile = await StudentProfile.findOneAndUpdate(
                 { userId: req.user.id },
                 updateData,
                 { new: true }
@@ -139,6 +139,6 @@ const updateProfile = async (req, res) => {
 
 module.exports = {
     getProfile,
-    getDeveloperProfileById,
+    getStudentProfileById,
     updateProfile,
 };

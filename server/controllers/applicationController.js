@@ -13,7 +13,7 @@ const applyToProject = async (req, res) => {
     }
     const isAlreadyApplied = await Application.findOne({
       projectId,
-      developerId: req.user.id,
+      studentId: req.user.id,
     });
     if (isAlreadyApplied) {
       return res
@@ -36,7 +36,7 @@ const applyToProject = async (req, res) => {
       projectId,
       coverLetter,
       estimatedDuration,
-      developerId: req.user.id,
+      studentId: req.user.id,
     });
     await apply.populate("projectId");
     console.log("Applied to project successfully : ", apply);
@@ -53,7 +53,7 @@ const applyToProject = async (req, res) => {
 const getMyApplications = async (req, res) => {
   try {
     const getApplications = await Application.find({
-      developerId: req.user.id,
+      studentId: req.user.id,
     }).populate(
       "projectId",
       "title budget deadline category status businessOwnerId",
@@ -93,7 +93,7 @@ const getBusinessApplications = async (req, res) => {
     const applications = await Application.find({
       projectId: { $in: projectIds },
     })
-      .populate("developerId", "name email")
+      .populate("studentId", "name email")
       .populate("projectId", "title budget status")
       .sort({ createdAt: -1 });
 
@@ -123,7 +123,7 @@ const getApplicationsForProject = async (req, res) => {
   try {
     const applications = await Application.find({
       projectId,
-    }).populate("projectId").populate("developerId", "name email");
+    }).populate("projectId").populate("studentId", "name email");
 
     if (!applications) {
       return res.status(401).json({
@@ -200,7 +200,7 @@ const updateApplicationStatus = async (req, res) => {
         application.projectId,
         {
           status: "In Progress",
-          selectedDeveloper: application.developerId,
+          selectedStudent: application.studentId,
         },
         {
           new: true,
@@ -222,7 +222,7 @@ const updateApplicationStatus = async (req, res) => {
       success: true,
       message:
         status === "Accepted"
-          ? "Developer selected successfully."
+          ? "Student selected successfully."
           : "Application status updated successfully.",
       application,
       updatedProject,
@@ -247,7 +247,7 @@ const withdrawApplication = async (req, res) => {
       });
     }
 
-    if (application.developerId.toString() !== req.user.id) {
+    if (application.studentId.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to withdraw this application.",

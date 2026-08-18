@@ -12,15 +12,15 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import MyApplications from "./pages/MyApplications";
 import Profile from "./pages/Profile";
-import DeveloperProfile from "./pages/DeveloperProfile";
+import StudentProfile from "./pages/StudentProfile";
 
 //componentes
 import Navbar from "./components/Navbar"
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-//developer components 
-import DeveloperDashboard from "./pages/DeveloperDashboard";
+//student components 
+import StudentDashboard from "./pages/StudentDashboard";
 
 //business components
 import BusinessDashboard from "./pages/BusinessDashboard";
@@ -65,19 +65,19 @@ function App() {
           }
         />
 
-            //if logged in as developer
+            //if logged in as student
         <Route
-          path="/dashboard/developer"
+          path="/dashboard/student"
           element={
-            <ProtectedRoute allowedRoles={["developer"]}>
-              <DeveloperDashboard />
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentDashboard />
             </ProtectedRoute>
           }
         />
         <Route
           path="/my-applications"
           element={
-            <ProtectedRoute allowedRoles={["developer"]}>
+            <ProtectedRoute allowedRoles={["student"]}>
               <MyApplications />
             </ProtectedRoute>
           }
@@ -102,10 +102,10 @@ function App() {
         />
 
         <Route
-          path="/profile/developer/:developerId"
+          path="/profile/student/:studentId"
           element={
             <ProtectedRoute allowedRoles={["business"]}>
-              <DeveloperProfile />
+              <StudentProfile />
             </ProtectedRoute>
           }
         />
