@@ -53,4 +53,4 @@ app.use("/api/dashboard", dashboardRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-// Trigger nodemon reload to pick up updated environment variables
+
