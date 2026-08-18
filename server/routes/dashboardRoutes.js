@@ -20,7 +20,7 @@ router.get(
 router.get(
     "/developer",
     authMiddleware,
-    roleMiddleware("student"),
+    roleMiddleware("developer"),
     getDeveloperDashboard
 )
 

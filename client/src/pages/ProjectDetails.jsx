@@ -101,7 +101,7 @@ function ProjectDetails() {
   useEffect(() => {
     const checkApplied = async () => {
       // Only developers can apply, so only bother checking for that role
-      if (!isAuthenticated || user?.role !== "student") {
+      if (!isAuthenticated || user?.role !== "developer") {
         setCheckingApplication(false);
         return;
       }

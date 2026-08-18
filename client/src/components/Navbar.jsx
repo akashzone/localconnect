@@ -62,7 +62,7 @@ function Navbar() {
           )}
 
           {/* Developer */}
-          {user?.role === "student" && (
+          {user?.role === "developer" && (
             <>
               <NavItem to="/projects" label="Projects" />
               <NavItem to="/dashboard/developer" label="Dashboard" />
@@ -188,7 +188,7 @@ function Navbar() {
             )}
 
             {/* Developer Mobile Links */}
-            {user?.role === "student" && (
+            {user?.role === "developer" && (
               <>
                 <NavLink
                   to="/projects"

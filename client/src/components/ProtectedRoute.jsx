@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // User is logged in but does not have the required role - redirect to their dashboard
-    if (user.role === "student") {
+    if (user.role === "developer") {
       return <Navigate to="/dashboard/developer" replace />;
     }
     if (user.role === "business") {

@@ -6,7 +6,7 @@ const BusinessProfile = require("../models/BusinessProfile");
 const getProfile = async (req, res) => {
     try {
         let profile;
-        if (req.user.role === "student") {
+        if (req.user.role === "developer") {
             profile = await DeveloperProfile.findOne({
                 userId: req.user.id,
             }).populate("userId", "name email role");
@@ -76,7 +76,7 @@ const updateProfile = async (req, res) => {
         const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills, resume } = req.body;
         let profile;
 
-        if (req.user.role === "student") {
+        if (req.user.role === "developer") {
             let skillsArray = undefined;
             if (skills !== undefined) {
                 if (Array.isArray(skills)) {

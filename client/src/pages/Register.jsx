@@ -12,7 +12,7 @@ function Register() {
         email: "",
         password: "",
         confirmPassword: "",
-        role: "student"
+        role: "developer"
     })
 
     const handleChange = (e) => {
@@ -169,9 +169,9 @@ function Register() {
                             <div className="grid grid-cols-2 gap-3">
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, role: "student" })}
+                                    onClick={() => setFormData({ ...formData, role: "developer" })}
                                     className={`px-4 py-2.5 rounded-[4px] border text-sm font-semibold transition-all duration-150 ${
-                                        formData.role === "student"
+                                        formData.role === "developer"
                                             ? "bg-[#1B2430] border-[#1B2430] text-[#FAF8F3] shadow-[3px_3px_0px_#F5C445]"
                                             : "border-[#D8D2C4] text-[#6B6459] hover:border-[#1B2430]"
                                     }`}

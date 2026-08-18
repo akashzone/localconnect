@@ -69,7 +69,7 @@ function App() {
         <Route
           path="/dashboard/developer"
           element={
-            <ProtectedRoute allowedRoles={["student"]}>
+            <ProtectedRoute allowedRoles={["developer"]}>
               <DeveloperDashboard />
             </ProtectedRoute>
           }
@@ -77,7 +77,7 @@ function App() {
         <Route
           path="/my-applications"
           element={
-            <ProtectedRoute allowedRoles={["student"]}>
+            <ProtectedRoute allowedRoles={["developer"]}>
               <MyApplications />
             </ProtectedRoute>
           }

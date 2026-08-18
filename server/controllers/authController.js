@@ -21,7 +21,7 @@ const register = async (req, res) => {
       role,
     });
 
-    if (role == "student") {
+    if (role == "developer") {
       const newUserDeveloper = await DeveloperProfile.create({
         userId: newUser._id,
       });

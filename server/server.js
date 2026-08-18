@@ -16,7 +16,7 @@ const connectDB = require("./config/db");
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 app.get(
   "/api/protected",
   authMiddleware,
-  roleMiddleware("student"),
+  roleMiddleware("developer"),
   (req, res) => {
     res.json({ message: "This is a protected route" });
   },
@@ -53,3 +53,4 @@ app.use("/api/dashboard", dashboardRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+// Trigger nodemon reload to pick up updated environment variables

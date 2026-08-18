@@ -9,9 +9,9 @@ const roleMiddleware = require("../middlewares/roleMiddleware");
 
 const router = express.Router();
 
-router.post("/", authMiddleware, roleMiddleware("student"), applyToProject);
-router.get("/my", authMiddleware, roleMiddleware("student"), getMyApplications);
-router.delete("/:id/withdraw", authMiddleware, roleMiddleware("student"), withdrawApplication);
+router.post("/", authMiddleware, roleMiddleware("developer"), applyToProject);
+router.get("/my", authMiddleware, roleMiddleware("developer"), getMyApplications);
+router.delete("/:id/withdraw", authMiddleware, roleMiddleware("developer"), withdrawApplication);
 
 router.get("/business", authMiddleware, roleMiddleware("business"), getBusinessApplications);
 router.get("/project/:projectId", authMiddleware, roleMiddleware("business"), getApplicationsForProject);

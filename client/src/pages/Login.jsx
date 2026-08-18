@@ -36,6 +36,7 @@ function Login() {
                 navigate("/");
             }
         } catch (error) {
+            console.log("Error -", error.message);
             alert(error.response?.data?.message || "Something went wrong");
         }
     }
