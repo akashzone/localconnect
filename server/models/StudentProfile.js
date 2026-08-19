@@ -38,9 +38,9 @@ const studentProfileSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-
-    profilePicture: {
+    profileImage: {
       type: String,
+      default: "https://unsplash.com/illustrations/a-cartoon-of-a-man-giving-a-thumbs-up-dqHbENxCaVA"
     },
   },
   {

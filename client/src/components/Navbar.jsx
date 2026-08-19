@@ -1,16 +1,29 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  // Close profile dropdown when clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const navLinkStyle = ({ isActive }) =>
     `group relative font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 whitespace-nowrap transition-colors ${isActive ? "text-[#1B2430]" : "text-[#6B6459] hover:text-[#1B2430]"
@@ -33,6 +46,13 @@ function Navbar() {
       )}
     </NavLink>
   );
+
+  // Get initial for avatar (falls back to "U")
+  const avatarInitial = user?.name
+    ? user.name.charAt(0).toUpperCase()
+    : user?.email
+      ? user.email.charAt(0).toUpperCase()
+      : "U";
 
   return (
     <nav className="bg-[#FAF8F3] border-b border-[#D8D2C4] sticky top-0 z-50">
@@ -67,7 +87,6 @@ function Navbar() {
               <NavItem to="/projects" label="Projects" />
               <NavItem to="/dashboard/student" label="Dashboard" />
               <NavItem to="/my-applications" label="My Applications" />
-              <NavItem to="/profile" label="Profile" />
             </>
           )}
 
@@ -77,7 +96,6 @@ function Navbar() {
               <NavItem to="/dashboard/business" label="Dashboard" />
               <NavItem to="/my-projects" label="My Projects" />
               <NavItem to="/applications/business" label="Applications" />
-              <NavItem to="/profile" label="Profile" />
             </>
           )}
         </div>
@@ -103,14 +121,45 @@ function Navbar() {
               </NavLink>
             </>
           ) : (
-            <button
-              onClick={handleLogout}
-              className="font-['IBM_Plex_Sans'] px-4 py-2 text-sm font-semibold bg-[#1B2430] text-[#FAF8F3] rounded-[4px]
-                         shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                         transition-all duration-150"
-            >
-              Logout
-            </button>
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                className="w-10 h-10 rounded-full bg-[#1B2430] text-[#FAF8F3] font-['IBM_Plex_Sans'] font-semibold text-sm
+                           flex items-center justify-center border-2 border-[#F5C445] hover:opacity-90
+                           transition-opacity focus:outline-none"
+                aria-label="Open profile menu"
+                aria-expanded={isProfileMenuOpen}
+              >
+                {avatarInitial}
+              </button>
+
+              {isProfileMenuOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-44 bg-[#FAF8F3] border border-[#D8D2C4] rounded-[4px]
+                             shadow-[3px_3px_0px_#D8D2C4] py-1 animate-fadeIn"
+                >
+                  <NavLink
+                    to="/profile"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `block px-4 py-2 font-['IBM_Plex_Sans'] text-sm transition-colors ${isActive ? "text-[#0F6B5C] bg-[#1B2430]/5" : "text-[#1B2430] hover:bg-[#1B2430]/5"
+                      }`
+                    }
+                  >
+                    Profile
+                  </NavLink>
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full text-left px-4 py-2 font-['IBM_Plex_Sans'] text-sm text-[#1B2430] hover:bg-[#1B2430]/5 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -220,16 +269,6 @@ function Navbar() {
                 >
                   My Applications
                 </NavLink>
-                <NavLink
-                  to="/profile"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
-                    }`
-                  }
-                >
-                  Profile
-                </NavLink>
               </>
             )}
 
@@ -266,17 +305,24 @@ function Navbar() {
                 >
                   Applications
                 </NavLink>
-                <NavLink
-                  to="/profile"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
-                    }`
-                  }
-                >
-                  Profile
-                </NavLink>
               </>
+            )}
+
+            {/* Profile link shown for all logged-in roles on mobile */}
+            {user && (
+              <NavLink
+                to="/profile"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                  }`
+                }
+              >
+                <span className="w-6 h-6 rounded-full bg-[#1B2430] text-[#FAF8F3] text-[11px] font-semibold flex items-center justify-center border border-[#F5C445]">
+                  {avatarInitial}
+                </span>
+                Profile
+              </NavLink>
             )}
           </div>
 

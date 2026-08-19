@@ -4,141 +4,141 @@ const StudentProfile = require("../models/StudentProfile");
 const BusinessProfile = require("../models/BusinessProfile");
 
 const getProfile = async (req, res) => {
-    try {
-        let profile;
-        if (req.user.role === "student") {
-            profile = await StudentProfile.findOne({
-                userId: req.user.id,
-            }).populate("userId", "name email role");
-        } else if (req.user.role === "business") {
-            profile = await BusinessProfile.findOne({
-                userId: req.user.id,
-            }).populate("userId", "name email role");
-        } else {
-            return res.status(400).json({
-                message: "Invalid user role",
-            });
-        }
-
-        if (!profile) {
-            return res.status(404).json({
-                message: "Profile not found",
-            });
-        }
-
-        return res.status(200).json({
-            message: "Profile fetched successfully",
-            profile,
-        });
-    } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Internal Server Error",
-        });
+  try {
+    let profile;
+    if (req.user.role === "student") {
+      profile = await StudentProfile.findOne({
+        userId: req.user.id,
+      }).populate("userId", "name email role");
+    } else if (req.user.role === "business") {
+      profile = await BusinessProfile.findOne({
+        userId: req.user.id,
+      }).populate("userId", "name email role");
+    } else {
+      return res.status(400).json({
+        message: "Invalid user role",
+      });
     }
+
+    if (!profile) {
+      return res.status(404).json({
+        message: "Profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Profile fetched successfully",
+      profile,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 };
 
 const getStudentProfileById = async (req, res) => {
-    try {
-        const { studentId } = req.params;
+  try {
+    const { studentId } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(studentId)) {
-            return res.status(400).json({
-                message: "Invalid student ID",
-            });
-        }
-
-        const profile = await StudentProfile.findOne({
-            userId: studentId,
-        }).populate("userId", "name email role");
-        if (!profile) {
-            return res.status(404).json({
-                message: "Profile not found",
-            });
-        }
-        console.log("Profile Data - ", profile)
-        return res.status(200).json({
-            message: "Profile fetched successfully",
-            profile,
-        });
-    } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Internal Server Error",
-        });
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({
+        message: "Invalid student ID",
+      });
     }
+
+    const profile = await StudentProfile.findOne({
+      userId: studentId,
+    }).populate("userId", "name email role");
+    if (!profile) {
+      return res.status(404).json({
+        message: "Profile not found",
+      });
+    }
+    console.log("Profile Data - ", profile)
+    return res.status(200).json({
+      message: "Profile fetched successfully",
+      profile,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 }
 
 const updateProfile = async (req, res) => {
-    try {
-        const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills, resume } = req.body;
-        let profile;
+  try {
+    const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills, resume } = req.body;
+    let profile;
 
-        if (req.user.role === "developer") {
-            let skillsArray = undefined;
-            if (skills !== undefined) {
-                if (Array.isArray(skills)) {
-                    skillsArray = skills.map(s => s.trim());
-                } else if (typeof skills === "string") {
-                    skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean);
-                }
-            }
-
-            const updateData = { bio, github, linkedIn, portfolio, resume };
-            if (skillsArray !== undefined) {
-                updateData.skills = skillsArray;
-            }
-
-            profile = await StudentProfile.findOneAndUpdate(
-                { userId: req.user.id },
-                updateData,
-                { new: true }
-            ).populate("userId", "name email role");
-        } else if (req.user.role === "business") {
-            profile = await BusinessProfile.findOneAndUpdate(
-                { userId: req.user.id },
-                {
-                    businessName,
-                    businessType,
-                    address,
-                    phone,
-                    description,
-                    socialLinks: {
-                        ...socialLinks
-                    }
-                },
-                { new: true }
-            ).populate("userId", "name email role");
-        } else {
-            return res.status(400).json({
-                message: "Invalid user role",
-            });
+    if (req.user.role === "developer") {
+      let skillsArray = undefined;
+      if (skills !== undefined) {
+        if (Array.isArray(skills)) {
+          skillsArray = skills.map(s => s.trim());
+        } else if (typeof skills === "string") {
+          skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean);
         }
+      }
 
-        if (!profile) {
-            return res.status(404).json({
-                message: "Profile not found",
-            });
-        }
+      const updateData = { bio, github, linkedIn, portfolio, resume };
+      if (skillsArray !== undefined) {
+        updateData.skills = skillsArray;
+      }
 
-        return res.status(200).json({
-            message: "Profile updated successfully",
-            profile,
-        });
-    } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Internal Server Error",
-        });
+      profile = await StudentProfile.findOneAndUpdate(
+        { userId: req.user.id },
+        updateData,
+        { new: true }
+      ).populate("userId", "name email role");
+    } else if (req.user.role === "business") {
+      profile = await BusinessProfile.findOneAndUpdate(
+        { userId: req.user.id },
+        {
+          businessName,
+          businessType,
+          address,
+          phone,
+          description,
+          socialLinks: {
+            ...socialLinks
+          }
+        },
+        { new: true }
+      ).populate("userId", "name email role");
+    } else {
+      return res.status(400).json({
+        message: "Invalid user role",
+      });
     }
+
+    if (!profile) {
+      return res.status(404).json({
+        message: "Profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      profile,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 };
 
 
 module.exports = {
-    getProfile,
-    getStudentProfileById,
-    updateProfile,
+  getProfile,
+  getStudentProfileById,
+  updateProfile,
 };
