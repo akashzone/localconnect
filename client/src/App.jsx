@@ -13,6 +13,7 @@ import Contact from "./pages/Contact";
 import MyApplications from "./pages/MyApplications";
 import Profile from "./pages/Profile";
 import StudentProfile from "./pages/StudentProfile";
+import PageNotFound from "./pages/PageNotFound";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -29,12 +30,18 @@ import MyProjects from "./pages/MyProjects";
 import CreateProject from "./pages/CreateProject";
 import EditProject from "./pages/EditProject";
 
+
 function App() {
   return (
     <>
       <Navbar />
+
       <Routes>
-            // anyone can access logged in or new user
+
+        // If user types something in thr url, which is not there then it will show page not found
+        <Route path="*" element={<PageNotFound />} />
+
+        // anyone can access logged in or new user
         <Route path="/" element={<Home />} />
         <Route path="/projects" element={<Projects />} />
         <Route
