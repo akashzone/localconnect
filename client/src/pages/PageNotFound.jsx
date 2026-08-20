@@ -30,23 +30,34 @@ function PageNotFound() {
                         The page you're looking for seems to have wandered off. Don't worry, we'll help you find your way back.
                     </p>
 
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    {/* Login Section */}
+                    <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-8 sm:p-10 shadow-[6px_6px_0px_#1B2430] max-w-md mx-auto">
+                        <span className="font-['IBM_Plex_Mono'] text-[11px] tracking-widest uppercase text-[#0F6B5C]">
+                            Get back in
+                        </span>
+                        <h2 className="font-['Space_Grotesk'] font-bold text-2xl mt-2 mb-6">
+                            Sign In to Continue
+                        </h2>
+
                         <button
-                            onClick={() => navigate("/")}
-                            className="bg-[#1B2430] text-[#FAF8F3] px-8 py-3 rounded-[4px] font-semibold text-[15px]
-                         shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                            type="button"
+                            onClick={() => {
+                                window.location.href = "http://localhost:5000/api/auth/google";
+                            }}
+                            className="w-full bg-[#1B2430] text-[#FAF8F3] py-3 rounded-[4px] font-semibold text-[15px]
+                         shadow-[4px_4px_0px_#F5C445] mb-4 hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
                          transition-all duration-150"
                         >
-                            Back to Home
+                            Continue with Google
                         </button>
+
                         <button
-                            onClick={() => navigate(-1)}
-                            className="bg-white border-2 border-[#D8D2C4] text-[#1B2430] px-8 py-3 rounded-[4px] font-semibold text-[15px]
+                            onClick={() => navigate("/")}
+                            className="w-full bg-white border border-[#D8D2C4] text-[#1B2430] py-3 rounded-[4px] font-semibold text-[15px]
                          shadow-[4px_4px_0px_#D8D2C4] hover:shadow-[2px_2px_0px_#D8D2C4] hover:translate-x-[2px] hover:translate-y-[2px]
                          transition-all duration-150"
                         >
-                            Go Back
+                            Back to Home
                         </button>
                     </div>
                 </div>

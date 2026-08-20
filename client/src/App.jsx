@@ -14,6 +14,7 @@ import MyApplications from "./pages/MyApplications";
 import Profile from "./pages/Profile";
 import StudentProfile from "./pages/StudentProfile";
 import PageNotFound from "./pages/PageNotFound";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -44,6 +45,7 @@ function App() {
         // anyone can access logged in or new user
         <Route path="/" element={<Home />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route
           path="/login"
           element={

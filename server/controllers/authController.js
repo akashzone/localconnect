@@ -4,7 +4,118 @@ const bcrypt = require("bcryptjs");
 const { accessToken, refreshToken } = require("../utils/generateToken");
 const StudentProfile = require("../models/StudentProfile");
 const BusinessProfile = require("../models/BusinessProfile");
+const googleClient = require("../config/google");
 
+
+const googleLogin = (req, res) => {
+  const url = googleClient.generateAuthUrl({
+    access_type: "offline",
+    scope: [
+      "openid",
+      "email",
+      "profile"
+    ]
+  });
+
+  res.redirect(url);
+};
+const googleCallback = async (req, res) => {
+  try {
+    const { code } = req.query;
+    console.log("Got the code :", code);
+    if (!code) {
+      return res.status(400).json({
+        message: "Google authorization code missing",
+      });
+    }
+
+    // Exchange authorization code for Google tokens
+    const { tokens } = await googleClient.getToken(code);
+
+    // Get Google user information
+    googleClient.setCredentials(tokens);
+
+    const { data } = await googleClient.request({
+      url: "https://www.googleapis.com/oauth2/v2/userinfo",
+    });
+
+    const {
+      id: googleId,
+      email,
+      name,
+    } = data;
+
+    if (!googleId || !email) {
+      return res.status(400).json({
+        message: "Unable to get Google account information",
+      });
+    }
+
+    // Check whether Google account already exists
+    let user = await User.findOne({ googleId });
+
+    // If Google account doesn't exist,
+    // check whether the email already exists
+    if (!user) {
+      user = await User.findOne({ email });
+    }
+
+    // Existing user
+    if (user) {
+      // Link Google account to existing LocalConnect account
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Create a new Google user
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        role: "student",
+      });
+
+      // Create StudentProfile
+      await StudentProfile.create({
+        userId: user._id,
+      });
+    }
+
+    // Generate YOUR LocalConnect JWTs
+    const accToken = accessToken(user);
+    const refToken = refreshToken(user);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
+
+    // Access token - 15 minutes
+    res.cookie("accessToken", accToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    // Refresh token - 7 days
+    res.cookie("refreshToken", refToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    console.log("User Logged in with Google :", user);
+    // Redirect back to React
+    res.redirect("http://localhost:5173/oauth-success");
+  } catch (error) {
+    console.error("Google OAuth Error:", error);
+
+    return res.status(500).json({
+      message: "Google authentication failed",
+      error: error.message,
+    });
+  }
+};
 const register = async (req, res) => {
   try {
     const { email, password, name, role } = req.body;
@@ -139,4 +250,28 @@ const refreshAccessToken = (req, res) => {
   }
 };
 
-module.exports = { register, login, refreshAccessToken };
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      message: "User fetched successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Get Current User Error:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {
+  register, login, refreshAccessToken, googleLogin,
+  googleCallback, getCurrentUser
+};
