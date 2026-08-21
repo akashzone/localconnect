@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import api from "../api/api.js";
 
 export const AuthContext = createContext();
 
@@ -9,6 +10,23 @@ export default function AuthProvider({ children }) {
     const [user, setUser] = useState(
         JSON.parse(localStorage.getItem("user"))
     );
+    const [profile, setProfile] = useState(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (user) {
+                try {
+                    const res = await api.get("/profile");
+                    setProfile(res.data.profile);
+                } catch (err) {
+                    console.error("Error fetching profile in AuthContext", err);
+                }
+            } else {
+                setProfile(null);
+            }
+        };
+        fetchProfile();
+    }, [user]);
 
     const login = (userData) => {
         localStorage.setItem("user", JSON.stringify(userData));
@@ -16,10 +34,9 @@ export default function AuthProvider({ children }) {
     };
 
     const logout = () => {
-
         localStorage.removeItem("user");
-
         setUser(null);
+        setProfile(null);
     };
 
     return (
@@ -27,6 +44,8 @@ export default function AuthProvider({ children }) {
             value={{
                 user,
                 userData: user,
+                profile,
+                setProfile,
                 login,
                 logout,
                 isAuthenticated: !!user

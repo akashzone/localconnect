@@ -14,6 +14,6 @@ const router = express.Router();
 router.post("/resume", authMiddleware, roleMiddleware("student"), upload.single("resume"), uploadResume);
 
 //needed for both 
-router.post("/profile-image", authMiddleware, roleMiddleware("student"), upload.single("profileImage"), uploadProfileImage);
+router.post("/profile-image", authMiddleware, roleMiddleware("student", "business"), upload.single("profileImage"), uploadProfileImage);
 
 module.exports = router;

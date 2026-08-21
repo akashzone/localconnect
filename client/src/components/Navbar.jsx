@@ -3,8 +3,20 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, profile } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [profile?.profileImage]);
+
+  const hasProfileImage = profile?.profileImage && 
+                          profile.profileImage.startsWith("http") && 
+                          !profile.profileImage.includes("unsplash.com/illustrations");
+
+  const showProfileImage = hasProfileImage && !imageError;
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
@@ -126,11 +138,20 @@ function Navbar() {
                 onClick={() => setIsProfileMenuOpen((prev) => !prev)}
                 className="w-10 h-10 rounded-full bg-[#1B2430] text-[#FAF8F3] font-['IBM_Plex_Sans'] font-semibold text-sm
                            flex items-center justify-center border-2 border-[#F5C445] hover:opacity-90
-                           transition-opacity focus:outline-none"
+                           transition-opacity focus:outline-none overflow-hidden"
                 aria-label="Open profile menu"
                 aria-expanded={isProfileMenuOpen}
               >
-                {avatarInitial}
+                {showProfileImage ? (
+                  <img
+                    src={profile.profileImage}
+                    alt={user?.name || "Profile"}
+                    onError={() => setImageError(true)}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  avatarInitial
+                )}
               </button>
 
               {isProfileMenuOpen && (
@@ -318,8 +339,17 @@ function Navbar() {
                   }`
                 }
               >
-                <span className="w-6 h-6 rounded-full bg-[#1B2430] text-[#FAF8F3] text-[11px] font-semibold flex items-center justify-center border border-[#F5C445]">
-                  {avatarInitial}
+                <span className="w-6 h-6 rounded-full bg-[#1B2430] text-[#FAF8F3] text-[11px] font-semibold flex items-center justify-center border border-[#F5C445] overflow-hidden">
+                  {showProfileImage ? (
+                    <img
+                      src={profile.profileImage}
+                      alt={user?.name || "Profile"}
+                      onError={() => setImageError(true)}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    avatarInitial
+                  )}
                 </span>
                 Profile
               </NavLink>

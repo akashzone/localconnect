@@ -76,7 +76,7 @@ const updateProfile = async (req, res) => {
     const { bio, businessName, businessType, address, phone, description, socialLinks, github, linkedIn, portfolio, skills, resume } = req.body;
     let profile;
 
-    if (req.user.role === "developer") {
+    if (req.user.role === "student") {
       let skillsArray = undefined;
       if (skills !== undefined) {
         if (Array.isArray(skills)) {
