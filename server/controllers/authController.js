@@ -60,26 +60,21 @@ const googleCallback = async (req, res) => {
       user = await User.findOne({ email });
     }
 
-    // Existing user
+    // Existing LocalConnect user
     if (user) {
-      // Link Google account to existing LocalConnect account
+
+      // Link Google account if it hasn't been linked yet
       if (!user.googleId) {
         user.googleId = googleId;
         await user.save();
       }
-    } else {
-      // Create a new Google user
-      user = await User.create({
-        name,
-        email,
-        googleId,
-        role: "student",
-      });
 
-      // Create StudentProfile
-      await StudentProfile.create({
-        userId: user._id,
-      });
+    } else {
+
+      // Google account is not registered in LocalConnect
+      return res.redirect(
+        "http://localhost:5173/login?error=google_not_registered"
+      );
     }
 
     // Generate YOUR LocalConnect JWTs
