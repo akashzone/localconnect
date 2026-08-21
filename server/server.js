@@ -6,6 +6,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 //middlewares
 const authMiddleware = require("./middlewares/authMiddleware");
@@ -49,6 +50,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
