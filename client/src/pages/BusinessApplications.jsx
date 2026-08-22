@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 import AcceptRejectModal from "../components/application/AcceptRejectModal";
 
@@ -116,8 +118,9 @@ function ApplicationRow({ app, onStatusUpdate }) {
                 <Link
                     to={`/profile/student/${student._id}`}
                     state={{ from: location }}
-                    className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                       hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+                    className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#1B2430] text-white border-2 border-[#1B2430]
+                               shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                               transition-all duration-150"
                 >
                     View Profile
                 </Link>
@@ -126,16 +129,17 @@ function ApplicationRow({ app, onStatusUpdate }) {
                     <>
                         <button
                             onClick={() => setModalAction("Accepted")}
-                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
-                                       shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px]
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white border-2 border-[#0F6B5C]
+                                       shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
                                        transition-all duration-150"
                         >
                             Accept
                         </button>
                         <button
                             onClick={() => setModalAction("Rejected")}
-                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
-                                       hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#B3452F] text-white border-2 border-[#B3452F]
+                                       shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                                       transition-all duration-150"
                         >
                             Reject
                         </button>
@@ -268,7 +272,7 @@ function BusinessApplications() {
 
                         <div className="relative mb-10">
                             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9B9384] text-sm pointer-events-none">
-                                🔍
+                                <FontAwesomeIcon icon={faSearch} />
                             </span>
                             <input
                                 type="text"

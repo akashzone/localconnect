@@ -7,6 +7,11 @@ function Navbar() {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
 
+  // If user is logged in, do not render the horizontal top navbar
+  if (user) {
+    return null;
+  }
+
   useEffect(() => {
     setImageError(false);
   }, [profile?.profileImage]);

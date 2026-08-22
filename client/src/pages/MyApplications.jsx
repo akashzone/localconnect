@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 
 const statusConfig = {
@@ -225,7 +227,7 @@ function MyApplications() {
 
             <div className="relative mb-10">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9B9384] text-sm pointer-events-none">
-                🔍
+                <FontAwesomeIcon icon={faSearch} />
               </span>
               <input
                 type="text"
