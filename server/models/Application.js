@@ -32,6 +32,20 @@ const applicationSchema = new mongoose.Schema(
       enum: ["Pending", "Accepted", "Rejected", "Withdrawn"],
       default: "Pending",
     },
+
+    workSubmission: {
+      workLink: {
+        type: String,
+        trim: true,
+      },
+      remarks: {
+        type: String,
+        trim: true,
+      },
+      submittedAt: {
+        type: Date,
+      },
+    },
   },
   {
     timestamps: true,

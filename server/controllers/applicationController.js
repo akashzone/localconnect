@@ -278,6 +278,73 @@ const withdrawApplication = async (req, res) => {
   }
 };
 
+const submitWork = async (req, res) => {
+  const { id } = req.params;
+  const { workLink, remarks } = req.body;
+
+  if (!workLink) {
+    return res.status(400).json({
+      success: false,
+      message: "Work link is required.",
+    });
+  }
+
+  try {
+    const application = await Application.findById(id);
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    if (application.studentId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to submit work for this application.",
+      });
+    }
+
+    if (application.status !== "Accepted") {
+      return res.status(400).json({
+        success: false,
+        message: "You can only submit work for accepted applications.",
+      });
+    }
+
+    application.workSubmission = {
+      workLink,
+      remarks,
+      submittedAt: new Date(),
+    };
+
+    await application.save();
+
+    // Also update the associated project status to "Completed"
+    await Project.findByIdAndUpdate(application.projectId, {
+      status: "Under Review",
+    });
+
+    await application.populate(
+      "projectId",
+      "title budget deadline category status businessOwnerId"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Work submitted successfully for review.",
+      data: application,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   applyToProject,
   getMyApplications,
@@ -285,4 +352,5 @@ module.exports = {
   getApplicationsForProject,
   updateApplicationStatus,
   withdrawApplication,
+  submitWork,
 };

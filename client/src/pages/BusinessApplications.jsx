@@ -114,13 +114,46 @@ function ApplicationRow({ app, onStatusUpdate }) {
                 </div>
             )}
 
+            {app.workSubmission?.workLink && (
+                <div className="mb-5 bg-[#E9F5F1] border border-[#0F6B5C]/25 rounded-[6px] p-4 shadow-[2px_2px_0px_#0F6B5C]">
+                    <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#0F6B5C] mb-1.5 font-bold">
+                        Submitted Work
+                    </span>
+                    <p className="text-[14px] text-[#0F6B5C] font-semibold mb-2 flex items-center gap-1.5">
+                        <span>🔗</span>
+                        <a
+                            href={app.workSubmission.workLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline break-all"
+                        >
+                            {app.workSubmission.workLink}
+                        </a>
+                    </p>
+                    {app.workSubmission.remarks && (
+                        <div className="text-[13px] text-[#4A473F] bg-white border border-[#0F6B5C]/10 px-3 py-2 rounded font-medium leading-relaxed">
+                            <span className="text-[#9B9384] font-['IBM_Plex_Mono'] text-[9px] uppercase block tracking-wider mb-1 font-semibold">Developer Remarks</span>
+                            {app.workSubmission.remarks}
+                        </div>
+                    )}
+                    <span className="block text-[10.5px] text-[#9B9384] mt-2 font-['IBM_Plex_Mono']">
+                        Submitted on {new Date(app.workSubmission.submittedAt).toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
+                    </span>
+                </div>
+            )}
+
             <div className="flex flex-wrap gap-3">
                 <Link
                     to={`/profile/student/${student._id}`}
                     state={{ from: location }}
-                    className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#1B2430] text-white border-2 border-[#1B2430]
-                               shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                               transition-all duration-150"
+                    className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                       hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
                 >
                     View Profile
                 </Link>
@@ -129,17 +162,16 @@ function ApplicationRow({ app, onStatusUpdate }) {
                     <>
                         <button
                             onClick={() => setModalAction("Accepted")}
-                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white border-2 border-[#0F6B5C]
-                                       shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
+                                        hover:shadow-[1px_1px_0px_#1B2430]  hover:bg-[#0c574a] hover:border-[#0c574a] hover:text-white
                                        transition-all duration-150"
                         >
                             Accept
                         </button>
                         <button
                             onClick={() => setModalAction("Rejected")}
-                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#B3452F] text-white border-2 border-[#B3452F]
-                                       shadow-[3px_3px_0px_#F5C445] hover:shadow-[1px_1px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                                       transition-all duration-150"
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
+                                       hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
                         >
                             Reject
                         </button>

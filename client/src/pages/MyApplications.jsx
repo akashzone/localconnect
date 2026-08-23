@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
+import SubmitWorkModal from "../components/application/SubmitWorkModal";
 
 const statusConfig = {
   pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
@@ -19,12 +20,27 @@ const filterTabs = [
   { key: "withdrawn", label: "Withdrawn" },
 ];
 
-function ApplicationCard({ app, onWithdraw }) {
+function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
   const status = app.status?.toLowerCase() || "pending";
   const badge = statusConfig[status] || statusConfig.pending;
   const project = app.projectId || {};
 
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmitWork = async ({ workLink, remarks }) => {
+    try {
+      setSubmitting(true);
+      await onSubmitWork(app._id, { workLink, remarks });
+      setShowSubmitModal(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to submit work.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 shadow-[3px_3px_0px_#D8D2C4]">
@@ -72,10 +88,10 @@ function ApplicationCard({ app, onWithdraw }) {
           <span className="font-medium text-sm">
             {app.createdAt
               ? new Date(app.createdAt).toLocaleDateString("en-US", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
               : "—"}
           </span>
         </div>
@@ -83,7 +99,7 @@ function ApplicationCard({ app, onWithdraw }) {
 
       {app.coverLetter && (
         <div className="mb-5">
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5">
+          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5 font-semibold">
             Cover Letter
           </span>
           <p className="text-[14px] text-[#4A473F] leading-relaxed">
@@ -92,15 +108,62 @@ function ApplicationCard({ app, onWithdraw }) {
         </div>
       )}
 
+      {app.workSubmission?.workLink && (
+        <div className="mb-5 bg-[#FAF8F3] border border-[#D8D2C4] rounded-[6px] p-4 shadow-[2px_2px_0px_#D8D2C4]">
+          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#0F6B5C] mb-1.5 font-bold">
+            Submitted Work
+          </span>
+          <p className="text-[14px] text-[#0F6B5C] font-semibold mb-2 flex items-center gap-1.5">
+            <span>🔗</span>
+            <a
+              href={app.workSubmission.workLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline break-all"
+            >
+              {app.workSubmission.workLink}
+            </a>
+          </p>
+          {app.workSubmission.remarks && (
+            <div className="text-[13px] text-[#6B6459] bg-white border border-[#FAF8F3] px-3 py-2 rounded font-medium leading-relaxed">
+              <span className="text-[#9B9384] font-['IBM_Plex_Mono'] text-[9px] uppercase block tracking-wider mb-1">Developer Remarks</span>
+              {app.workSubmission.remarks}
+            </div>
+          )}
+          <span className="block text-[10.5px] text-[#9B9384] mt-2 font-['IBM_Plex_Mono']">
+            Submitted on {new Date(app.workSubmission.submittedAt).toLocaleDateString("en-US", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </span>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <Link
-          to={`/projects/${project._id}`}
-          className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                     hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
-        >
-          View Project Details
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to={`/projects/${project._id}`}
+            className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                       hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+          >
+            View Project
+          </Link>
+
+          {status === "accepted" && (
+            <button
+              onClick={() => setShowSubmitModal(true)}
+              className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
+                         shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px]
+                         hover:translate-y-[2px] transition-all duration-150"
+            >
+              {app.workSubmission?.workLink ? "Resubmit Work" : "Submit Work"}
+            </button>
+          )}
+        </div>
 
         {status === "pending" && (
           <div>
@@ -132,6 +195,16 @@ function ApplicationCard({ app, onWithdraw }) {
           </div>
         )}
       </div>
+
+      {showSubmitModal && (
+        <SubmitWorkModal
+          initialLink={app.workSubmission?.workLink || ""}
+          initialRemarks={app.workSubmission?.remarks || ""}
+          onConfirm={handleSubmitWork}
+          onCancel={() => setShowSubmitModal(false)}
+          submitting={submitting}
+        />
+      )}
     </div>
   );
 }
@@ -174,6 +247,15 @@ function MyApplications() {
       console.log(err);
       alert(err.response?.data?.message || "Failed to withdraw application");
     }
+  };
+
+  const handleSubmitWork = async (applicationId, { workLink, remarks }) => {
+    const res = await api.put(`/applications/${applicationId}/submit-work`, { workLink, remarks });
+    setApplications((prev) =>
+      prev.map((app) =>
+        app._id === applicationId ? res.data.data : app
+      )
+    );
   };
 
   const counts = applications.reduce(
@@ -279,7 +361,12 @@ function MyApplications() {
         {!loading && !error && visibleApplications.length > 0 && (
           <div className="space-y-5">
             {visibleApplications.map((app) => (
-              <ApplicationCard key={app._id} app={app} onWithdraw={handleWithdraw} />
+              <ApplicationCard
+                key={app._id}
+                app={app}
+                onWithdraw={handleWithdraw}
+                onSubmitWork={handleSubmitWork}
+              />
             ))}
           </div>
         )}
