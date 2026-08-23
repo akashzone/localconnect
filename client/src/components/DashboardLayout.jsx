@@ -72,6 +72,7 @@ function DashboardLayout() {
   const studentNavItems = [
     { label: "Home", to: "/", icon: faHome },
     { label: "Projects", to: "/projects", icon: faBriefcase },
+    { label: "My Projects", to: "/my-projects", icon: faBriefcase },
     { label: "Dashboard", to: "/dashboard/student", icon: faColumns },
     { label: "My Applications", to: "/my-applications", icon: faClipboardList }
   ];

@@ -4,10 +4,13 @@ import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import ApplicationForm from "../components/application/ApplicationForm";
 import AcceptRejectModal from "../components/application/AcceptRejectModal";
+import SubmitWorkModal from "../components/application/SubmitWorkModal";
 
 const statusStyles = {
   open: "bg-[#E9F5F1] text-[#0F6B5C]",
   "in progress": "bg-[#FDF3D6] text-[#8A6D1D]",
+  "under review": "bg-[#E9F5F1] text-[#0F6B5C]",
+  "changes requested": "bg-[#FBE7E4] text-[#B3452F]",
   completed: "bg-[#EAEAEA] text-[#4A473F]",
   closed: "bg-[#FBE7E4] text-[#B3452F]",
 };
@@ -44,6 +47,11 @@ function ProjectDetails() {
 
   const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [checkingApplication, setCheckingApplication] = useState(true);
+  
+  const [myApplication, setMyApplication] = useState(null);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submittingWork, setSubmittingWork] = useState(false);
+  const [showBusinessModal, setShowBusinessModal] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [justApplied, setJustApplied] = useState(false);
@@ -111,13 +119,14 @@ function ProjectDetails() {
         const res = await api.get("/applications/my");
         const myApplications = res.data.data || [];
 
-        const hasApplied = myApplications.some((app) => {
+        const matchedApp = myApplications.find((app) => {
           const appProjectId =
             typeof app.projectId === "object" ? app.projectId?._id : app.projectId;
           return appProjectId === id;
         });
 
-        setAlreadyApplied(hasApplied);
+        setMyApplication(matchedApp || null);
+        setAlreadyApplied(!!matchedApp);
       } catch (err) {
         console.log(err);
         // Fail quietly here — worst case the Apply button shows when it
@@ -134,6 +143,25 @@ function ProjectDetails() {
     setShowForm(false);
     setAlreadyApplied(true);
     setJustApplied(true);
+  };
+
+  const handleSubmitWork = async ({ workLink, remarks }) => {
+    try {
+      setSubmittingWork(true);
+      const res = await api.put(`/applications/${myApplication._id}/submit-work`, { workLink, remarks });
+      setMyApplication(res.data.data);
+      
+      // Refresh project details
+      const projRes = await api.get(`/projects/${id}`);
+      setProject(projRes.data.data);
+      
+      setShowSubmitModal(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to submit work.");
+    } finally {
+      setSubmittingWork(false);
+    }
   };
 
   const handleApplyClick = () => {
@@ -295,49 +323,249 @@ function ProjectDetails() {
             </div>
           )}
 
-          {isBusiness ? (
-            isOwner && (
-              <div className="flex gap-3">
-                <Link
-                  to={`/${project._id}/edit-project`}
-                  state={{ from: location.state?.from }}
-                  className="flex-1 text-center font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                             hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
-                >
-                  Edit
-                </Link>
+          {myApplication?.status === "Accepted" ? (
+            <div className="space-y-8 mt-8 border-t border-[#D8D2C4] pt-8">
+              
+              {/* Business Owner Section */}
+              <div className="bg-[#FAF8F3] border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]">
+                <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-2 text-[#1B2430]">
+                  Business Owner
+                </h3>
+                <p className="font-semibold text-sm text-[#1B2430] mb-1">
+                  {project.businessProfile?.businessName || "Local Business Owner"}
+                </p>
+                <p className="text-[13px] text-[#6B6459] leading-relaxed mb-4">
+                  {project.businessProfile?.description || "No description available."}
+                </p>
                 <button
-                  onClick={handleDelete}
-                  className="flex-1 font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
-                             hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
+                  onClick={() => setShowBusinessModal(true)}
+                  className="font-semibold text-xs px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors"
                 >
-                  Delete
+                  View Business Profile
                 </button>
               </div>
-            )
-          ) : !isOpen ? (
-            <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#6B6459] border border-dashed border-[#D8D2C4] rounded-[4px] py-3.5">
-              This project is {status?.toLowerCase()} and no longer accepting applications.
-            </div>
-          ) : checkingApplication ? (
-            <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#9B9384] py-3.5">
-              Checking application status...
-            </div>
-          ) : alreadyApplied ? (
-            <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#0F6B5C] border border-dashed border-[#0F6B5C]/40 bg-[#E9F5F1] rounded-[4px] py-3.5">
-              {justApplied
-                ? "✓ Application submitted successfully"
-                : "✓ You've already applied to this project"}
+
+              {/* YOUR WORK / WORKSPACE Section */}
+              <div className="border border-[#D8D2C4] rounded-[6px] p-6 bg-white shadow-[4px_4px_0px_#1B2430]">
+                <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+                  <h3 className="font-['Space_Grotesk'] font-bold text-xl text-[#1B2430]">
+                    Your Work
+                  </h3>
+                  <span className={`font-['IBM_Plex_Mono'] text-[10.5px] font-semibold px-2.5 py-1 rounded-[3px] uppercase tracking-wide ${statusClass}`}>
+                    Status: {status}
+                  </span>
+                </div>
+
+                <div className="bg-[#FAF8F3] border border-dashed border-[#D8D2C4] rounded-[4px] p-4 mb-6">
+                  {status?.toLowerCase() === "in progress" && (
+                    <>
+                      <p className="text-sm font-semibold text-[#1B2430] mb-1">
+                        Application Accepted
+                      </p>
+                      <p className="text-[13px] text-[#6B6459] leading-relaxed">
+                        You have been accepted for this project. Start working and submit your work when it is ready.
+                      </p>
+                    </>
+                  )}
+
+                  {status?.toLowerCase() === "under review" && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-[#0F6B5C] mb-1">
+                        Work Submitted
+                      </p>
+                      <p className="text-[13px] text-[#6B6459] leading-relaxed">
+                        Your work has been submitted and is currently under review by the business owner.
+                      </p>
+                      {myApplication.workSubmission?.submittedAt && (
+                        <p className="text-xs text-[#9B9384] font-['IBM_Plex_Mono']">
+                          Submitted on: {new Date(myApplication.workSubmission.submittedAt).toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </p>
+                      )}
+                      {myApplication.workSubmission?.remarks && (
+                        <div className="border-t border-dashed border-[#D8D2C4] pt-2 mt-2">
+                          <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-1">
+                            Your Remarks
+                          </span>
+                          <p className="text-[13px] text-[#4A473F] whitespace-pre-wrap italic">
+                            "{myApplication.workSubmission.remarks}"
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {status?.toLowerCase() === "changes requested" && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-[#B3452F] mb-1">
+                        Changes Requested
+                      </p>
+                      <p className="text-[13px] text-[#6B6459] leading-relaxed">
+                        The business owner reviewed your work and requested some modifications.
+                      </p>
+                      {myApplication.workSubmission?.feedback && (
+                        <div className="bg-[#FBE7E4] border border-[#F5C2B8] rounded-[4px] p-3 mt-2">
+                          <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#B3452F] mb-1 font-semibold">
+                            Business Feedback
+                          </span>
+                          <p className="text-[13px] text-[#B3452F] whitespace-pre-wrap font-medium">
+                            {myApplication.workSubmission.feedback}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {status?.toLowerCase() === "completed" && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-[#0F6B5C] mb-1">
+                        Project Completed
+                      </p>
+                      <p className="text-[13px] text-[#6B6459] leading-relaxed">
+                        Your work has been approved by the business.
+                      </p>
+                      {myApplication.workSubmission?.submittedAt && (
+                        <p className="text-xs text-[#9B9384] font-['IBM_Plex_Mono']">
+                          Completed on: {new Date(project.updatedAt || myApplication.updatedAt).toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </p>
+                      )}
+                      {myApplication.workSubmission?.remarks && (
+                        <div className="border-t border-dashed border-[#D8D2C4] pt-2 mt-2">
+                          <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-1">
+                            Your Remarks
+                          </span>
+                          <p className="text-[13px] text-[#4A473F] whitespace-pre-wrap italic">
+                            "{myApplication.workSubmission.remarks}"
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  {status?.toLowerCase() === "in progress" && (
+                    <button
+                      onClick={() => setShowSubmitModal(true)}
+                      className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center"
+                    >
+                      Submit Work
+                    </button>
+                  )}
+
+                  {status?.toLowerCase() === "under review" && myApplication.workSubmission?.workLink && (
+                    <a
+                      href={myApplication.workSubmission.workLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full font-semibold px-6 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150 text-center block"
+                    >
+                      View Submission
+                    </a>
+                  )}
+
+                  {status?.toLowerCase() === "changes requested" && (
+                    <button
+                      onClick={() => setShowSubmitModal(true)}
+                      className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center"
+                    >
+                      Resubmit Work
+                    </button>
+                  )}
+
+                  {status?.toLowerCase() === "completed" && myApplication.workSubmission?.workLink && (
+                    <a
+                      href={myApplication.workSubmission.workLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full font-semibold px-6 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150 text-center block"
+                    >
+                      View Final Submission
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Project Information / Timeline Section */}
+              <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]">
+                <h3 className="font-['Space_Grotesk'] font-bold text-base mb-3 text-[#1B2430]">
+                  Project Timeline
+                </h3>
+                <div className="space-y-2.5 text-xs font-['IBM_Plex_Mono'] text-[#6B6459]">
+                  <div className="flex justify-between border-b border-dashed border-[#D8D2C4] pb-2">
+                    <span>PROJECT CREATED</span>
+                    <span className="font-semibold text-[#1B2430]">
+                      {new Date(project.createdAt).toLocaleDateString("en-US", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-b border-dashed border-[#D8D2C4] pb-2">
+                    <span>DEADLINE</span>
+                    <span className="font-semibold text-[#1B2430]">{formattedDeadline}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>CURRENT STATUS</span>
+                    <span className="font-semibold uppercase text-[#0F6B5C]">{status}</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           ) : (
-            <button
-              onClick={handleApplyClick}
-              className="w-full font-semibold cursor-pointer px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
-                         shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                         transition-all duration-150"
-            >
-              {isAuthenticated ? "Apply to this project" : "Log in to apply"}
-            </button>
+            isBusiness ? (
+              isOwner && (
+                <div className="flex gap-3">
+                  <Link
+                    to={`/${project._id}/edit-project`}
+                    state={{ from: location.state?.from }}
+                    className="flex-1 text-center font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                               hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={handleDelete}
+                    className="flex-1 font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
+                               hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )
+            ) : !isOpen ? (
+              <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#6B6459] border border-dashed border-[#D8D2C4] rounded-[4px] py-3.5">
+                This project is {status?.toLowerCase()} and no longer accepting applications.
+              </div>
+            ) : checkingApplication ? (
+              <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#9B9384] py-3.5">
+                Checking application status...
+              </div>
+            ) : alreadyApplied ? (
+              <div className="w-full text-center font-['IBM_Plex_Mono'] text-[13px] text-[#0F6B5C] border border-dashed border-[#0F6B5C]/40 bg-[#E9F5F1] rounded-[4px] py-3.5">
+                {justApplied
+                  ? "✓ Application submitted successfully"
+                  : "✓ You've already applied to this project"}
+              </div>
+            ) : (
+              <button
+                onClick={handleApplyClick}
+                className="w-full font-semibold cursor-pointer px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                           shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
+                           transition-all duration-150"
+              >
+                {isAuthenticated ? "Apply to this project" : "Log in to apply"}
+              </button>
+            )
           )}
 
           {/* Applications list for project owner */}
@@ -436,6 +664,105 @@ function ProjectDetails() {
           onCancel={() => setModalTarget(null)}
           submitting={submittingStatus}
         />
+      )}
+
+      {showSubmitModal && (
+        <SubmitWorkModal
+          initialLink={myApplication?.workSubmission?.workLink || ""}
+          initialRemarks={myApplication?.workSubmission?.remarks || ""}
+          onConfirm={handleSubmitWork}
+          onCancel={() => setShowSubmitModal(false)}
+          submitting={submittingWork}
+        />
+      )}
+
+      {showBusinessModal && (
+        <div className="fixed inset-0 bg-[#1B2430]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#D8D2C4] rounded-[6px] shadow-[6px_6px_0px_#1B2430] w-full max-w-md p-6 relative">
+            <h3 className="font-['Space_Grotesk'] font-bold text-xl mb-4 text-[#1B2430]">
+              Business Owner Profile
+            </h3>
+            <div className="space-y-4 text-sm">
+              <div>
+                <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5 font-semibold">
+                  Business Name
+                </span>
+                <span className="font-semibold text-[#1B2430] text-[15px]">
+                  {project.businessProfile?.businessName || "Local Business Owner"}
+                </span>
+              </div>
+              {project.businessProfile?.businessType && (
+                <div>
+                  <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5 font-semibold">
+                    Business Type
+                  </span>
+                  <span className="text-[#4A473F]">
+                    {project.businessProfile.businessType}
+                  </span>
+                </div>
+              )}
+              {project.businessProfile?.description && (
+                <div>
+                  <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5 font-semibold">
+                    About
+                  </span>
+                  <span className="text-[#4A473F] leading-relaxed block whitespace-pre-line">
+                    {project.businessProfile.description}
+                  </span>
+                </div>
+              )}
+              {project.businessProfile?.address && (
+                <div>
+                  <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5 font-semibold">
+                    Address
+                  </span>
+                  <span className="text-[#4A473F]">
+                    {project.businessProfile.address}
+                  </span>
+                </div>
+              )}
+              {project.businessProfile?.phone && (
+                <div>
+                  <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5 font-semibold">
+                    Contact Phone
+                  </span>
+                  <span className="text-[#4A473F]">
+                    {project.businessProfile.phone}
+                  </span>
+                </div>
+              )}
+              {project.businessProfile?.socialLinks && (
+                <div>
+                  <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-1 font-semibold">
+                    Social Links
+                  </span>
+                  <div className="flex flex-wrap gap-2.5">
+                    {Object.entries(project.businessProfile.socialLinks).map(([platform, link]) => {
+                      if (!link) return null;
+                      return (
+                        <a
+                          key={platform}
+                          href={link.startsWith("http") ? link : `https://${link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-[#0F6B5C] font-semibold hover:underline capitalize"
+                        >
+                          {platform}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setShowBusinessModal(false)}
+              className="w-full mt-6 font-semibold text-xs py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

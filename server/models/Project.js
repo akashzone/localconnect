@@ -40,7 +40,7 @@ const projectSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Open", "In Progress", "Under Review", "Completed", "Cancelled"],
+      enum: ["Open", "In Progress", "Under Review", "Changes Requested", "Completed", "Cancelled"],
       default: "Open",
     },
 

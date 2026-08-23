@@ -90,12 +90,19 @@ const getProjectById = async (req, res) => {
         message: "Project not found.",
       });
     }
-    console.log("Project INFO - ", project);
+
+    const projectObj = project.toObject();
+
+    // Fetch the business profile linked to the businessOwnerId (User ID)
+    const businessProfile = await BusinessProfile.findOne({ userId: project.businessOwnerId });
+    projectObj.businessProfile = businessProfile || null;
+
+    console.log("Project INFO - ", projectObj);
 
     res.status(200).json({
       success: true,
       message: "Project fetched successfully",
-      data: project,
+      data: projectObj,
     });
   } catch (error) {
     return res
@@ -191,8 +198,8 @@ const getAssignedProjects = async (req, res) => {
   try {
     const accpetedProjects = await Project.find({
       selectedStudent: studentId,
-      status: "In Progress"
-    })
+      status: { $in: ["In Progress", "Under Review", "Completed", "Cancelled"] }
+    }).populate("businessOwnerId", "companyName name");
     console.log("Accepted projects, that we have applied for :", accpetedProjects);
     return res.status(200).json({
       success: true,

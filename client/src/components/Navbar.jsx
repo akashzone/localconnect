@@ -7,11 +7,6 @@ function Navbar() {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
 
-  // If user is logged in, do not render the horizontal top navbar
-  if (user) {
-    return null;
-  }
-
   useEffect(() => {
     setImageError(false);
   }, [profile?.profileImage]);
@@ -41,6 +36,11 @@ function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // If user is logged in, do not render the horizontal top navbar
+  if (user) {
+    return null;
+  }
 
   const navLinkStyle = ({ isActive }) =>
     `group relative font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 whitespace-nowrap transition-colors ${isActive ? "text-[#1B2430]" : "text-[#6B6459] hover:text-[#1B2430]"
@@ -102,6 +102,7 @@ function Navbar() {
           {user?.role === "student" && (
             <>
               <NavItem to="/projects" label="Projects" />
+              <NavItem to="/my-projects" label="My Projects" />
               <NavItem to="/dashboard/student" label="Dashboard" />
               <NavItem to="/my-applications" label="My Applications" />
             </>
@@ -284,6 +285,16 @@ function Navbar() {
                   }
                 >
                   Dashboard
+                </NavLink>
+                <NavLink
+                  to="/my-projects"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `font-['IBM_Plex_Sans'] text-[15px] font-medium py-1 transition-colors ${isActive ? "text-[#0F6B5C]" : "text-[#6B6459] hover:text-[#1B2430]"
+                    }`
+                  }
+                >
+                  My Projects
                 </NavLink>
                 <NavLink
                   to="/my-applications"
