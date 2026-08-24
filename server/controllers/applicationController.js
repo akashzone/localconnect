@@ -313,18 +313,42 @@ const submitWork = async (req, res) => {
       });
     }
 
+    const project = await Project.findById(application.projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+
+    if (project.status !== "In Progress") {
+      return res.status(400).json({
+        success: false,
+        message: "You can only submit work when the project is In Progress.",
+      });
+    }
+
     application.workSubmission = {
       workLink,
       remarks,
       submittedAt: new Date(),
     };
 
+    // Automatically resolve any pending change requests on submission
+    if (application.changeRequests && application.changeRequests.length > 0) {
+      application.changeRequests.forEach((reqItem) => {
+        if (reqItem.status === "Pending") {
+          reqItem.status = "Resolved";
+        }
+      });
+    }
+
     await application.save();
 
-    // Also update the associated project status to "Completed"
-    await Project.findByIdAndUpdate(application.projectId, {
-      status: "Under Review",
-    });
+    // Update project status to "Under Review"
+    project.status = "Under Review";
+    await project.save();
 
     await application.populate(
       "projectId",
@@ -345,6 +369,156 @@ const submitWork = async (req, res) => {
   }
 };
 
+const requestChanges = async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+
+  if (!message || message.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Change request message is required.",
+    });
+  }
+
+  try {
+    const application = await Application.findById(id);
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    const project = await Project.findById(application.projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+
+    // Verify authorization: logged in user must be the business owner of the project
+    if (project.businessOwnerId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to request changes for this application.",
+      });
+    }
+
+    // Verify status is Under Review
+    if (project.status !== "Under Review") {
+      return res.status(400).json({
+        success: false,
+        message: "You can only request changes when a project is Under Review.",
+      });
+    }
+
+    // Add change request
+    if (!application.changeRequests) {
+      application.changeRequests = [];
+    }
+
+    application.changeRequests.push({
+      message: message.trim(),
+      requestedBy: req.user.id,
+      requestedAt: new Date(),
+      status: "Pending",
+    });
+
+    await application.save();
+
+    // Change project status back to In Progress
+    project.status = "In Progress";
+    await project.save();
+
+    const updatedApplication = await Application.findById(id)
+      .populate("studentId", "name email")
+      .populate("projectId", "title budget status");
+
+    return res.status(200).json({
+      success: true,
+      message: "Changes requested successfully.",
+      data: updatedApplication,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: error.message,
+    });
+  }
+};
+
+const approveWork = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const application = await Application.findById(id);
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    const project = await Project.findById(application.projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+
+    // Verify authorization: logged in user must be the business owner of the project
+    if (project.businessOwnerId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to approve work for this application.",
+      });
+    }
+
+    // Verify project status is Under Review
+    if (project.status !== "Under Review") {
+      return res.status(400).json({
+        success: false,
+        message: "You can only approve work when a project is Under Review.",
+      });
+    }
+
+    // Verify work submission exists
+    if (!application.workSubmission || !application.workSubmission.workLink) {
+      return res.status(400).json({
+        success: false,
+        message: "No work submission found to approve.",
+      });
+    }
+
+    // Update project status to Completed
+    project.status = "Completed";
+    await project.save();
+
+    const updatedApplication = await Application.findById(id)
+      .populate("studentId", "name email")
+      .populate("projectId", "title budget status");
+
+    return res.status(200).json({
+      success: true,
+      message: "Work approved successfully. Project marked as Completed.",
+      data: updatedApplication,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   applyToProject,
   getMyApplications,
@@ -353,4 +527,6 @@ module.exports = {
   updateApplicationStatus,
   withdrawApplication,
   submitWork,
+  requestChanges,
+  approveWork,
 };

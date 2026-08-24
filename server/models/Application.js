@@ -46,6 +46,30 @@ const applicationSchema = new mongoose.Schema(
         type: Date,
       },
     },
+
+    changeRequests: [
+      {
+        message: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        requestedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        requestedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        status: {
+          type: String,
+          enum: ["Pending", "Resolved"],
+          default: "Pending",
+        },
+      },
+    ],
   },
   {
     timestamps: true,

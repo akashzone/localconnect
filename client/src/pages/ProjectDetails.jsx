@@ -49,6 +49,9 @@ function ProjectDetails() {
   const [checkingApplication, setCheckingApplication] = useState(true);
   
   const [myApplication, setMyApplication] = useState(null);
+  const latestChangeRequest = myApplication?.changeRequests && myApplication.changeRequests.length > 0
+    ? myApplication.changeRequests[myApplication.changeRequests.length - 1]
+    : null;
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submittingWork, setSubmittingWork] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
@@ -357,7 +360,33 @@ function ProjectDetails() {
                 </div>
 
                 <div className="bg-[#FAF8F3] border border-dashed border-[#D8D2C4] rounded-[4px] p-4 mb-6">
-                  {status?.toLowerCase() === "in progress" && (
+                  {status?.toLowerCase() === "in progress" && latestChangeRequest && latestChangeRequest.status === "Pending" && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-[#B3452F] mb-1">
+                        Changes Requested
+                      </p>
+                      <p className="text-[13px] text-[#6B6459] leading-relaxed">
+                        The business owner reviewed your work and requested some modifications.
+                      </p>
+                      <div className="bg-[#FBE7E4] border border-[#F5C2B8] rounded-[4px] p-3 mt-2">
+                        <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#B3452F] mb-1 font-semibold">
+                          Business Feedback
+                        </span>
+                        <p className="text-[13px] text-[#B3452F] whitespace-pre-wrap font-medium">
+                          {latestChangeRequest.message}
+                        </p>
+                        <span className="block text-[10.5px] text-[#9B9384] font-['IBM_Plex_Mono'] mt-1">
+                          Requested on: {new Date(latestChangeRequest.requestedAt).toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {status?.toLowerCase() === "in progress" && (!latestChangeRequest || latestChangeRequest.status !== "Pending") && (
                     <>
                       <p className="text-sm font-semibold text-[#1B2430] mb-1">
                         Application Accepted
@@ -392,27 +421,6 @@ function ProjectDetails() {
                           </span>
                           <p className="text-[13px] text-[#4A473F] whitespace-pre-wrap italic">
                             "{myApplication.workSubmission.remarks}"
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {status?.toLowerCase() === "changes requested" && (
-                    <div className="space-y-3">
-                      <p className="text-sm font-semibold text-[#B3452F] mb-1">
-                        Changes Requested
-                      </p>
-                      <p className="text-[13px] text-[#6B6459] leading-relaxed">
-                        The business owner reviewed your work and requested some modifications.
-                      </p>
-                      {myApplication.workSubmission?.feedback && (
-                        <div className="bg-[#FBE7E4] border border-[#F5C2B8] rounded-[4px] p-3 mt-2">
-                          <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#B3452F] mb-1 font-semibold">
-                            Business Feedback
-                          </span>
-                          <p className="text-[13px] text-[#B3452F] whitespace-pre-wrap font-medium">
-                            {myApplication.workSubmission.feedback}
                           </p>
                         </div>
                       )}
@@ -454,9 +462,11 @@ function ProjectDetails() {
                   {status?.toLowerCase() === "in progress" && (
                     <button
                       onClick={() => setShowSubmitModal(true)}
-                      className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center"
+                      className={`w-full font-semibold px-6 py-3 rounded-[4px] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center ${
+                        latestChangeRequest && latestChangeRequest.status === "Pending" ? "bg-[#B3452F]" : "bg-[#0F6B5C]"
+                      }`}
                     >
-                      Submit Work
+                      {latestChangeRequest && latestChangeRequest.status === "Pending" ? "Edit & Resubmit Work" : "Submit Work"}
                     </button>
                   )}
 
@@ -469,15 +479,6 @@ function ProjectDetails() {
                     >
                       View Submission
                     </a>
-                  )}
-
-                  {status?.toLowerCase() === "changes requested" && (
-                    <button
-                      onClick={() => setShowSubmitModal(true)}
-                      className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center"
-                    >
-                      Resubmit Work
-                    </button>
                   )}
 
                   {status?.toLowerCase() === "completed" && myApplication.workSubmission?.workLink && (
@@ -668,6 +669,8 @@ function ProjectDetails() {
 
       {showSubmitModal && (
         <SubmitWorkModal
+          mode={latestChangeRequest && latestChangeRequest.status === "Pending" ? "edit" : "submit"}
+          feedback={latestChangeRequest && latestChangeRequest.status === "Pending" ? latestChangeRequest.message : ""}
           initialLink={myApplication?.workSubmission?.workLink || ""}
           initialRemarks={myApplication?.workSubmission?.remarks || ""}
           onConfirm={handleSubmitWork}

@@ -25,6 +25,10 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
   const badge = statusConfig[status] || statusConfig.pending;
   const project = app.projectId || {};
 
+  const latestChangeRequest = app.changeRequests && app.changeRequests.length > 0
+    ? app.changeRequests[app.changeRequests.length - 1]
+    : null;
+
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -142,6 +146,32 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
         </div>
       )}
 
+      {latestChangeRequest && latestChangeRequest.status === "Pending" && (
+        <div className="mb-5 bg-[#FBE7E4] border border-[#B3452F]/25 rounded-[6px] p-4 shadow-[2px_2px_0px_#B3452F]">
+          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#B3452F] mb-1.5 font-bold">
+            Changes Requested
+          </span>
+          <p className="text-[13.5px] text-[#4A473F] leading-relaxed mb-3">
+            The Business Owner has requested changes to your submitted work:
+          </p>
+          <div className="text-[13px] text-[#B3452F] bg-white border border-[#B3452F]/10 px-3 py-2 rounded font-medium leading-relaxed mb-2">
+            "{latestChangeRequest.message}"
+          </div>
+          <span className="block text-[10.5px] text-[#9B9384] font-['IBM_Plex_Mono']">
+            Requested on {new Date(latestChangeRequest.requestedAt).toLocaleDateString("en-US", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </span>
+          <span className="block text-[10.5px] text-[#B3452F] mt-1 font-semibold font-['IBM_Plex_Mono']">
+            Status: Changes Required
+          </span>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <div className="flex flex-wrap items-center gap-3">
@@ -154,14 +184,32 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
           </Link>
 
           {status === "accepted" && (
-            <button
-              onClick={() => setShowSubmitModal(true)}
-              className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
-                         shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px]
-                         hover:translate-y-[2px] transition-all duration-150"
-            >
-              {app.workSubmission?.workLink ? "Resubmit Work" : "Submit Work"}
-            </button>
+            <>
+              {project.status?.toLowerCase() === "in progress" && (
+                <button
+                  onClick={() => setShowSubmitModal(true)}
+                  className={`inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] text-white
+                             shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px]
+                             hover:translate-y-[2px] transition-all duration-150 ${
+                               latestChangeRequest && latestChangeRequest.status === "Pending" ? "bg-[#B3452F]" : "bg-[#0F6B5C]"
+                             }`}
+                >
+                  {latestChangeRequest && latestChangeRequest.status === "Pending" 
+                    ? "Edit & Resubmit Work" 
+                    : "Submit Work"}
+                </button>
+              )}
+              {project.status?.toLowerCase() === "under review" && (
+                <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10 flex items-center gap-1.5">
+                  🟡 Work Submitted — Waiting for Business Owner Review
+                </span>
+              )}
+              {project.status?.toLowerCase() === "completed" && (
+                <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10 flex items-center gap-1.5">
+                  🟢 Project Completed
+                </span>
+              )}
+            </>
           )}
         </div>
 
@@ -198,6 +246,8 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
 
       {showSubmitModal && (
         <SubmitWorkModal
+          mode={latestChangeRequest && latestChangeRequest.status === "Pending" ? "edit" : "submit"}
+          feedback={latestChangeRequest && latestChangeRequest.status === "Pending" ? latestChangeRequest.message : ""}
           initialLink={app.workSubmission?.workLink || ""}
           initialRemarks={app.workSubmission?.remarks || ""}
           onConfirm={handleSubmitWork}

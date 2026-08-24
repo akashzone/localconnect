@@ -1,7 +1,17 @@
 const express = require("express");
 
 //controller functions
-const { applyToProject, getMyApplications, getBusinessApplications, getApplicationsForProject, updateApplicationStatus, withdrawApplication, submitWork } = require("../controllers/applicationController");
+const { 
+  applyToProject, 
+  getMyApplications, 
+  getBusinessApplications, 
+  getApplicationsForProject, 
+  updateApplicationStatus, 
+  withdrawApplication, 
+  submitWork,
+  requestChanges,
+  approveWork
+} = require("../controllers/applicationController");
 
 //middlewares
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -17,6 +27,8 @@ router.put("/:id/submit-work", authMiddleware, roleMiddleware("student"), submit
 router.get("/business", authMiddleware, roleMiddleware("business"), getBusinessApplications);
 router.get("/project/:projectId", authMiddleware, roleMiddleware("business"), getApplicationsForProject);
 router.put("/:id/status", authMiddleware, roleMiddleware("business"), updateApplicationStatus);
+router.put("/:id/request-changes", authMiddleware, roleMiddleware("business"), requestChanges);
+router.put("/:id/approve-work", authMiddleware, roleMiddleware("business"), approveWork);
 
 
 

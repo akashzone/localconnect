@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 import AcceptRejectModal from "../components/application/AcceptRejectModal";
+import RequestChangesModal from "../components/application/RequestChangesModal";
+import ApproveWorkModal from "../components/application/ApproveWorkModal";
 
 const statusConfig = {
     pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
@@ -29,7 +31,7 @@ const formatDate = (date) =>
         })
         : "—";
 
-function ApplicationRow({ app, onStatusUpdate }) {
+function ApplicationRow({ app, onStatusUpdate, onReviewUpdate }) {
     const location = useLocation();
     const status = app.status?.toLowerCase() || "pending";
     const badge = statusConfig[status] || statusConfig.pending;
@@ -39,6 +41,10 @@ function ApplicationRow({ app, onStatusUpdate }) {
     const [modalAction, setModalAction] = useState(null); // "Accepted" | "Rejected" | null
     const [submitting, setSubmitting] = useState(false);
 
+    const [reviewAction, setReviewAction] = useState(null); // "RequestChanges" | "ApproveWork" | null
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
+    const [successMsg, setSuccessMsg] = useState("");
+
     const confirmAction = async () => {
         setSubmitting(true);
         await onStatusUpdate(app._id, modalAction);
@@ -46,8 +52,49 @@ function ApplicationRow({ app, onStatusUpdate }) {
         setModalAction(null);
     };
 
+    const handleRequestChanges = async (message) => {
+        setReviewSubmitting(true);
+        try {
+            const res = await api.put(`/applications/${app._id}/request-changes`, { message });
+            setSuccessMsg("Request submitted");
+            setTimeout(() => setSuccessMsg(""), 3000);
+            onReviewUpdate(app._id, res.data.data);
+            setReviewAction(null);
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || "Failed to request changes.");
+        } finally {
+            setReviewSubmitting(false);
+        }
+    };
+
+    const handleApproveWork = async () => {
+        setReviewSubmitting(true);
+        try {
+            const res = await api.put(`/applications/${app._id}/approve-work`);
+            setSuccessMsg("Work approved");
+            setTimeout(() => setSuccessMsg(""), 3000);
+            onReviewUpdate(app._id, res.data.data);
+            setReviewAction(null);
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || "Failed to approve work.");
+        } finally {
+            setReviewSubmitting(false);
+        }
+    };
+
+    const latestChangeRequest = app.changeRequests && app.changeRequests.length > 0
+        ? app.changeRequests[app.changeRequests.length - 1]
+        : null;
+
     return (
         <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 shadow-[3px_3px_0px_#D8D2C4]">
+            {successMsg && (
+                <div className="mb-4 bg-[#E9F5F1] text-[#0F6B5C] border border-[#0F6B5C]/25 text-xs font-['IBM_Plex_Mono'] px-3.5 py-2.5 rounded-[4px] font-semibold flex items-center gap-2">
+                    <span>✓</span> {successMsg}
+                </div>
+            )}
             <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
                 <div>
                     <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-1">
@@ -148,6 +195,46 @@ function ApplicationRow({ app, onStatusUpdate }) {
                 </div>
             )}
 
+            {project.status === "Under Review" && app.workSubmission?.workLink && (
+                <div className="mb-5 flex gap-3">
+                    <button
+                        onClick={() => setReviewAction("RequestChanges")}
+                        className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
+                                   hover:bg-[#B3452F] hover:text-white transition-colors duration-150 bg-white cursor-pointer"
+                    >
+                        Request Changes
+                    </button>
+                    <button
+                        onClick={() => setReviewAction("ApproveWork")}
+                        className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
+                                   shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:bg-[#0c574a]
+                                   transition-all duration-150 cursor-pointer"
+                    >
+                        Approve Work
+                    </button>
+                </div>
+            )}
+
+            {latestChangeRequest && latestChangeRequest.status === "Pending" && (
+                <div className="mb-5 bg-[#FBE7E4] border border-[#B3452F]/25 rounded-[6px] p-4 shadow-[2px_2px_0px_#B3452F]">
+                    <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#B3452F] mb-1.5 font-bold">
+                        Changes Requested by You
+                    </span>
+                    <p className="text-[14px] text-[#4A473F] leading-relaxed italic mb-2">
+                        "{latestChangeRequest.message}"
+                    </p>
+                    <span className="block text-[10.5px] text-[#9B9384] font-['IBM_Plex_Mono']">
+                        Requested on {new Date(latestChangeRequest.requestedAt).toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
+                    </span>
+                </div>
+            )}
+
             <div className="flex flex-wrap gap-3">
                 <Link
                     to={`/profile/student/${student._id}`}
@@ -186,6 +273,22 @@ function ApplicationRow({ app, onStatusUpdate }) {
                     onConfirm={confirmAction}
                     onCancel={() => setModalAction(null)}
                     submitting={submitting}
+                />
+            )}
+
+            {reviewAction === "RequestChanges" && (
+                <RequestChangesModal
+                    onConfirm={handleRequestChanges}
+                    onCancel={() => setReviewAction(null)}
+                    submitting={reviewSubmitting}
+                />
+            )}
+
+            {reviewAction === "ApproveWork" && (
+                <ApproveWorkModal
+                    onConfirm={handleApproveWork}
+                    onCancel={() => setReviewAction(null)}
+                    submitting={reviewSubmitting}
                 />
             )}
         </div>
@@ -249,6 +352,12 @@ function BusinessApplications() {
             console.log(err);
             alert(err.response?.data?.message || "Failed to update application status");
         }
+    };
+
+    const handleReviewUpdate = (applicationId, updatedApp) => {
+        setApplications((prev) =>
+            prev.map((app) => (app._id === applicationId ? updatedApp : app))
+        );
     };
 
     const counts = applications.reduce(
@@ -351,7 +460,12 @@ function BusinessApplications() {
                 {!loading && !error && visibleApplications.length > 0 && (
                     <div className="space-y-5">
                         {visibleApplications.map((app) => (
-                            <ApplicationRow key={app._id} app={app} onStatusUpdate={handleStatusUpdate} />
+                            <ApplicationRow 
+                                key={app._id} 
+                                app={app} 
+                                onStatusUpdate={handleStatusUpdate} 
+                                onReviewUpdate={handleReviewUpdate} 
+                            />
                         ))}
                     </div>
                 )}

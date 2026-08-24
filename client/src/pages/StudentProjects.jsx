@@ -31,6 +31,10 @@ function ProjectCard({ project, applications = [], onSubmitClick }) {
     (a) => (a.projectId?._id || a.projectId) === project._id
   );
 
+  const latestChangeRequest = app?.changeRequests && app.changeRequests.length > 0
+    ? app.changeRequests[app.changeRequests.length - 1]
+    : null;
+
   // Actions based on status
   const getButtonContent = () => {
     switch (status) {
@@ -117,22 +121,61 @@ function ProjectCard({ project, applications = [], onSubmitClick }) {
         )}
       </div>
 
+      {status === "in progress" && latestChangeRequest && latestChangeRequest.status === "Pending" && (
+        <div className="mb-4 bg-[#FBE7E4] border border-[#B3452F]/25 rounded-[6px] p-4 text-left shadow-[2px_2px_0px_#B3452F]">
+          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#B3452F] mb-1.5 font-bold">
+            Changes Requested
+          </span>
+          <p className="text-[13.5px] text-[#4A473F] leading-relaxed mb-3">
+            The Business Owner has requested changes to your submitted work:
+          </p>
+          <div className="text-[13px] text-[#B3452F] bg-white border border-[#B3452F]/10 px-3 py-2 rounded font-medium leading-relaxed mb-2">
+            "{latestChangeRequest.message}"
+          </div>
+          <span className="block text-[10.5px] text-[#9B9384] font-['IBM_Plex_Mono']">
+            Requested on {new Date(latestChangeRequest.requestedAt).toLocaleDateString("en-US", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </span>
+        </div>
+      )}
+
       {/* Primary Card Action */}
-      <div className="pt-2 border-t border-[#D8D2C4]/40 mt-auto flex gap-3">
-        <Link
-          to={`/projects/${project._id}`}
-          state={{ from: location }}
-          className="flex-1 font-semibold text-sm py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] text-center inline-block transition-all duration-150"
-        >
-          Open Project
-        </Link>
-        {(status === "in progress" || status === "changes requested") && app && (
-          <button
-            onClick={() => onSubmitClick(project)}
-            className="flex-1 font-semibold text-sm py-2.5 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center"
+      <div className="pt-2 border-t border-[#D8D2C4]/40 mt-auto flex flex-col gap-2">
+        <div className="flex gap-3">
+          <Link
+            to={`/projects/${project._id}`}
+            state={{ from: location }}
+            className="flex-1 font-semibold text-sm py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] text-center inline-block transition-all duration-150"
           >
-            {status === "changes requested" ? "Resubmit" : "Submit Work"}
-          </button>
+            Open Project
+          </Link>
+          {status === "in progress" && app && (
+            <button
+              onClick={() => onSubmitClick(project)}
+              className={`flex-1 font-semibold text-sm py-2.5 rounded-[4px] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center ${
+                latestChangeRequest && latestChangeRequest.status === "Pending" ? "bg-[#B3452F]" : "bg-[#0F6B5C]"
+              }`}
+            >
+              {latestChangeRequest && latestChangeRequest.status === "Pending" 
+                ? "Edit & Resubmit" 
+                : "Submit Work"}
+            </button>
+          )}
+        </div>
+        {status === "under review" && (
+          <span className="block text-center font-['IBM_Plex_Mono'] text-[11px] font-semibold text-[#0F6B5C] bg-[#E9F5F1] py-2 rounded border border-[#0F6B5C]/10">
+            Work Submitted — Waiting for Review
+          </span>
+        )}
+        {status === "completed" && (
+          <span className="block text-center font-['IBM_Plex_Mono'] text-[11px] font-semibold text-[#0F6B5C] bg-[#E9F5F1] py-2 rounded border border-[#0F6B5C]/10">
+            Project Completed
+          </span>
         )}
       </div>
     </div>
@@ -353,23 +396,27 @@ function StudentProjects() {
         )}
       </div>
 
-      {selectedProjectForSubmit && (
-        <SubmitWorkModal
-          initialLink={
-            applications.find(
-              (a) => (a.projectId?._id || a.projectId) === selectedProjectForSubmit._id
-            )?.workSubmission?.workLink || ""
-          }
-          initialRemarks={
-            applications.find(
-              (a) => (a.projectId?._id || a.projectId) === selectedProjectForSubmit._id
-            )?.workSubmission?.remarks || ""
-          }
-          onConfirm={handleSubmitWork}
-          onCancel={() => setSelectedProjectForSubmit(null)}
-          submitting={submittingWork}
-        />
-      )}
+      {(() => {
+        const matchedApp = selectedProjectForSubmit
+          ? applications.find((a) => (a.projectId?._id || a.projectId) === selectedProjectForSubmit._id)
+          : null;
+        const matchedLatestChangeRequest = matchedApp?.changeRequests && matchedApp.changeRequests.length > 0
+          ? matchedApp.changeRequests[matchedApp.changeRequests.length - 1]
+          : null;
+        const isEditMode = matchedLatestChangeRequest && matchedLatestChangeRequest.status === "Pending";
+
+        return selectedProjectForSubmit && (
+          <SubmitWorkModal
+            mode={isEditMode ? "edit" : "submit"}
+            feedback={isEditMode ? matchedLatestChangeRequest.message : ""}
+            initialLink={matchedApp?.workSubmission?.workLink || ""}
+            initialRemarks={matchedApp?.workSubmission?.remarks || ""}
+            onConfirm={handleSubmitWork}
+            onCancel={() => setSelectedProjectForSubmit(null)}
+            submitting={submittingWork}
+          />
+        );
+      })()}
     </div>
   );
 }

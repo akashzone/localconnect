@@ -1,6 +1,14 @@
 import { useState } from "react";
 
-function SubmitWorkModal({ initialLink = "", initialRemarks = "", onConfirm, onCancel, submitting }) {
+function SubmitWorkModal({ 
+  initialLink = "", 
+  initialRemarks = "", 
+  onConfirm, 
+  onCancel, 
+  submitting,
+  mode = "submit",
+  feedback = ""
+}) {
   const [workLink, setWorkLink] = useState(initialLink);
   const [remarks, setRemarks] = useState(initialRemarks);
   const [errorMsg, setErrorMsg] = useState("");
@@ -15,6 +23,8 @@ function SubmitWorkModal({ initialLink = "", initialRemarks = "", onConfirm, onC
     onConfirm({ workLink: workLink.trim(), remarks: remarks.trim() });
   };
 
+  const isEdit = mode === "edit";
+
   return (
     <div
       className="fixed inset-0 bg-[#1B2430]/60 backdrop-blur-[2px] z-[60] flex items-center justify-center p-4"
@@ -25,18 +35,33 @@ function SubmitWorkModal({ initialLink = "", initialRemarks = "", onConfirm, onC
         className="w-full max-w-md bg-white border border-[#D8D2C4] rounded-[6px] shadow-[6px_6px_0px_#1B2430] p-7"
       >
         <div
-          className="w-11 h-11 flex items-center justify-center rounded-[6px] text-xl mb-5 rotate-[-2deg] bg-[#E9F5F1] text-[#0F6B5C]"
+          className={`w-11 h-11 flex items-center justify-center rounded-[6px] text-xl mb-5 rotate-[-2deg] ${
+            isEdit ? "bg-[#FBE7E4] text-[#B3452F]" : "bg-[#E9F5F1] text-[#0F6B5C]"
+          }`}
         >
-          🚀
+          {isEdit ? "✏️" : "🚀"}
         </div>
 
         <h2 className="font-['Space_Grotesk'] font-bold text-xl mb-2">
-          Submit Your Work
+          {isEdit ? "Edit Submitted Work" : "Submit Your Work"}
         </h2>
 
         <p className="text-[14px] text-[#6B6459] mb-5">
-          Provide the link to your completed project files, repository, or workspace.
+          {isEdit 
+            ? "Update the link to your completed project files, repository, or workspace."
+            : "Provide the link to your completed project files, repository, or workspace."}
         </p>
+
+        {isEdit && feedback && (
+          <div className="bg-[#FBE7E4] border border-[#F5C2B8] rounded-[4px] p-3.5 mb-5 text-[12.5px] leading-relaxed">
+            <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#B3452F] mb-1 font-bold">
+              Business Owner requested:
+            </span>
+            <p className="text-[#4A473F] italic font-medium">
+              "{feedback}"
+            </p>
+          </div>
+        )}
 
         {errorMsg && (
           <div className="bg-[#FBE7E4] text-[#B3452F] text-xs font-['IBM_Plex_Mono'] px-3 py-2 rounded-[4px] mb-4 border border-[#F5C2B8]">
@@ -90,11 +115,13 @@ function SubmitWorkModal({ initialLink = "", initialRemarks = "", onConfirm, onC
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white
+              className={`flex-1 font-semibold text-sm px-4 py-2.5 rounded-[4px] text-white
                          shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px]
-                         hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50"
+                         hover:translate-y-[2px] transition-all duration-150 disabled:opacity-50 ${
+                           isEdit ? "bg-[#B3452F]" : "bg-[#0F6B5C]"
+                         }`}
             >
-              {submitting ? "Submitting..." : "Submit Work"}
+              {submitting ? (isEdit ? "Resubmitting..." : "Submitting...") : (isEdit ? "Resubmit Work" : "Submit Work")}
             </button>
           </div>
         </form>

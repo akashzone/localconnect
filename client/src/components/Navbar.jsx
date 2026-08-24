@@ -81,7 +81,7 @@ function Navbar() {
             Local<span className="text-[#0F6B5C]">Connect</span>
           </span>
           <span className="hidden sm:inline font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384] tracking-wide">
-            /dev-marketplace
+            /student-marketplace
           </span>
         </NavLink>
 
