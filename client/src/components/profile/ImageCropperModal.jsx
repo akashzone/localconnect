@@ -1,5 +1,5 @@
 import Cropper from "react-easy-crop";
-import { CloseIcon, RotateIcon } from "./SpinnerIcon";
+import { CloseIcon, RotateIcon } from "../project/SpinnerIcon";
 
 function ImageCropperModal({
   imageSrc,

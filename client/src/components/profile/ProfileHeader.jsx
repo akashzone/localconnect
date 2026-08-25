@@ -1,4 +1,4 @@
-import { EditIcon, SpinnerIcon } from "./SpinnerIcon";
+import { EditIcon, SpinnerIcon } from "../project/SpinnerIcon";
 
 function ProfileHeader({
   profile,

@@ -1,10 +1,8 @@
-
-
+const mongoose = require("mongoose");
 const Review = require("../models/Review");
-
+const Project = require("../models/Project");
 
 const postReviewByBusinessOwner = async (req, res) => {
-
     try {
         const { studentId, projectId, stars, description } = req.body;
 
@@ -12,7 +10,7 @@ const postReviewByBusinessOwner = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
-            })
+            });
         }
 
         // Get business owner from authenticated user
@@ -54,7 +52,6 @@ const postReviewByBusinessOwner = async (req, res) => {
             });
         }
 
-
         if (project.status !== "Completed") {
             return res.status(400).json({
                 success: false,
@@ -63,8 +60,8 @@ const postReviewByBusinessOwner = async (req, res) => {
         }
 
         if (
-            !project.selectedDeveloper ||
-            project.selectedDeveloper.toString() !== studentId.toString()
+            !project.selectedStudent ||
+            project.selectedStudent.toString() !== studentId.toString()
         ) {
             return res.status(403).json({
                 success: false,
@@ -75,7 +72,8 @@ const postReviewByBusinessOwner = async (req, res) => {
         const existingReview = await Review.findOne({
             projectId,
             businessOwnerId,
-            studentId
+            studentId,
+            reviewerRole: "business"
         });
 
         if (existingReview) {
@@ -90,28 +88,30 @@ const postReviewByBusinessOwner = async (req, res) => {
             businessOwnerId,
             projectId,
             stars,
-            description
-        })
+            description,
+            reviewerRole: "business"
+        });
 
         return res.status(200).json({
             success: true,
             message: "Review posted successfully",
             review
-        })
+        });
     } catch (error) {
         console.log("Error in posting review =", error.message);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
-        })
+        });
     }
-}
-
+};
 
 const getReviewByStudent = async (req, res) => {
     try {
-        const studentId = req.params.id;
-        const reviews = await Review.find({ studentId }).populate("businessOwnerId", "name").populate("projectId", "title");
+        const studentId = req.user.id;
+        const reviews = await Review.find({ studentId, reviewerRole: "business" })
+            .populate("businessOwnerId", "name")
+            .populate("projectId", "title");
 
         const totalStars = reviews.reduce(
             (sum, review) => sum + review.stars,
@@ -125,27 +125,25 @@ const getReviewByStudent = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Review fetched successfully",
+            message: "Reviews fetched successfully",
             reviews,
             averageRating,
             totalReviews: reviews.length
-        })
+        });
     } catch (error) {
         console.log("Error in getting review by student =", error.message);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
-        })
+        });
     }
-}
+};
 
-// this will be used by business to see student before accepting or rejecting the application
-// it will be used in studentProfile by business
 const getStudentReviews = async (req, res) => {
     try {
         const { studentId } = req.params;
 
-        const reviews = await Review.find({ studentId })
+        const reviews = await Review.find({ studentId, reviewerRole: "business" })
             .populate("businessOwnerId", "name")
             .sort({ createdAt: -1 });
 
@@ -165,7 +163,6 @@ const getStudentReviews = async (req, res) => {
             totalReviews: reviews.length,
             reviews
         });
-
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -178,7 +175,7 @@ const getBusinessReviews = async (req, res) => {
     try {
         const { businessOwnerId } = req.params;
 
-        const reviews = await Review.find({ businessOwnerId })
+        const reviews = await Review.find({ businessOwnerId, reviewerRole: "student" })
             .populate("studentId", "name")
             .sort({ createdAt: -1 });
 
@@ -198,7 +195,6 @@ const getBusinessReviews = async (req, res) => {
             totalReviews: reviews.length,
             reviews
         });
-
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -215,7 +211,7 @@ const postReviewByStudent = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
-            })
+            });
         }
 
         // Get student from authenticated user
@@ -249,8 +245,8 @@ const postReviewByStudent = async (req, res) => {
             });
         }
 
-        // Make sure this student owns the project
-        if (project.studentId.toString() !== studentId.toString()) {
+        // Make sure this student was assigned to the project
+        if (!project.selectedStudent || project.selectedStudent.toString() !== studentId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to review this project"
@@ -260,7 +256,8 @@ const postReviewByStudent = async (req, res) => {
         const existingReview = await Review.findOne({
             projectId,
             businessOwnerId,
-            studentId
+            studentId,
+            reviewerRole: "student"
         });
 
         if (existingReview) {
@@ -275,27 +272,60 @@ const postReviewByStudent = async (req, res) => {
             businessOwnerId,
             projectId,
             stars,
-            description
-        })
+            description,
+            reviewerRole: "student"
+        });
 
         return res.status(200).json({
             success: true,
             message: "Review posted successfully",
             review
-        })
+        });
     } catch (error) {
         console.log("Error in posting review by student =", error.message);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
-        })
+        });
     }
-}
+};
+
+const getReviewsWrittenByUser = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const role = req.user.role;
+
+        let query = {};
+        if (role === "student") {
+            query = { studentId: userId, reviewerRole: "student" };
+        } else if (role === "business") {
+            query = { businessOwnerId: userId, reviewerRole: "business" };
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role for fetching written reviews"
+            });
+        }
+
+        const reviews = await Review.find(query);
+        return res.status(200).json({
+            success: true,
+            reviews
+        });
+    } catch (error) {
+        console.log("Error in getting written reviews =", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
 
 module.exports = {
     postReviewByBusinessOwner,
     getReviewByStudent,
     postReviewByStudent,
     getStudentReviews,
-    getBusinessReviews
-}
+    getBusinessReviews,
+    getReviewsWrittenByUser
+};

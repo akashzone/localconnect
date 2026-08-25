@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import ApplicationForm from "../components/application/ApplicationForm";
 import AcceptRejectModal from "../components/application/AcceptRejectModal";
 import SubmitWorkModal from "../components/application/SubmitWorkModal";
+import ReviewModal from "../components/review/ReviewModal";
 
 const statusStyles = {
   open: "bg-[#E9F5F1] text-[#0F6B5C]",
@@ -58,6 +59,8 @@ function ProjectDetails() {
 
   const [showForm, setShowForm] = useState(false);
   const [justApplied, setJustApplied] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const isBusiness = user?.role === "business";
   const isOwner = isAuthenticated && isBusiness && project && (project.businessOwnerId === user?._id || project.businessOwnerId?._id === user?._id);
@@ -141,6 +144,21 @@ function ProjectDetails() {
 
     checkApplied();
   }, [id, isAuthenticated, user]);
+
+  useEffect(() => {
+    const checkReviewed = async () => {
+      if (isAuthenticated && user?.role === "student" && project?.status === "Completed") {
+        try {
+          const res = await api.get("/review/written");
+          const alreadyReviewed = res.data.reviews.some(r => r.projectId === id);
+          setHasReviewed(alreadyReviewed);
+        } catch (err) {
+          console.error("Failed to check review status:", err);
+        }
+      }
+    };
+    checkReviewed();
+  }, [id, isAuthenticated, user, project]);
 
   const handleApplicationSuccess = () => {
     setShowForm(false);
@@ -491,6 +509,21 @@ function ProjectDetails() {
                       View Final Submission
                     </a>
                   )}
+
+                  {status?.toLowerCase() === "completed" && isAuthenticated && user?.role === "student" && (
+                    hasReviewed ? (
+                      <span className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#E9F5F1] text-[#0F6B5C] border border-[#0F6B5C]/15 text-center block font-['IBM_Plex_Mono'] text-xs">
+                        ✓ Reviewed Business
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setShowReviewModal(true)}
+                        className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center block cursor-pointer"
+                      >
+                        Review Business
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
 
@@ -766,6 +799,19 @@ function ProjectDetails() {
             </button>
           </div>
         </div>
+      )}
+
+      {showReviewModal && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          onSuccess={() => setHasReviewed(true)}
+          targetName={project?.businessProfile?.businessName || "Business Owner"}
+          projectName={project?.title || "Software Project"}
+          businessOwnerId={project?.businessOwnerId?._id || project?.businessOwnerId}
+          projectId={project?._id}
+          reviewerRole="student"
+        />
       )}
     </div>
   );

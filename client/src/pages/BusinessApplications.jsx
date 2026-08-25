@@ -6,6 +6,7 @@ import api from "../api/api.js";
 import AcceptRejectModal from "../components/application/AcceptRejectModal";
 import RequestChangesModal from "../components/application/RequestChangesModal";
 import ApproveWorkModal from "../components/application/ApproveWorkModal";
+import ReviewModal from "../components/review/ReviewModal";
 
 const statusConfig = {
     pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
@@ -31,7 +32,7 @@ const formatDate = (date) =>
         })
         : "—";
 
-function ApplicationRow({ app, onStatusUpdate, onReviewUpdate }) {
+function ApplicationRow({ app, onStatusUpdate, onReviewUpdate, reviewedProjectIds, onReviewSuccess }) {
     const location = useLocation();
     const status = app.status?.toLowerCase() || "pending";
     const badge = statusConfig[status] || statusConfig.pending;
@@ -44,6 +45,7 @@ function ApplicationRow({ app, onStatusUpdate, onReviewUpdate }) {
     const [reviewAction, setReviewAction] = useState(null); // "RequestChanges" | "ApproveWork" | null
     const [reviewSubmitting, setReviewSubmitting] = useState(false);
     const [successMsg, setSuccessMsg] = useState("");
+    const [showReviewModal, setShowReviewModal] = useState(false);
 
     const confirmAction = async () => {
         setSubmitting(true);
@@ -264,6 +266,21 @@ function ApplicationRow({ app, onStatusUpdate, onReviewUpdate }) {
                         </button>
                     </>
                 )}
+
+                {project.status === "Completed" && status === "accepted" && (
+                    reviewedProjectIds.has(project._id) ? (
+                        <span className="inline-flex items-center font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-4 py-2.5 rounded border border-[#0F6B5C]/15">
+                            ✓ Reviewed Student
+                        </span>
+                    ) : (
+                        <button
+                            onClick={() => setShowReviewModal(true)}
+                            className="font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 cursor-pointer"
+                        >
+                            Give Review
+                        </button>
+                    )
+                )}
             </div>
 
             {modalAction && (
@@ -291,6 +308,19 @@ function ApplicationRow({ app, onStatusUpdate, onReviewUpdate }) {
                     submitting={reviewSubmitting}
                 />
             )}
+
+            {showReviewModal && (
+                <ReviewModal
+                    isOpen={showReviewModal}
+                    onClose={() => setShowReviewModal(false)}
+                    onSuccess={() => onReviewSuccess(project._id)}
+                    targetName={student.name || "Student Developer"}
+                    projectName={project.title || "Software Project"}
+                    studentId={student._id}
+                    projectId={project._id}
+                    reviewerRole="business"
+                />
+            )}
         </div>
     );
 }
@@ -302,6 +332,21 @@ function BusinessApplications() {
 
     const [activeFilter, setActiveFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
+    const [reviewedProjectIds, setReviewedProjectIds] = useState(new Set());
+
+    useEffect(() => {
+        const fetchWrittenReviews = async () => {
+            try {
+                const res = await api.get("/review/written");
+                const ids = res.data.reviews.map((r) => r.projectId);
+                setReviewedProjectIds(new Set(ids));
+            } catch (err) {
+                console.error("Failed to fetch written reviews:", err);
+            }
+        };
+
+        fetchWrittenReviews();
+    }, []);
 
     useEffect(() => {
         const fetchApplications = async () => {
@@ -465,6 +510,14 @@ function BusinessApplications() {
                                 app={app} 
                                 onStatusUpdate={handleStatusUpdate} 
                                 onReviewUpdate={handleReviewUpdate} 
+                                reviewedProjectIds={reviewedProjectIds}
+                                onReviewSuccess={(projId) => {
+                                    setReviewedProjectIds((prev) => {
+                                        const next = new Set(prev);
+                                        next.add(projId);
+                                        return next;
+                                    });
+                                }}
                             />
                         ))}
                     </div>

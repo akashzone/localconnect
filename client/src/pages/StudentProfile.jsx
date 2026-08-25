@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
+import RatingSummary from "../components/review/RatingSummary";
+import ReviewList from "../components/review/ReviewList";
 
 function StudentProfile() {
     const { studentId } = useParams();
@@ -9,6 +11,10 @@ function StudentProfile() {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [averageRating, setAverageRating] = useState(0);
+    const [totalReviews, setTotalReviews] = useState(0);
+    const [loadingReviews, setLoadingReviews] = useState(true);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -28,6 +34,24 @@ function StudentProfile() {
         };
 
         fetchProfile();
+    }, [studentId]);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                setLoadingReviews(true);
+                const res = await api.get(`/review/student/${studentId}`);
+                setReviews(res.data.reviews || []);
+                setAverageRating(res.data.averageRating || 0);
+                setTotalReviews(res.data.totalReviews || 0);
+            } catch (err) {
+                console.error("Failed to fetch student reviews:", err);
+            } finally {
+                setLoadingReviews(false);
+            }
+        };
+
+        fetchReviews();
     }, [studentId]);
 
     if (loading) {
@@ -214,6 +238,20 @@ function StudentProfile() {
                             </p>
                         )}
                     </div>
+                </div>
+
+                <div className="mt-8 bg-white border border-[#D8D2C4] rounded-[6px] p-8 sm:p-10 shadow-[6px_6px_0px_#1B2430]">
+                    <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-6 text-[#1B2430]">
+                        Reviews & Feedback
+                    </h3>
+                    {loadingReviews ? (
+                        <p className="font-['IBM_Plex_Mono'] text-xs text-[#6B6459]">Loading reviews...</p>
+                    ) : (
+                        <div className="space-y-6">
+                            <RatingSummary averageRating={averageRating} totalReviews={totalReviews} />
+                            <ReviewList reviews={reviews} />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

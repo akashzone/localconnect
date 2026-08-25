@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
-import ProfileHeader from "../components/project/ProfileHeader";
-import ImageCropperModal from "../components/project/ImageCropperModal";
+import ProfileHeader from "../components/profile/ProfileHeader";
+import ImageCropperModal from "../components/profile/ImageCropperModal";
+import RatingSummary from "../components/review/RatingSummary";
+import ReviewList from "../components/review/ReviewList";
 import {
     TextInput,
     TextArea,
@@ -10,7 +12,7 @@ import {
 import {
     StudentViewSection,
     BusinessViewSection,
-} from "../components/project/ProfileViewSections";
+} from "../components/profile/ProfileViewSections";
 import {
     INITIAL_FORM_DATA,
     profileToFormData,
@@ -27,7 +29,7 @@ import {
 import {
     ProfileLoadingState,
     ProfileErrorState,
-} from "../components/project/ProfileStates";
+} from "../components/profile/ProfileStates";
 
 function Profile() {
     const { user, profile, setProfile } = useContext(AuthContext);
@@ -36,6 +38,10 @@ function Profile() {
     const [error, setError] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadingResume, setUploadingResume] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [averageRating, setAverageRating] = useState(0);
+    const [totalReviews, setTotalReviews] = useState(0);
+    const [loadingReviews, setLoadingReviews] = useState(true);
 
     const fileInputRef = useRef(null);
     const resumeInputRef = useRef(null);
@@ -55,6 +61,32 @@ function Profile() {
     const isStudent = user?.role === "student";
     const isBusiness =
         user?.role === "business" || user?.role === "businessOwner";
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            if (!user?._id) return;
+            try {
+                setLoadingReviews(true);
+                let res;
+                if (isStudent) {
+                    res = await api.get("/review/my");
+                } else {
+                    res = await api.get(`/review/business/${user._id}`);
+                }
+                setReviews(res.data.reviews || []);
+                setAverageRating(res.data.averageRating || 0);
+                setTotalReviews(res.data.totalReviews || 0);
+            } catch (err) {
+                console.error("Failed to fetch reviews for current user:", err);
+            } finally {
+                setLoadingReviews(false);
+            }
+        };
+
+        if (!loading && profile) {
+            fetchReviews();
+        }
+    }, [user?._id, isStudent, loading, profile]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -503,6 +535,22 @@ function Profile() {
                         )}
                     </div>
                 </div>
+
+                {!editing && (
+                    <div className="mt-8 bg-white border border-[#D8D2C4] rounded-[6px] p-8 sm:p-10 shadow-[6px_6px_0px_#1B2430]">
+                        <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-6 text-[#1B2430]">
+                            Reviews & Feedback
+                        </h3>
+                        {loadingReviews ? (
+                            <p className="font-['IBM_Plex_Mono'] text-xs text-[#6B6459]">Loading reviews...</p>
+                        ) : (
+                            <div className="space-y-6">
+                                <RatingSummary averageRating={averageRating} totalReviews={totalReviews} />
+                                <ReviewList reviews={reviews} />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {isCropperOpen && (

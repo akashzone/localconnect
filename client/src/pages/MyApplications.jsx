@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 import SubmitWorkModal from "../components/application/SubmitWorkModal";
+import ReviewModal from "../components/review/ReviewModal";
 
 const statusConfig = {
   pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
@@ -20,7 +21,7 @@ const filterTabs = [
   { key: "withdrawn", label: "Withdrawn" },
 ];
 
-function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
+function ApplicationCard({ app, onWithdraw, onSubmitWork, reviewedProjectIds, onReviewSuccess }) {
   const status = app.status?.toLowerCase() || "pending";
   const badge = statusConfig[status] || statusConfig.pending;
   const project = app.projectId || {};
@@ -32,6 +33,7 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const handleSubmitWork = async ({ workLink, remarks }) => {
     try {
@@ -205,9 +207,23 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
                 </span>
               )}
               {project.status?.toLowerCase() === "completed" && (
-                <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10 flex items-center gap-1.5">
-                  🟢 Project Completed
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10 flex items-center gap-1.5">
+                    🟢 Project Completed
+                  </span>
+                  {reviewedProjectIds.has(project._id) ? (
+                    <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10">
+                      ✓ Reviewed
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setShowReviewModal(true)}
+                      className="font-semibold text-xs px-3.5 py-2 rounded-[4px] bg-[#0F6B5C] text-white shadow-[2px_2px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-150 cursor-pointer"
+                    >
+                      Review Business
+                    </button>
+                  )}
+                </div>
               )}
             </>
           )}
@@ -255,6 +271,18 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork }) {
           submitting={submitting}
         />
       )}
+      {showReviewModal && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          onSuccess={() => onReviewSuccess(project._id)}
+          targetName={project.businessProfile?.businessName || "Business Owner"}
+          projectName={project.title || "Software Project"}
+          businessOwnerId={project.businessOwnerId?._id || project.businessOwnerId}
+          projectId={project._id}
+          reviewerRole="student"
+        />
+      )}
     </div>
   );
 }
@@ -266,6 +294,21 @@ function MyApplications() {
 
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [reviewedProjectIds, setReviewedProjectIds] = useState(new Set());
+
+  useEffect(() => {
+    const fetchWrittenReviews = async () => {
+      try {
+        const res = await api.get("/review/written");
+        const ids = res.data.reviews.map((r) => r.projectId);
+        setReviewedProjectIds(new Set(ids));
+      } catch (err) {
+        console.error("Failed to fetch written reviews:", err);
+      }
+    };
+
+    fetchWrittenReviews();
+  }, []);
 
   const fetchApplications = async () => {
     try {
@@ -416,6 +459,14 @@ function MyApplications() {
                 app={app}
                 onWithdraw={handleWithdraw}
                 onSubmitWork={handleSubmitWork}
+                reviewedProjectIds={reviewedProjectIds}
+                onReviewSuccess={(projId) => {
+                  setReviewedProjectIds((prev) => {
+                    const next = new Set(prev);
+                    next.add(projId);
+                    return next;
+                  });
+                }}
               />
             ))}
           </div>
