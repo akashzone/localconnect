@@ -4,6 +4,8 @@ require("dotenv").config();
 const http = require("http");
 const { Server } = require("socket.io");
 
+const jwt = require("jsonwebtoken");
+
 //routes
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
@@ -42,6 +44,49 @@ const io = new Server(server, {
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   },
+});
+
+io.use((socket, next) => {
+  try {
+
+    const cookieHeader = socket.handshake.headers.cookie;
+
+    if (!cookieHeader) {
+      return next(new Error("Authentication required"));
+    }
+
+    const cookies = Object.fromEntries(
+      cookieHeader.split("; ").map(cookie => {
+        const [name, ...value] = cookie.split("=");
+        return [name, value.join("=")];
+      })
+    );
+
+    console.log("Parsed cookies:", cookies);
+
+    const token = cookies.accessToken;
+
+    if (!token) {
+      return next(new Error("Authentication required"));
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    socket.user = decoded;
+
+    next();
+
+  } catch (error) {
+
+    console.error("Socket authentication error:", error);
+
+    next(new Error("Invalid authentication"));
+
+  }
+
 });
 
 io.on("connection", (socket) => {
