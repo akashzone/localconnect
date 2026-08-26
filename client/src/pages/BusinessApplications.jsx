@@ -247,6 +247,17 @@ function ApplicationRow({ app, onStatusUpdate, onReviewUpdate, reviewedProjectId
                     View Profile
                 </Link>
 
+                {status === "accepted" && (
+                    <Link
+                        to={`/chat/${app._id}`}
+                        className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#FAF8F3] text-[#0F6B5C] border-2 border-[#0F6B5C]
+                                   shadow-[3px_3px_0px_#0F6B5C] hover:shadow-[1px_1px_0px_#0F6B5C] hover:translate-x-[2px] hover:translate-y-[2px]
+                                   transition-all duration-150"
+                    >
+                        💬 Chat with Student
+                    </Link>
+                )}
+
                 {status === "pending" && (
                     <>
                         <button

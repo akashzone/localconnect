@@ -10,7 +10,9 @@ const {
   withdrawApplication, 
   submitWork,
   requestChanges,
-  approveWork
+  approveWork,
+  getApplicationById,
+  getChatMessages
 } = require("../controllers/applicationController");
 
 //middlewares
@@ -30,6 +32,8 @@ router.put("/:id/status", authMiddleware, roleMiddleware("business"), updateAppl
 router.put("/:id/request-changes", authMiddleware, roleMiddleware("business"), requestChanges);
 router.put("/:id/approve-work", authMiddleware, roleMiddleware("business"), approveWork);
 
-
+// Chat history and details endpoints (accessible by both student and business, internally checked)
+router.get("/:id", authMiddleware, getApplicationById);
+router.get("/:id/messages", authMiddleware, getChatMessages);
 
 module.exports = router;

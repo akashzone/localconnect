@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import StudentProfile from "./pages/StudentProfile";
 import PageNotFound from "./pages/PageNotFound";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import Chat from "./pages/Chat";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -123,6 +124,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["business"]}>
                 <BusinessApplications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat/:applicationId"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business"]}>
+                <Chat />
               </ProtectedRoute>
             }
           />

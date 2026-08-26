@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 // models 
 const Application = require("./models/Application");
 const Project = require("./models/Project");
-
+const Message = require("./models/Message");
 
 //routes
 const authRoutes = require("./routes/authRoutes");
@@ -145,7 +145,6 @@ io.on("connection", (socket) => {
         roomId,
         applicationId,
       });
-
     } catch (error) {
 
       console.error("Join chat error:", error);
@@ -157,6 +156,79 @@ io.on("connection", (socket) => {
     }
   });
 
+
+  socket.on("sendMessage", async (data) => {
+    try {
+      const { applicationId, message } = data;
+
+      if (!message || !message.trim()) {
+        return;
+      }
+
+      // Find application
+      const application = await Application.findById(applicationId);
+
+      if (!application) {
+        return socket.emit("chatError", {
+          message: "Application not found",
+        });
+      }
+
+      // Application must be accepted
+      if (application.status !== "Accepted") {
+        return socket.emit("chatError", {
+          message: "Chat is not available for this application",
+        });
+      }
+
+      const project = await Project.findById(application.projectId);
+
+      if (!project) {
+        return socket.emit("chatError", {
+          message: "Project not found",
+        });
+      }
+
+      // Check whether user belongs to this application
+      const isStudent =
+        application.studentId.toString() === socket.user.id.toString();
+
+      const isBusinessOwner =
+        project.businessOwnerId.toString() === socket.user.id.toString();
+
+      if (!isStudent && !isBusinessOwner) {
+        return socket.emit("chatError", {
+          message: "You are not part of this chat",
+        });
+      }
+
+      // Save message
+      const newMessage = await Message.create({
+        applicationId,
+        senderId: socket.user.id,
+        message: message.trim(),
+      });
+
+      // Socket.IO room
+      const roomId = `application_${applicationId}`;
+
+      // Send saved message to room
+      io.to(roomId).emit("newMessage", {
+        _id: newMessage._id,
+        applicationId: newMessage.applicationId,
+        senderId: newMessage.senderId,
+        message: newMessage.message,
+        createdAt: newMessage.createdAt,
+      });
+
+    } catch (error) {
+      console.error("Send message error:", error);
+
+      socket.emit("chatError", {
+        message: "Failed to send message",
+      });
+    }
+  });
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
   });

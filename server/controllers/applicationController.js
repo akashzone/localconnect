@@ -1,5 +1,8 @@
+const mongoose = require("mongoose");
 const Application = require("../models/Application");
 const Project = require("../models/Project");
+const Message = require("../models/Message");
+const BusinessProfile = require("../models/BusinessProfile");
 
 const applyToProject = async (req, res) => {
   try {
@@ -519,6 +522,124 @@ const approveWork = async (req, res) => {
   }
 };
 
+const getApplicationById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Application ID.",
+    });
+  }
+
+  try {
+    const application = await Application.findById(id)
+      .populate("studentId", "name email")
+      .populate("projectId", "title budget deadline category status businessOwnerId");
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    const project = application.projectId;
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Associated project not found.",
+      });
+    }
+
+    const isStudent = application.studentId._id.toString() === req.user.id.toString();
+    const isBusinessOwner = project.businessOwnerId.toString() === req.user.id.toString();
+
+    if (!isStudent && !isBusinessOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to view this application.",
+      });
+    }
+
+    const applicationObj = application.toObject();
+    const businessProfile = await BusinessProfile.findOne({ userId: project.businessOwnerId });
+    applicationObj.projectId.businessProfile = businessProfile || null;
+
+    return res.status(200).json({
+      success: true,
+      data: applicationObj,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: error.message,
+    });
+  }
+};
+
+const getChatMessages = async (req, res) => {
+  const { id } = req.params; // applicationId
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Application ID.",
+    });
+  }
+
+  try {
+    const application = await Application.findById(id);
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    if (application.status !== "Accepted") {
+      return res.status(403).json({
+        success: false,
+        message: "Chat is only available for accepted applications.",
+      });
+    }
+
+    const project = await Project.findById(application.projectId);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Associated project not found.",
+      });
+    }
+
+    const isStudent = application.studentId.toString() === req.user.id.toString();
+    const isBusinessOwner = project.businessOwnerId.toString() === req.user.id.toString();
+
+    if (!isStudent && !isBusinessOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to access this chat.",
+      });
+    }
+
+    const messages = await Message.find({ applicationId: id })
+      .sort({ createdAt: 1 });
+
+    return res.status(200).json({
+      success: true,
+      messages,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   applyToProject,
   getMyApplications,
@@ -529,4 +650,6 @@ module.exports = {
   submitWork,
   requestChanges,
   approveWork,
+  getApplicationById,
+  getChatMessages,
 };
