@@ -39,16 +39,39 @@ function StudentDashboard() {
 
   useEffect(() => {
 
-    socket.on("connect", () => {
+    const joinChat = () => {
       console.log("Socket connected:", socket.id);
-    });
+
+      socket.emit("joinChat", "6a8e85dd496c79b3f1ca0c9c");
+    };
+
+    const handleChatJoined = (data) => {
+      console.log("Joined chat:", data);
+    };
+
+    const handleChatError = (error) => {
+      console.error("Chat error:", error);
+    };
+
+
+    socket.on("connect", joinChat);
+    socket.on("chatJoined", handleChatJoined);
+    socket.on("chatError", handleChatError);
+
+
+    // If socket was already connected
+    if (socket.connected) {
+      joinChat();
+    }
+
 
     return () => {
-      socket.off("connect");
+      socket.off("connect", joinChat);
+      socket.off("chatJoined", handleChatJoined);
+      socket.off("chatError", handleChatError);
     };
 
   }, []);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF8F3] flex items-center justify-center">

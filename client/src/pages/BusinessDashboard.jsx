@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
+import socket from "../socket/socket";
 
 const statusConfig = {
   open: { label: "Open", icon: faCircleDot, classes: "bg-[#E9F5F1] text-[#0F6B5C]" },
@@ -107,6 +108,43 @@ function BusinessDashboard() {
 
     if (isAuthenticated) fetchDashboard();
   }, [isAuthenticated]);
+
+
+  useEffect(() => {
+
+    const joinChat = () => {
+      console.log("Socket connected from business:", socket.id);
+
+      socket.emit("joinChat", "6a8e85dd496c79b3f1ca0c9c");
+    };
+
+    const handleChatJoined = (data) => {
+      console.log("Joined chat:", data);
+    };
+
+    const handleChatError = (error) => {
+      console.error("Chat error:", error);
+    };
+
+
+    socket.on("connect", joinChat);
+    socket.on("chatJoined", handleChatJoined);
+    socket.on("chatError", handleChatError);
+
+
+    // If socket was already connected
+    if (socket.connected) {
+      joinChat();
+    }
+
+
+    return () => {
+      socket.off("connect", joinChat);
+      socket.off("chatJoined", handleChatJoined);
+      socket.off("chatError", handleChatError);
+    };
+
+  }, []);
 
   if (loading) {
     return (

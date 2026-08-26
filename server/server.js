@@ -3,8 +3,12 @@ require("dotenv").config();
 //WebSocket.io things 
 const http = require("http");
 const { Server } = require("socket.io");
-
 const jwt = require("jsonwebtoken");
+
+// models 
+const Application = require("./models/Application");
+const Project = require("./models/Project");
+
 
 //routes
 const authRoutes = require("./routes/authRoutes");
@@ -62,8 +66,6 @@ io.use((socket, next) => {
       })
     );
 
-    console.log("Parsed cookies:", cookies);
-
     const token = cookies.accessToken;
 
     if (!token) {
@@ -91,6 +93,69 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
+
+  socket.on("joinChat", async (applicationId) => {
+    try {
+
+      const application = await Application.findById(applicationId);
+
+      if (!application) {
+        return socket.emit("chatError", {
+          message: "Application not found",
+        });
+      }
+
+      if (application.status !== "Accepted") {
+        return socket.emit("chatError", {
+          message: "Chat is only available for accepted applications",
+        });
+      }
+
+      const project = await Project.findById(application.projectId);
+
+      if (!project) {
+        return socket.emit("chatError", {
+          message: "Project not found",
+        });
+      }
+
+      const userId = socket.user.id;
+
+      const isStudent =
+        application.studentId.toString() === userId.toString();
+
+      const isBusinessOwner =
+        project.businessOwnerId.toString() === userId.toString();
+
+      if (!isStudent && !isBusinessOwner) {
+        return socket.emit("chatError", {
+          message: "You are not authorized to join this chat",
+        });
+      }
+
+      const roomId = `application_${applicationId}`;
+
+      socket.join(roomId);
+
+      console.log(
+        `User ${userId} joined room ${roomId}`
+      );
+
+      socket.emit("chatJoined", {
+        roomId,
+        applicationId,
+      });
+
+    } catch (error) {
+
+      console.error("Join chat error:", error);
+
+      socket.emit("chatError", {
+        message: "Unable to join chat",
+      });
+
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
