@@ -111,9 +111,6 @@ function StudentDashboard() {
               View all →
             </Link>
           </div>
-              View all →
-            </Link>
-          </div>
 
           {applications.length === 0 ? (
             <p className="font-['IBM_Plex_Mono'] text-sm text-[#6B6459] text-center py-8">
