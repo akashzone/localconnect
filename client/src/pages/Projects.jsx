@@ -44,6 +44,9 @@ function Projects() {
   // Filter and sort project list
   const filteredProjects = projects
     .filter((project) => {
+      const isOpen = project.status?.toLowerCase() === "open";
+      if (!isOpen) return false;
+
       const matchesSearch =
         project.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||

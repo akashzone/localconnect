@@ -51,8 +51,7 @@ const createProject = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find();
-    // console.log("All projects :", projects);
+    const projects = await Project.find({ status: "Open" });
 
     if (!projects) {
       return res.status(404).json({
@@ -61,10 +60,21 @@ const getAllProjects = async (req, res) => {
       });
     }
 
+    const projectsWithProfile = await Promise.all(
+      projects.map(async (project) => {
+        const projectObj = project.toObject();
+        const businessProfile = await BusinessProfile.findOne({
+          userId: project.businessOwnerId,
+        });
+        projectObj.businessProfile = businessProfile || null;
+        return projectObj;
+      })
+    );
+
     res.status(200).json({
       success: true,
       message: "Projects fetched successfully",
-      data: projects,
+      data: projectsWithProfile,
     });
   } catch (error) {
     return res
@@ -196,15 +206,27 @@ const getMyProjects = async (req, res) => {
 const getAssignedProjects = async (req, res) => {
   const studentId = req.user.id;
   try {
-    const accpetedProjects = await Project.find({
+    const acceptedProjects = await Project.find({
       selectedStudent: studentId,
       status: { $in: ["In Progress", "Under Review", "Completed", "Cancelled"] }
-    }).populate("businessOwnerId", "companyName name");
-    console.log("Accepted projects, that we have applied for :", accpetedProjects);
+    });
+
+    const projectsWithProfile = await Promise.all(
+      acceptedProjects.map(async (project) => {
+        const projectObj = project.toObject();
+        const businessProfile = await BusinessProfile.findOne({
+          userId: project.businessOwnerId,
+        });
+        projectObj.businessProfile = businessProfile || null;
+        return projectObj;
+      })
+    );
+
+    console.log("Accepted projects, that we have applied for :", projectsWithProfile);
     return res.status(200).json({
       success: true,
       message: "acceptedProjects fetched successfully",
-      data: accpetedProjects,
+      data: projectsWithProfile,
     });
 
   } catch (error) {

@@ -7,10 +7,10 @@ import SubmitWorkModal from "../components/application/SubmitWorkModal";
 import ReviewModal from "../components/review/ReviewModal";
 
 const statusConfig = {
-  pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
-  accepted: { label: "Accepted", dot: "🟢", classes: "bg-[#E9F5F1] text-[#0F6B5C]" },
-  rejected: { label: "Rejected", dot: "🔴", classes: "bg-[#FBE7E4] text-[#B3452F]" },
-  withdrawn: { label: "Withdrawn", dot: "⚪", classes: "bg-[#EAEAEA] text-[#4A473F]" },
+  pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D] border-[#F5E2B3]" },
+  accepted: { label: "Accepted", dot: "🟢", classes: "bg-[#E9F5F1] text-[#0F6B5C] border-[#B8E2D8]" },
+  rejected: { label: "Rejected", dot: "🔴", classes: "bg-[#FBE7E4] text-[#B3452F] border-[#F5C2B8]" },
+  withdrawn: { label: "Withdrawn", dot: "⚪", classes: "bg-[#EAEAEA] text-[#4A473F] border-[#D8D2C4]" },
 };
 
 const filterTabs = [
@@ -25,6 +25,8 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork, reviewedProjectIds, on
   const status = app.status?.toLowerCase() || "pending";
   const badge = statusConfig[status] || statusConfig.pending;
   const project = app.projectId || {};
+  const businessName = project.businessProfile?.businessName || project.businessOwnerId?.name || "Local Business";
+  const businessType = project.businessProfile?.businessType || "";
 
   const latestChangeRequest = app.changeRequests && app.changeRequests.length > 0
     ? app.changeRequests[app.changeRequests.length - 1]
@@ -49,226 +51,242 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork, reviewedProjectIds, on
   };
 
   return (
-    <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 shadow-[3px_3px_0px_#D8D2C4]">
-      {/* Project details */}
-      <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
-        <div>
-          <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-1">
-            {project.title || "Unknown Project"}
-          </h3>
-          {project.category && (
-            <p className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384] uppercase tracking-wider">
-              {project.category}
+    <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 shadow-sm flex flex-col justify-between">
+      <div>
+        {/* 1. Project Title, 2. Business info, 3. Status */}
+        <div className="mb-4">
+          <div className="flex items-start justify-between gap-2 flex-wrap mb-1">
+            <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[#1B2430] leading-snug">
+              {project.title || "Project Application"}
+            </h3>
+            {project.category && (
+              <span className="font-['IBM_Plex_Mono'] text-[10.5px] text-[#9B9384] uppercase tracking-wider bg-[#FAF8F3] px-2 py-0.5 rounded border border-[#D8D2C4]/60">
+                {project.category}
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-0.5 mb-3">
+            <p className="font-['IBM_Plex_Mono'] text-xs text-[#6B6459]">
+              Business: <span className="text-[#1B2430] font-semibold">{businessName}</span>
             </p>
-          )}
+            {businessType && (
+              <p className="font-['IBM_Plex_Mono'] text-xs text-[#6B6459]">
+                Business Type: <span className="text-[#1B2430] font-medium">{businessType}</span>
+              </p>
+            )}
+          </div>
+
+          <div className="pt-0.5">
+            <span
+              className={`inline-flex items-center gap-1.5 font-['IBM_Plex_Mono'] text-[11px] font-medium px-2.5 py-1 rounded-[4px] border ${badge.classes}`}
+            >
+              <span className="text-[10px]">{badge.dot}</span>
+              <span>{badge.label}</span>
+            </span>
+          </div>
         </div>
 
-        <span
-          className={`shrink-0 font-['IBM_Plex_Mono'] text-[11px] font-medium px-3 py-1.5 rounded-[3px] whitespace-nowrap ${badge.classes}`}
-        >
-          {badge.dot} {badge.label}
-        </span>
-      </div>
+        {/* Budget / Duration / Applied Date */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-y border-dashed border-[#D8D2C4] py-3.5 mb-4">
+          <div>
+            <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5">
+              Budget
+            </span>
+            <span className="font-['Space_Grotesk'] font-bold text-[#0F6B5C] text-[15px]">
+              ₹{project.budget?.toLocaleString("en-IN") ?? "—"}
+            </span>
+          </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-y border-dashed border-[#D8D2C4] py-4 mb-4">
-        <div>
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
-            Budget
-          </span>
-          <span className="font-['Space_Grotesk'] font-bold text-[#0F6B5C]">
-            ₹{project.budget?.toLocaleString("en-IN") ?? "—"}
-          </span>
+          <div>
+            <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5">
+              Proposed Duration
+            </span>
+            <span className="font-semibold text-xs text-[#1B2430]">{app.estimatedDuration || "—"}</span>
+          </div>
+
+          <div>
+            <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-0.5">
+              Applied Date
+            </span>
+            <span className="font-semibold text-xs text-[#1B2430]">
+              {app.createdAt
+                ? new Date(app.createdAt).toLocaleDateString("en-US", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+                : "—"}
+            </span>
+          </div>
         </div>
 
-        <div>
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
-            Proposed Duration
-          </span>
-          <span className="font-medium text-sm">{app.estimatedDuration || "—"}</span>
-        </div>
+        {/* Cover Letter */}
+        {app.coverLetter && (
+          <div className="mb-4">
+            <span className="block font-['IBM_Plex_Mono'] text-[9.5px] uppercase tracking-widest text-[#9B9384] mb-1 font-semibold">
+              Cover Letter
+            </span>
+            <p className="text-[13.5px] text-[#4A473F] leading-relaxed">
+              {app.coverLetter}
+            </p>
+          </div>
+        )}
 
-        <div>
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
-            Applied Date
-          </span>
-          <span className="font-medium text-sm">
-            {app.createdAt
-              ? new Date(app.createdAt).toLocaleDateString("en-US", {
+        {/* Submitted Work */}
+        {app.workSubmission?.workLink && (
+          <div className="mb-4 bg-[#FAF8F3] border border-[#D8D2C4] rounded-[6px] p-4 shadow-sm">
+            <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#0F6B5C] mb-1.5 font-bold">
+              Submitted Work
+            </span>
+            <p className="text-[13.5px] text-[#0F6B5C] font-semibold mb-2 flex items-center gap-1.5">
+              <span>🔗</span>
+              <a
+                href={app.workSubmission.workLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline break-all"
+              >
+                {app.workSubmission.workLink}
+              </a>
+            </p>
+            {app.workSubmission.remarks && (
+              <div className="text-[13px] text-[#6B6459] bg-white border border-[#E8E2D5] px-3 py-2 rounded font-medium leading-relaxed">
+                <span className="text-[#9B9384] font-['IBM_Plex_Mono'] text-[9px] uppercase block tracking-wider mb-0.5">Developer Remarks</span>
+                {app.workSubmission.remarks}
+              </div>
+            )}
+            <span className="block text-[10.5px] text-[#9B9384] mt-2 font-['IBM_Plex_Mono']">
+              Submitted on {new Date(app.workSubmission.submittedAt).toLocaleDateString("en-US", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
-              })
-              : "—"}
-          </span>
-        </div>
+                hour: "2-digit",
+                minute: "2-digit"
+              })}
+            </span>
+          </div>
+        )}
+
+        {/* Changes Requested Notification */}
+        {latestChangeRequest && latestChangeRequest.status === "Pending" && (
+          <div className="mb-4 bg-[#FBE7E4] border border-[#B3452F]/25 rounded-[6px] p-4 text-left shadow-sm">
+            <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#B3452F] mb-1.5 font-bold">
+              Changes Requested
+            </span>
+            <p className="text-[13.5px] text-[#4A473F] leading-relaxed mb-2.5">
+              The Business Owner has requested changes to your submitted work:
+            </p>
+            <div className="text-[13px] text-[#B3452F] bg-white border border-[#B3452F]/15 px-3 py-2 rounded font-medium leading-relaxed mb-2">
+              "{latestChangeRequest.message}"
+            </div>
+            <span className="block text-[10.5px] text-[#9B9384] font-['IBM_Plex_Mono']">
+              Requested on {new Date(latestChangeRequest.requestedAt).toLocaleDateString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+              })}
+            </span>
+          </div>
+        )}
       </div>
 
-      {app.coverLetter && (
-        <div className="mb-5">
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1.5 font-semibold">
-            Cover Letter
-          </span>
-          <p className="text-[14px] text-[#4A473F] leading-relaxed">
-            {app.coverLetter}
-          </p>
-        </div>
-      )}
-
-      {app.workSubmission?.workLink && (
-        <div className="mb-5 bg-[#FAF8F3] border border-[#D8D2C4] rounded-[6px] p-4 shadow-[2px_2px_0px_#D8D2C4]">
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#0F6B5C] mb-1.5 font-bold">
-            Submitted Work
-          </span>
-          <p className="text-[14px] text-[#0F6B5C] font-semibold mb-2 flex items-center gap-1.5">
-            <span>🔗</span>
-            <a
-              href={app.workSubmission.workLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline break-all"
+      {/* Action Buttons: Primary (Submit Work), Secondary (Open Chat), Tertiary (View Project) */}
+      <div className="pt-3 border-t border-[#D8D2C4]/50 mt-2">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Primary Action */}
+          {status === "accepted" && project.status?.toLowerCase() === "in progress" && (
+            <button
+              onClick={() => setShowSubmitModal(true)}
+              className={`inline-flex items-center justify-center font-semibold text-sm px-4 py-2 rounded-[4px] text-white transition-colors duration-150 shadow-sm cursor-pointer ${
+                latestChangeRequest && latestChangeRequest.status === "Pending"
+                  ? "bg-[#B3452F] hover:bg-[#963725]"
+                  : "bg-[#0F6B5C] hover:bg-[#0C564A]"
+              }`}
             >
-              {app.workSubmission.workLink}
-            </a>
-          </p>
-          {app.workSubmission.remarks && (
-            <div className="text-[13px] text-[#6B6459] bg-white border border-[#FAF8F3] px-3 py-2 rounded font-medium leading-relaxed">
-              <span className="text-[#9B9384] font-['IBM_Plex_Mono'] text-[9px] uppercase block tracking-wider mb-1">Developer Remarks</span>
-              {app.workSubmission.remarks}
-            </div>
+              {latestChangeRequest && latestChangeRequest.status === "Pending" 
+                ? "Edit & Resubmit Work" 
+                : "Submit Work"}
+            </button>
           )}
-          <span className="block text-[10.5px] text-[#9B9384] mt-2 font-['IBM_Plex_Mono']">
-            Submitted on {new Date(app.workSubmission.submittedAt).toLocaleDateString("en-US", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-          </span>
-        </div>
-      )}
 
-      {latestChangeRequest && latestChangeRequest.status === "Pending" && (
-        <div className="mb-5 bg-[#FBE7E4] border border-[#B3452F]/25 rounded-[6px] p-4 shadow-[2px_2px_0px_#B3452F]">
-          <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#B3452F] mb-1.5 font-bold">
-            Changes Requested
-          </span>
-          <p className="text-[13.5px] text-[#4A473F] leading-relaxed mb-3">
-            The Business Owner has requested changes to your submitted work:
-          </p>
-          <div className="text-[13px] text-[#B3452F] bg-white border border-[#B3452F]/10 px-3 py-2 rounded font-medium leading-relaxed mb-2">
-            "{latestChangeRequest.message}"
-          </div>
-          <span className="block text-[10.5px] text-[#9B9384] font-['IBM_Plex_Mono']">
-            Requested on {new Date(latestChangeRequest.requestedAt).toLocaleDateString("en-US", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-          </span>
-          <span className="block text-[10.5px] text-[#B3452F] mt-1 font-semibold font-['IBM_Plex_Mono']">
-            Status: Changes Required
-          </span>
-        </div>
-      )}
+          {/* Secondary Action: Open Chat */}
+          {status === "accepted" && (
+            <Link
+              to={`/chat/${app._id}`}
+              className="inline-flex items-center justify-center font-medium text-sm px-4 py-2 rounded-[4px] bg-transparent text-[#0F6B5C] border border-[#0F6B5C] hover:bg-[#E9F5F1] transition-colors duration-150"
+            >
+              Open Chat
+            </Link>
+          )}
 
-      {/* Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <div className="flex flex-wrap items-center gap-3">
+          {/* Tertiary Action: View Project */}
           <Link
             to={`/projects/${project._id}`}
-            className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
-                       hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
+            className="inline-flex items-center justify-center font-medium text-sm px-3.5 py-2 rounded-[4px] bg-white text-[#4A473F] border border-[#D8D2C4] hover:text-[#1B2430] hover:border-[#9B9384] hover:bg-[#FAF8F3] transition-colors duration-150"
           >
             View Project
           </Link>
 
-          {status === "accepted" && (
-            <Link
-              to={`/chat/${app._id}`}
-              className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] bg-[#FAF8F3] text-[#0F6B5C] border-2 border-[#0F6B5C]
-                         shadow-[3px_3px_0px_#0F6B5C] hover:shadow-[1px_1px_0px_#0F6B5C] hover:translate-x-[2px] hover:translate-y-[2px]
-                         transition-all duration-150"
-            >
-              💬 Chat with Client
-            </Link>
+          {/* Status notices & review button for completed/under review */}
+          {status === "accepted" && project.status?.toLowerCase() === "under review" && (
+            <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3 py-1.5 rounded border border-[#0F6B5C]/15 inline-flex items-center gap-1.5">
+              🟡 Under Review
+            </span>
           )}
 
-          {status === "accepted" && (
-            <>
-              {project.status?.toLowerCase() === "in progress" && (
+          {status === "accepted" && project.status?.toLowerCase() === "completed" && (
+            <div className="flex items-center gap-2">
+              <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3 py-1.5 rounded border border-[#0F6B5C]/15 inline-flex items-center gap-1.5">
+                🟢 Completed
+              </span>
+              {reviewedProjectIds.has(project._id) ? (
+                <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-2.5 py-1.5 rounded border border-[#0F6B5C]/15">
+                  ✓ Reviewed
+                </span>
+              ) : (
                 <button
-                  onClick={() => setShowSubmitModal(true)}
-                  className={`inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] text-white
-                             shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px]
-                             hover:translate-y-[2px] transition-all duration-150 ${
-                               latestChangeRequest && latestChangeRequest.status === "Pending" ? "bg-[#B3452F]" : "bg-[#0F6B5C]"
-                             }`}
+                  onClick={() => setShowReviewModal(true)}
+                  className="font-medium text-xs px-3 py-1.5 rounded-[4px] bg-[#0F6B5C] text-white hover:bg-[#0C564A] transition-colors duration-150 cursor-pointer shadow-sm"
                 >
-                  {latestChangeRequest && latestChangeRequest.status === "Pending" 
-                    ? "Edit & Resubmit Work" 
-                    : "Submit Work"}
+                  Review Business
                 </button>
               )}
-              {project.status?.toLowerCase() === "under review" && (
-                <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10 flex items-center gap-1.5">
-                  🟡 Work Submitted — Waiting for Business Owner Review
-                </span>
-              )}
-              {project.status?.toLowerCase() === "completed" && (
-                <div className="flex items-center gap-3">
-                  <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10 flex items-center gap-1.5">
-                    🟢 Project Completed
-                  </span>
-                  {reviewedProjectIds.has(project._id) ? (
-                    <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3.5 py-2.5 rounded border border-[#0F6B5C]/10">
-                      ✓ Reviewed
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => setShowReviewModal(true)}
-                      className="font-semibold text-xs px-3.5 py-2 rounded-[4px] bg-[#0F6B5C] text-white shadow-[2px_2px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-150 cursor-pointer"
-                    >
-                      Review Business
-                    </button>
-                  )}
+            </div>
+          )}
+
+          {/* Withdraw Application for Pending status */}
+          {status === "pending" && (
+            <div className="ml-auto">
+              {!showConfirm ? (
+                <button
+                  onClick={() => setShowConfirm(true)}
+                  className="font-medium text-xs px-3 py-1.5 rounded-[4px] border border-[#B3452F] text-[#B3452F] hover:bg-[#FBE7E4] transition-colors duration-150 cursor-pointer"
+                >
+                  Withdraw Application
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-['IBM_Plex_Mono'] text-[#B3452F]">Are you sure?</span>
+                  <button
+                    onClick={() => onWithdraw(app._id)}
+                    className="font-medium text-xs px-2.5 py-1 rounded-[4px] bg-[#B3452F] text-white hover:bg-[#963725] transition-colors"
+                  >
+                    Yes, Withdraw
+                  </button>
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    className="font-medium text-xs px-2.5 py-1 rounded-[4px] border border-[#D8D2C4] text-[#6B6459] hover:bg-gray-100 transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
-
-        {status === "pending" && (
-          <div>
-            {!showConfirm ? (
-              <button
-                onClick={() => setShowConfirm(true)}
-                className="font-semibold text-sm px-4 py-2.5 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
-                           hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
-              >
-                Withdraw Application
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-['IBM_Plex_Mono'] text-[#B3452F] mr-1">Are you sure?</span>
-                <button
-                  onClick={() => onWithdraw(app._id)}
-                  className="font-semibold text-xs px-3 py-2 rounded-[4px] bg-[#B3452F] text-white hover:bg-[#963725] transition-colors"
-                >
-                  Yes, Withdraw
-                </button>
-                <button
-                  onClick={() => setShowConfirm(false)}
-                  className="font-semibold text-xs px-3 py-2 rounded-[4px] border border-[#D8D2C4] text-[#6B6459] hover:bg-gray-100 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {showSubmitModal && (
@@ -326,7 +344,8 @@ function MyApplications() {
       setLoading(true);
       setError(false);
       const res = await api.get("/applications/my");
-      setApplications(res.data.data || []);
+      const validApps = (res.data.data || []).filter(app => app.projectId);
+      setApplications(validApps);
     } catch (err) {
       console.log(err);
       setError(true);
@@ -372,17 +391,19 @@ function MyApplications() {
     { all: 0, pending: 0, accepted: 0, rejected: 0, withdrawn: 0 }
   );
 
-  const visibleApplications = applications.filter((app) => {
-    const status = app.status?.toLowerCase() || "pending";
-    const matchesFilter = activeFilter === "all" || status === activeFilter;
+  const visibleApplications = applications
+    .filter((app) => {
+      const status = app.status?.toLowerCase() || "pending";
+      const matchesFilter = activeFilter === "all" || status === activeFilter;
 
-    const term = searchTerm.trim().toLowerCase();
-    const matchesSearch =
-      !term ||
-      app.projectId?.title?.toLowerCase().includes(term);
+      const term = searchTerm.trim().toLowerCase();
+      const matchesSearch =
+        !term ||
+        app.projectId?.title?.toLowerCase().includes(term);
 
-    return matchesFilter && matchesSearch;
-  });
+      return matchesFilter && matchesSearch;
+    })
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
   return (
     <div className="min-h-screen bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430]">

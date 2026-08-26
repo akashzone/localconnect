@@ -57,10 +57,12 @@ const getMyApplications = async (req, res) => {
   try {
     const getApplications = await Application.find({
       studentId: req.user.id,
-    }).populate(
-      "projectId",
-      "title budget deadline category status businessOwnerId",
-    );
+    })
+      .populate(
+        "projectId",
+        "title budget deadline category status businessOwnerId",
+      )
+      .sort({ createdAt: -1 });
 
     if (!getApplications) {
       return res.status(401).json({
@@ -82,10 +84,15 @@ const getMyApplications = async (req, res) => {
       })
     );
 
-    console.log("Applications - ", applicationsWithProfile);
+    // Filter out applications where the project no longer exists
+    const validApplications = applicationsWithProfile.filter(
+      (app) => app.projectId !== null && app.projectId !== undefined
+    );
+
+    console.log("Applications - ", validApplications);
     res.status(200).json({
       message: "My Applications fetched Successfully :",
-      data: applicationsWithProfile,
+      data: validApplications,
     });
   } catch (error) {
     return res

@@ -53,20 +53,23 @@ const getStudentDashboard = async (req, res) => {
       studentId
     }).populate("projectId").sort({ createdAt: -1 });
 
-    const dashboardData = {
-      totalApplications: applications.length,
+    // Filter out applications where the project no longer exists
+    const validApplications = applications.filter(app => app.projectId !== null && app.projectId !== undefined);
 
-      pendingApplications: applications.filter((application) => application.status === "Pending")
+    const dashboardData = {
+      totalApplications: validApplications.length,
+
+      pendingApplications: validApplications.filter((application) => application.status === "Pending")
         .length,
 
-      accepetedApplications: applications.filter(
+      accepetedApplications: validApplications.filter(
         (applications) => applications.status === "Accepted",
       ).length,
 
-      rejectedApplications: applications.filter(
+      rejectedApplications: validApplications.filter(
         (applications) => applications.status === "Rejected",
       ).length,
-      withdrawnApplications: applications.filter(
+      withdrawnApplications: validApplications.filter(
         (applications) => applications.status === "WithDrawn",
       ).length,
     };
@@ -76,7 +79,7 @@ const getStudentDashboard = async (req, res) => {
       message: "Applications fetched successfully.",
       data: {
         dashboard: dashboardData,
-        applications,
+        applications: validApplications,
       },
     });
   } catch (error) {

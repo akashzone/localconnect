@@ -5,10 +5,10 @@ import { Link } from "react-router-dom";
 import socket from "../socket/socket";
 
 const statusStyles = {
-  pending: "bg-[#FDF3D6] text-[#8A6D1D]",
-  accepted: "bg-[#E9F5F1] text-[#0F6B5C]",
-  rejected: "bg-[#FBE7E4] text-[#B3452F]",
-  withdrawn: "bg-[#EAEAEA] text-[#4A473F]",
+  pending: "bg-[#FDF3D6] text-[#8A6D1D] border-[#F5E2B3]",
+  accepted: "bg-[#E9F5F1] text-[#0F6B5C] border-[#B8E2D8]",
+  rejected: "bg-[#FBE7E4] text-[#B3452F] border-[#F5C2B8]",
+  withdrawn: "bg-[#EAEAEA] text-[#4A473F] border-[#D8D2C4]",
 };
 
 function StudentDashboard() {
@@ -24,7 +24,8 @@ function StudentDashboard() {
         setLoading(true);
         setError(false);
         const res = await api.get("/dashboard/student");
-        setApplications(res.data.data.applications || []);
+        const validApps = (res.data.data.applications || []).filter(app => app.projectId);
+        setApplications(validApps);
         setStats(res.data.data.dashboard || null);
       } catch (err) {
         console.log(err);
@@ -81,11 +82,11 @@ function StudentDashboard() {
         </h1>
 
         {/* Stats */}
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-5 mb-12">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-5 mb-10">
           {statCards.map((s) => (
             <div
               key={s.label}
-              className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]"
+              className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-sm"
             >
               <span className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384]">
                 {s.label}
@@ -98,7 +99,7 @@ function StudentDashboard() {
         </div>
 
         {/* Applications */}
-        <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 sm:p-8 shadow-[5px_5px_0px_#1B2430]">
+        <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-6 sm:p-8 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-['Space_Grotesk'] font-bold text-xl">
               Recent Applications
@@ -107,6 +108,9 @@ function StudentDashboard() {
               to="/my-applications"
               className="font-['IBM_Plex_Mono'] text-xs text-[#0F6B5C] hover:underline"
             >
+              View all →
+            </Link>
+          </div>
               View all →
             </Link>
           </div>

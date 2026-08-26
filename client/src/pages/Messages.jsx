@@ -24,7 +24,7 @@ function Messages() {
         // Filter for accepted applications since chat is only available for accepted ones
         // Exclude conversations where the project status is "Completed"
         const acceptedApps = (apps || []).filter(
-          (app) => app.status?.toLowerCase() === "accepted" && app.projectId?.status?.toLowerCase() !== "completed"
+          (app) => app.projectId && app.status?.toLowerCase() === "accepted" && app.projectId?.status?.toLowerCase() !== "completed"
         );
 
         setConversations(acceptedApps);
@@ -76,44 +76,48 @@ function Messages() {
             </p>
             <Link
               to={user?.role === "business" ? "/dashboard/business" : "/projects"}
-              className="mt-6 inline-block font-semibold text-sm px-5 py-2.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
-                         shadow-[3px_3px_0px_#D8D2C4] hover:shadow-[1px_1px_0px_#D8D2C4] hover:translate-x-[2px] hover:translate-y-[2px]
-                         transition-all duration-150 border-2 border-[#1B2430]"
+              className="mt-6 inline-flex items-center justify-center font-medium text-sm px-5 py-2.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3] hover:bg-[#2B3848] transition-colors shadow-sm"
             >
               {user?.role === "business" ? "Manage Applications" : "Browse Projects"}
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {conversations.map((conv) => {
               const isStudent = user?.role !== "business";
               const partnerName = isStudent
                 ? conv.projectId?.businessProfile?.businessName || conv.projectId?.businessProfile?.companyName || "Business Owner"
                 : conv.studentId?.name || "Student Developer";
+              const businessType = isStudent ? conv.projectId?.businessProfile?.businessType : "";
               const partnerRole = isStudent ? "Client / Owner" : "Student Developer";
-              const projectTitle = conv.projectId?.title || "Unknown Project";
+              const projectTitle = conv.projectId?.title || "Project Space";
 
               return (
                 <div
                   key={conv._id}
-                  className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4] flex items-center justify-between gap-4 flex-wrap hover:shadow-[5px_5px_0px_#1B2430] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all duration-200"
+                  className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-sm flex items-center justify-between gap-4 flex-wrap hover:border-[#1B2430]/40 transition-colors"
                 >
                   <div>
-                    <span className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-[3px] bg-[#E9F5F1] text-[#0F6B5C] font-semibold">
-                      {partnerRole}
-                    </span>
-                    <h3 className="font-['Space_Grotesk'] font-bold text-lg mt-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-[3px] bg-[#E9F5F1] text-[#0F6B5C] font-semibold border border-[#0F6B5C]/15">
+                        {partnerRole}
+                      </span>
+                      {businessType && (
+                        <span className="font-['IBM_Plex_Mono'] text-[10px] text-[#9B9384]">
+                          • {businessType}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[#1B2430]">
                       {partnerName}
                     </h3>
-                    <p className="text-xs text-[#6B6459]">
+                    <p className="text-xs text-[#6B6459] mt-0.5">
                       Project: <span className="text-[#1B2430] font-semibold">{projectTitle}</span>
                     </p>
                   </div>
                   <Link
                     to={`/chat/${conv._id}`}
-                    className="inline-block font-semibold text-sm px-5 py-2.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
-                               shadow-[3px_3px_0px_#D8D2C4] hover:shadow-[1px_1px_0px_#D8D2C4] hover:translate-x-[1px] hover:translate-y-[1px]
-                               transition-all border-2 border-[#1B2430]"
+                    className="inline-flex items-center justify-center font-medium text-sm px-4 py-2 rounded-[4px] bg-[#1B2430] text-[#FAF8F3] hover:bg-[#2B3848] transition-colors shadow-sm"
                   >
                     Open Chat →
                   </Link>

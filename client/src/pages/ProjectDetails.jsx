@@ -290,9 +290,21 @@ function ProjectDetails() {
           </div>
 
           {/* Title */}
-          <h1 className="font-['Space_Grotesk'] font-bold text-3xl sm:text-4xl leading-tight mb-6">
+          <h1 className="font-['Space_Grotesk'] font-bold text-3xl sm:text-4xl leading-tight mb-3">
             {title}
           </h1>
+
+          {/* Business Info Row */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 mb-6 text-xs font-['IBM_Plex_Mono'] text-[#6B6459]">
+            <p>
+              Business: <span className="text-[#1B2430] font-semibold">{project.businessProfile?.businessName || project.businessOwnerId?.name || "Local Business"}</span>
+            </p>
+            {project.businessProfile?.businessType && (
+              <p>
+                Business Type: <span className="text-[#1B2430] font-medium">{project.businessProfile.businessType}</span>
+              </p>
+            )}
+          </div>
 
           {/* Budget / deadline row */}
           <div className="flex flex-wrap gap-8 border-y border-dashed border-[#D8D2C4] py-5 mb-8">
@@ -348,22 +360,30 @@ function ProjectDetails() {
             <div className="space-y-8 mt-8 border-t border-[#D8D2C4] pt-8">
               
               {/* Business Owner Section */}
-              <div className="bg-[#FAF8F3] border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]">
-                <h3 className="font-['Space_Grotesk'] font-bold text-lg mb-2 text-[#1B2430]">
-                  Business Owner
-                </h3>
-                <p className="font-semibold text-sm text-[#1B2430] mb-1">
-                  {project.businessProfile?.businessName || "Local Business Owner"}
-                </p>
-                <p className="text-[13px] text-[#6B6459] leading-relaxed mb-4">
-                  {project.businessProfile?.description || "No description available."}
-                </p>
-                <button
-                  onClick={() => setShowBusinessModal(true)}
-                  className="font-semibold text-xs px-4 py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors"
-                >
-                  View Business Profile
-                </button>
+              <div className="bg-[#FAF8F3] border border-[#D8D2C4] rounded-[6px] p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
+                  <div>
+                    <h3 className="font-['Space_Grotesk'] font-bold text-lg text-[#1B2430]">
+                      {project.businessProfile?.businessName || project.businessOwnerId?.name || "Local Business Owner"}
+                    </h3>
+                    {project.businessProfile?.businessType && (
+                      <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#0F6B5C] bg-[#E9F5F1] px-2 py-0.5 rounded border border-[#0F6B5C]/15 inline-block mt-1">
+                        {project.businessProfile.businessType}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setShowBusinessModal(true)}
+                    className="font-medium text-xs px-3.5 py-2 rounded-[4px] bg-white border border-[#D8D2C4] text-[#1B2430] hover:border-[#1B2430] hover:bg-[#FAF8F3] transition-colors cursor-pointer"
+                  >
+                    View Business Profile
+                  </button>
+                </div>
+                {project.businessProfile?.description && (
+                  <p className="text-[13.5px] text-[#6B6459] leading-relaxed mt-2.5">
+                    {project.businessProfile.description}
+                  </p>
+                )}
               </div>
 
               {/* YOUR WORK / WORKSPACE Section */}
@@ -480,8 +500,8 @@ function ProjectDetails() {
                   {status?.toLowerCase() === "in progress" && (
                     <button
                       onClick={() => setShowSubmitModal(true)}
-                      className={`w-full font-semibold px-6 py-3 rounded-[4px] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center ${
-                        latestChangeRequest && latestChangeRequest.status === "Pending" ? "bg-[#B3452F]" : "bg-[#0F6B5C]"
+                      className={`w-full font-semibold text-sm px-6 py-2.5 rounded-[4px] text-white transition-colors duration-150 text-center shadow-sm cursor-pointer ${
+                        latestChangeRequest && latestChangeRequest.status === "Pending" ? "bg-[#B3452F] hover:bg-[#963725]" : "bg-[#0F6B5C] hover:bg-[#0C564A]"
                       }`}
                     >
                       {latestChangeRequest && latestChangeRequest.status === "Pending" ? "Edit & Resubmit Work" : "Submit Work"}
@@ -493,7 +513,7 @@ function ProjectDetails() {
                       href={myApplication.workSubmission.workLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full font-semibold px-6 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150 text-center block"
+                      className="w-full font-semibold text-sm px-6 py-2.5 rounded-[4px] border border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150 text-center block"
                     >
                       View Submission
                     </a>
@@ -504,7 +524,7 @@ function ProjectDetails() {
                       href={myApplication.workSubmission.workLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full font-semibold px-6 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150 text-center block"
+                      className="w-full font-semibold text-sm px-6 py-2.5 rounded-[4px] border border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150 text-center block"
                     >
                       View Final Submission
                     </a>
@@ -512,13 +532,13 @@ function ProjectDetails() {
 
                   {status?.toLowerCase() === "completed" && isAuthenticated && user?.role === "student" && (
                     hasReviewed ? (
-                      <span className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#E9F5F1] text-[#0F6B5C] border border-[#0F6B5C]/15 text-center block font-['IBM_Plex_Mono'] text-xs">
+                      <span className="w-full font-semibold text-xs px-6 py-2.5 rounded-[4px] bg-[#E9F5F1] text-[#0F6B5C] border border-[#0F6B5C]/15 text-center block font-['IBM_Plex_Mono']">
                         ✓ Reviewed Business
                       </span>
                     ) : (
                       <button
                         onClick={() => setShowReviewModal(true)}
-                        className="w-full font-semibold px-6 py-3 rounded-[4px] bg-[#0F6B5C] text-white shadow-[3px_3px_0px_#1B2430] hover:shadow-[1px_1px_0px_#1B2430] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 text-center block cursor-pointer"
+                        className="w-full font-semibold text-sm px-6 py-2.5 rounded-[4px] bg-[#0F6B5C] text-white hover:bg-[#0C564A] transition-colors duration-150 text-center block cursor-pointer shadow-sm"
                       >
                         Review Business
                       </button>
@@ -528,7 +548,7 @@ function ProjectDetails() {
               </div>
 
               {/* Project Information / Timeline Section */}
-              <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-[3px_3px_0px_#D8D2C4]">
+              <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-5 shadow-sm">
                 <h3 className="font-['Space_Grotesk'] font-bold text-base mb-3 text-[#1B2430]">
                   Project Timeline
                 </h3>
@@ -562,15 +582,15 @@ function ProjectDetails() {
                   <Link
                     to={`/${project._id}/edit-project`}
                     state={{ from: location.state?.from }}
-                    className="flex-1 text-center font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430]
+                    className="flex-1 text-center font-medium text-sm px-4 py-2.5 rounded-[4px] border border-[#1B2430] text-[#1B2430]
                                hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors duration-150"
                   >
                     Edit
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className="flex-1 font-semibold text-sm px-4 py-3 rounded-[4px] border-2 border-[#B3452F] text-[#B3452F]
-                               hover:bg-[#B3452F] hover:text-white transition-colors duration-150"
+                    className="flex-1 font-medium text-sm px-4 py-2.5 rounded-[4px] border border-[#B3452F] text-[#B3452F]
+                               hover:bg-[#B3452F] hover:text-white transition-colors duration-150 cursor-pointer"
                   >
                     Delete
                   </button>
@@ -593,9 +613,8 @@ function ProjectDetails() {
             ) : (
               <button
                 onClick={handleApplyClick}
-                className="w-full font-semibold cursor-pointer px-6 py-3.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
-                           shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                           transition-all duration-150"
+                className="w-full font-semibold cursor-pointer px-6 py-3 rounded-[4px] bg-[#1B2430] text-[#FAF8F3]
+                           hover:bg-[#2B3848] transition-colors duration-150 shadow-sm"
               >
                 {isAuthenticated ? "Apply to this project" : "Log in to apply"}
               </button>
