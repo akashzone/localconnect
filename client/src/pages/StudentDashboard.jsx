@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import socket from "../socket/socket";
 
 const statusStyles = {
   pending: "bg-[#FDF3D6] text-[#8A6D1D]",
@@ -35,6 +36,18 @@ function StudentDashboard() {
 
     if (isAuthenticated) fetchDashboard();
   }, [isAuthenticated]);
+
+  useEffect(() => {
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+
+    return () => {
+      socket.off("connect");
+    };
+
+  }, []);
 
   if (loading) {
     return (
@@ -139,9 +152,8 @@ function StudentDashboard() {
                         </td>
                         <td className="py-3.5">
                           <span
-                            className={`font-['IBM_Plex_Mono'] text-[10px] uppercase px-2 py-1 rounded-[3px] ${
-                              statusStyles[app.status?.toLowerCase()] || statusStyles.pending
-                            }`}
+                            className={`font-['IBM_Plex_Mono'] text-[10px] uppercase px-2 py-1 rounded-[3px] ${statusStyles[app.status?.toLowerCase()] || statusStyles.pending
+                              }`}
                           >
                             {app.status || "pending"}
                           </span>
@@ -149,10 +161,10 @@ function StudentDashboard() {
                         <td className="py-3.5 text-[#6B6459]">
                           {app.appliedOn || app.createdAt
                             ? new Date(app.appliedOn || app.createdAt).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
                             : "—"}
                         </td>
                       </tr>
