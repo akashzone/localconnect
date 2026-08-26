@@ -192,7 +192,7 @@ function Chat() {
         </div>
 
         {/* Chat Card */}
-        <div className="bg-white border border-[#D8D2C4] rounded-[6px] shadow-[5px_5px_0px_#1B2430] flex-1 flex flex-col min-h-[500px]">
+        <div className="bg-white border border-[#D8D2C4] rounded-[6px] shadow-[5px_5px_0px_#1B2430] h-[calc(100vh-190px)] min-h-[480px] flex flex-col">
           {/* Header */}
           <div className="px-6 py-4 border-b border-[#D8D2C4] bg-white rounded-t-[6px] flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -224,7 +224,7 @@ function Chat() {
           </div>
 
           {/* Messages Panel */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4 max-h-[55vh] min-h-[300px] bg-[#FAF8F3]/30">
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4 bg-[#FAF8F3]/30">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-12">
                 <span className="text-3xl mb-2">💬</span>
@@ -237,7 +237,7 @@ function Chat() {
               </div>
             ) : (
               messages.map((msg) => {
-                const isSentByMe = msg.senderId === user?.id;
+                const isSentByMe = msg.senderId === user?._id;
                 return (
                   <div
                     key={msg._id}

@@ -16,6 +16,7 @@ import StudentProfile from "./pages/StudentProfile";
 import PageNotFound from "./pages/PageNotFound";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Chat from "./pages/Chat";
+import Messages from "./pages/Messages";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -132,6 +133,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["student", "business"]}>
                 <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business"]}>
+                <Messages />
               </ProtectedRoute>
             }
           />

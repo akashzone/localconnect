@@ -51,7 +51,7 @@ const getStudentDashboard = async (req, res) => {
     const studentId = req.user.id;
     const applications = await Application.find({
       studentId
-    }).populate("projectId");
+    }).populate("projectId").sort({ createdAt: -1 });
 
     const dashboardData = {
       totalApplications: applications.length,

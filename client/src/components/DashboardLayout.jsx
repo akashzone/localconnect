@@ -10,7 +10,10 @@ import {
   faSignOutAlt,
   faBars,
   faTimes,
-  faGear
+  faGear,
+  faSearch,
+  faComments,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 
 function DashboardLayout() {
@@ -70,17 +73,18 @@ function DashboardLayout() {
 
   // Navigation configurations
   const studentNavItems = [
-    { label: "Home", to: "/", icon: faHome },
-    { label: "Projects", to: "/projects", icon: faBriefcase },
-    { label: "My Projects", to: "/my-projects", icon: faBriefcase },
-    { label: "Dashboard", to: "/dashboard/student", icon: faColumns },
-    { label: "My Applications", to: "/my-applications", icon: faClipboardList }
+    { label: "Dashboard", to: "/dashboard/student", icon: faHome },
+    { label: "Browse Projects", to: "/projects", icon: faSearch },
+    { label: "My Applications", to: "/my-applications", icon: faClipboardList },
+    { label: "My Work", to: "/my-projects", icon: faBriefcase },
+    { label: "Messages", to: "/messages", icon: faComments }
   ];
 
   const businessNavItems = [
     { label: "Dashboard", to: "/dashboard/business", icon: faColumns },
     { label: "My Projects", to: "/my-projects", icon: faBriefcase },
-    { label: "Applications", to: "/applications/business", icon: faClipboardList }
+    { label: "Applications", to: "/applications/business", icon: faClipboardList },
+    { label: "Messages", to: "/messages", icon: faComments }
   ];
 
   const navItems = user.role === "business" ? businessNavItems : studentNavItems;
@@ -115,19 +119,35 @@ function DashboardLayout() {
             <span>{item.label}</span>
           </NavLink>
         ))}
-      </nav>
 
-      {/* Bottom Section */}
-      <div className="mt-auto border-t border-[#D8D2C4] bg-[#FAF8F3]">
-        {/* Settings / Profile link */}
+        {/* Divider and Secondary Navigation */}
+        <div className="border-t border-[#D8D2C4] my-4 mx-6"></div>
+
+        {/* Profile */}
         <NavLink to="/profile" className={getLinkClass}>
-          <FontAwesomeIcon icon={faGear} className="w-5 text-center shrink-0" />
+          <FontAwesomeIcon icon={faUser} className="w-5 text-center shrink-0" />
           <span>Profile</span>
         </NavLink>
 
-        {/* User avatar & logout info */}
-        <div className="p-4 border-t border-[#D8D2C4]/60 bg-[#FAF8F3]">
-          <div className="flex items-center gap-3 mb-3">
+        {/* Settings - disabled placeholder */}
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            alert("Settings is currently under development.");
+          }}
+          className="flex items-center gap-3 px-6 py-3 font-['IBM_Plex_Sans'] text-sm font-medium transition-all border-l-4 text-[#9B9384] border-transparent cursor-not-allowed"
+          title="Settings is under development"
+        >
+          <FontAwesomeIcon icon={faGear} className="w-5 text-center shrink-0" />
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      {/* User Section and Logout */}
+      <div className="mt-auto border-t border-[#D8D2C4] bg-[#FAF8F3]">
+        <div className="p-4 bg-[#FAF8F3]">
+          <div className="flex items-center gap-3 mb-3 bg-white p-3 rounded-[6px] border border-[#D8D2C4] shadow-[2px_2px_0px_#D8D2C4]">
             <div className="w-10 h-10 rounded-full bg-[#1B2430] text-[#FAF8F3] font-['IBM_Plex_Sans'] font-semibold text-sm
                             flex items-center justify-center border-2 border-[#F5C445] overflow-hidden shrink-0">
               {showProfileImage ? (
@@ -145,15 +165,15 @@ function DashboardLayout() {
               <p className="font-['Space_Grotesk'] font-bold text-sm text-[#1B2430] truncate">
                 {user?.name || "User"}
               </p>
-              <span className="font-['IBM_Plex_Mono'] text-[10px] text-[#9B9384] uppercase tracking-wider block">
-                {user.role === "business" ? "Business" : "Student"}
+              <span className="font-['IBM_Plex_Mono'] text-[9px] text-[#0F6B5C] bg-[#E9F5F1] font-bold px-1.5 py-0.5 rounded-[3px] uppercase tracking-wider block w-max mt-0.5">
+                {user.role === "business" ? "BUSINESS" : "STUDENT"}
               </span>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full font-['IBM_Plex_Sans'] font-semibold text-xs py-2 rounded-[4px] border border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-all duration-150 flex items-center justify-center gap-2"
+            className="w-full font-['IBM_Plex_Sans'] font-semibold text-xs py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-all duration-150 flex items-center justify-center gap-2 bg-white cursor-pointer shadow-[2px_2px_0px_#D8D2C4] hover:shadow-[1px_1px_0px_#D8D2C4] hover:translate-x-[1px] hover:translate-y-[1px]"
           >
             <FontAwesomeIcon icon={faSignOutAlt} />
             Logout

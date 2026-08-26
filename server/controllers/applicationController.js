@@ -67,10 +67,25 @@ const getMyApplications = async (req, res) => {
         message: "Applications not found, apply to projects first..",
       });
     }
-    console.log("Applications - ", getApplications);
+
+    // Attach businessProfile to each project
+    const applicationsWithProfile = await Promise.all(
+      getApplications.map(async (app) => {
+        const appObj = app.toObject();
+        if (appObj.projectId && appObj.projectId.businessOwnerId) {
+          const businessProfile = await BusinessProfile.findOne({
+            userId: appObj.projectId.businessOwnerId,
+          });
+          appObj.projectId.businessProfile = businessProfile || null;
+        }
+        return appObj;
+      })
+    );
+
+    console.log("Applications - ", applicationsWithProfile);
     res.status(200).json({
       message: "My Applications fetched Successfully :",
-      data: getApplications,
+      data: applicationsWithProfile,
     });
   } catch (error) {
     return res
