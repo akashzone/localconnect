@@ -114,6 +114,33 @@ const googleCallback = async (req, res) => {
 const register = async (req, res) => {
   try {
     const { email, password, name, role } = req.body;
+    if (!email || !password || !name) {
+      return res.status(400).json({
+        message: "Email, password, and name are required.",
+      });
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Please enter a valid email address.",
+      });
+    }
+
+    // Password validation
+    if (password.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long.",
+      });
+    }
+
+    if (!["student", "business"].includes(role)) {
+      return res.status(400).json({
+        message: "Invalid role",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.findOne({ email });
     if (user) {

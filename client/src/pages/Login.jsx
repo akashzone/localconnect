@@ -33,6 +33,10 @@ function Login() {
             login(res.data.user);
             if (res.data.user?.role === "business") {
                 navigate("/dashboard/business");
+            } else if (res.data.user?.role === "student") {
+                navigate("/dashboard/student");
+            } else if (res.data.user?.role === "admin") {
+                navigate("/admin/dashboard");
             } else {
                 navigate("/");
             }

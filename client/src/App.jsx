@@ -1,6 +1,7 @@
 
 //imports of required packages...
 import { Routes, Route } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 //pages
 import Login from "./pages/Login";
@@ -17,12 +18,14 @@ import PageNotFound from "./pages/PageNotFound";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 //componentes
 import Navbar from "./components/Navbar"
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
+import AdminLayout from "./components/AdminLayout";
 
 //student components 
 import StudentDashboard from "./pages/StudentDashboard";
@@ -36,9 +39,14 @@ import EditProject from "./pages/EditProject";
 
 
 function App() {
+
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
     <>
-      <Navbar />
+      {!isAdminRoute && <Navbar />}
 
       <Routes>
         <Route
@@ -160,6 +168,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+        </Route>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

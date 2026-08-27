@@ -18,6 +18,7 @@ const applicationRoutes = require("./routes/applicationRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 //middlewares
 const authMiddleware = require("./middlewares/authMiddleware");
@@ -240,6 +241,9 @@ app.get("/", (req, res) => {
   console.log("PORT", process.env.PORT);
   res.send("Hello World");
 });
+
+
+app.use("/api/admin", adminRoutes);
 
 //protected-routes
 app.get(
