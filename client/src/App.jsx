@@ -21,6 +21,8 @@ import Messages from "./pages/Messages";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminUserDetails from "./pages/admin/AdminUserDetails";
+import AdminProjects from "./pages/admin/AdminProjects";
+import AdminProjectDetails from "./pages/admin/AdminProjectDetails";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -182,6 +184,8 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="users/:id" element={<AdminUserDetails />} />
+          <Route path="projects" element={<AdminProjects />} />
+          <Route path="projects/:id" element={<AdminProjectDetails />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>
