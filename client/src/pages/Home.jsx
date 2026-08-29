@@ -17,6 +17,8 @@ function Home() {
   useEffect(() => {
     if (user?.role === "business") {
       navigate("/dashboard/business", { replace: true });
+    } else if (user?.role === "admin") {
+      navigate("/admin/dashboard", { replace: true });
     }
   }, [user, navigate]);
 

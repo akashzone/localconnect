@@ -19,6 +19,8 @@ import OAuthSuccess from "./pages/OAuthSuccess";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminUserDetails from "./pages/admin/AdminUserDetails";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -178,6 +180,8 @@ function App() {
           }
         >
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="users/:id" element={<AdminUserDetails />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

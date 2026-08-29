@@ -1,7 +1,10 @@
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const Project = require("../models/Project");
 const Application = require("../models/Application");
 const Review = require("../models/Review");
+const StudentProfile = require("../models/StudentProfile");
+const BusinessProfile = require("../models/BusinessProfile");
 
 const getAdminDashboard = async (req, res) => {
   try {
@@ -152,6 +155,100 @@ const getAdminDashboard = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const { search, role, page = 1, limit = 10 } = req.query;
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.max(1, parseInt(limit, 10));
+
+    const query = {};
+
+    if (role && ["student", "business", "admin"].includes(role)) {
+      query.role = role;
+    }
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), "i");
+      query.$or = [
+        { name: searchRegex },
+        { email: searchRegex }
+      ];
+    }
+
+    const total = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum) || 1,
+      }
+    });
+  } catch (error) {
+    console.error("Admin getAllUsers error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching users",
+      error: error.message,
+    });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      });
+    }
+
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    let profile = null;
+    if (user.role === "student") {
+      profile = await StudentProfile.findOne({ userId: user._id });
+    } else if (user.role === "business") {
+      profile = await BusinessProfile.findOne({ userId: user._id });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User details fetched successfully",
+      data: {
+        user,
+        profile,
+      }
+    });
+  } catch (error) {
+    console.error("Admin getUserById error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching user details",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAdminDashboard,
+  getAllUsers,
+  getUserById,
 };
