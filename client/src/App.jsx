@@ -23,6 +23,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminUserDetails from "./pages/admin/AdminUserDetails";
 import AdminProjects from "./pages/admin/AdminProjects";
 import AdminProjectDetails from "./pages/admin/AdminProjectDetails";
+import AdminApplications from "./pages/admin/AdminApplications";
+import AdminApplicationDetails from "./pages/admin/AdminApplicationDetails";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -186,6 +188,8 @@ function App() {
           <Route path="users/:id" element={<AdminUserDetails />} />
           <Route path="projects" element={<AdminProjects />} />
           <Route path="projects/:id" element={<AdminProjectDetails />} />
+          <Route path="applications" element={<AdminApplications />} />
+          <Route path="applications/:id" element={<AdminApplicationDetails />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

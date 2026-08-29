@@ -53,7 +53,7 @@ const AdminLayout = () => {
     { label: "Dashboard", to: "/admin/dashboard", icon: faChartPie, active: true },
     { label: "Users", to: "/admin/users", icon: faUsers, active: true },
     { label: "Projects", to: "/admin/projects", icon: faBriefcase, active: true },
-    { label: "Applications", to: "/admin/applications", icon: faClipboardList, active: false, badge: "Soon" },
+    { label: "Applications", to: "/admin/applications", icon: faClipboardList, active: true },
     { label: "Work Submissions", to: "/admin/submissions", icon: faFileCode, active: false, badge: "Soon" },
     { label: "Reviews", to: "/admin/reviews", icon: faStar, active: false, badge: "Soon" },
     { label: "Reports", to: "/admin/reports", icon: faFlag, active: false, badge: "Soon" },
