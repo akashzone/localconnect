@@ -6,6 +6,7 @@ const roleMiddleware = require("../middlewares/roleMiddleware");
 const { getAdminDashboard, getAllUsers, getUserById } = require("../controllers/adminController");
 const { getAllProjects, getProjectById } = require("../controllers/adminProjectsController");
 const { getAllApplications, getApplicationById } = require("../controllers/adminApplicationsController");
+const { getAllSubmissions, getSubmissionById } = require("../controllers/adminSubmissionsController");
 
 router.get("/dashboard", authMiddleware, roleMiddleware("admin"), getAdminDashboard);
 router.get("/users", authMiddleware, roleMiddleware("admin"), getAllUsers);
@@ -14,5 +15,7 @@ router.get("/projects", authMiddleware, roleMiddleware("admin"), getAllProjects)
 router.get("/projects/:id", authMiddleware, roleMiddleware("admin"), getProjectById);
 router.get("/applications", authMiddleware, roleMiddleware("admin"), getAllApplications);
 router.get("/applications/:id", authMiddleware, roleMiddleware("admin"), getApplicationById);
+router.get("/submissions", authMiddleware, roleMiddleware("admin"), getAllSubmissions);
+router.get("/submissions/:id", authMiddleware, roleMiddleware("admin"), getSubmissionById);
 
 module.exports = router;
