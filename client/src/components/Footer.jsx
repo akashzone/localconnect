@@ -48,7 +48,20 @@ export const Footer = () => {
           </div>
 
           <div className="flex gap-8 text-sm">
-            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <Link
+              to={
+                user
+                  ? user.role === "business"
+                    ? "/dashboard/business"
+                    : user.role === "student"
+                    ? "/dashboard/student"
+                    : "/admin/dashboard"
+                  : "/"
+              }
+              className="hover:text-white transition-colors"
+            >
+              Home
+            </Link>
             <Link to="/projects" className="hover:text-white transition-colors">Projects</Link>
             {!user && (
               <>

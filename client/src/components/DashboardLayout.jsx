@@ -89,6 +89,13 @@ function DashboardLayout() {
 
   const navItems = user.role === "business" ? businessNavItems : studentNavItems;
 
+  const logoUrl =
+    user.role === "business"
+      ? "/dashboard/business"
+      : user.role === "student"
+      ? "/dashboard/student"
+      : "/";
+
   const getLinkClass = ({ isActive }) => {
     return `flex items-center gap-3 px-6 py-3 font-['IBM_Plex_Sans'] text-sm font-medium transition-all border-l-4 ${
       isActive
@@ -101,7 +108,7 @@ function DashboardLayout() {
     <div className="flex flex-col h-full bg-[#FAF8F3] border-r border-[#D8D2C4]">
       {/* Branding */}
       <div className="px-6 py-6 border-b border-[#D8D2C4]">
-        <NavLink to={user.role === "business" ? "/dashboard/business" : "/"} className="flex flex-col gap-0.5">
+        <NavLink to={logoUrl} className="flex flex-col gap-0.5">
           <span className="font-['Space_Grotesk'] text-2xl font-bold text-[#1B2430]">
             Local<span className="text-[#0F6B5C]">Connect</span>
           </span>
@@ -192,7 +199,7 @@ function DashboardLayout() {
 
       {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between px-6 py-4 bg-[#FAF8F3] border-b border-[#D8D2C4] sticky top-0 z-30 w-full min-h-[64px]">
-        <NavLink to={user.role === "business" ? "/dashboard/business" : "/"} className="flex items-baseline gap-1.5">
+        <NavLink to={logoUrl} className="flex items-baseline gap-1.5">
           <span className="font-['Space_Grotesk'] text-xl font-bold text-[#1B2430]">
             Local<span className="text-[#0F6B5C]">Connect</span>
           </span>
