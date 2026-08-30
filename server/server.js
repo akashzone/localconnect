@@ -38,18 +38,30 @@ const server = http.createServer(app);
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+const allowedOrigins = [
+  "https://localconnect-lake.vercel.app",
+  "http://localhost:5173",
+  process.env.FRONTEND_URL
+].filter(Boolean).map(url => url.replace(/\/$/, ""));
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    const sanitizedOrigin = origin.replace(/\/$/, "");
+    if (allowedOrigins.includes(sanitizedOrigin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'), false);
+  },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
 const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 
 io.use((socket, next) => {

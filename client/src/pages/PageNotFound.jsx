@@ -42,7 +42,7 @@ function PageNotFound() {
                         <button
                             type="button"
                             onClick={() => {
-                                window.location.href = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api/auth/google";
+                                window.location.href = (import.meta.env.VITE_API_URL || "https://localconnect-api-21lm.onrender.com") + "/api/auth/google";
                             }}
                             className="w-full bg-[#1B2430] text-[#FAF8F3] py-3 rounded-[4px] font-semibold text-[15px]
                          shadow-[4px_4px_0px_#F5C445] mb-4 hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]

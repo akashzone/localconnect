@@ -6,6 +6,16 @@ const StudentProfile = require("../models/StudentProfile");
 const BusinessProfile = require("../models/BusinessProfile");
 const googleClient = require("../config/google");
 
+const getCookieOptions = (req) => {
+  const isProd = process.env.NODE_ENV === "production" || 
+                 (req && req.headers && req.headers.host && req.headers.host.includes("onrender.com"));
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  };
+};
+
 
 const googleLogin = (req, res) => {
   const url = googleClient.generateAuthUrl({
@@ -81,12 +91,7 @@ const googleCallback = async (req, res) => {
     const accToken = accessToken(user);
     const refToken = refreshToken(user);
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:
-        process.env.NODE_ENV === "production" ? "none" : "lax",
-    };
+    const cookieOptions = getCookieOptions(req);
 
     // Access token - 15 minutes
     res.cookie("accessToken", accToken, {
@@ -220,11 +225,7 @@ const login = async (req, res) => {
     const accToken = accessToken(user);
     const refToken = refreshToken(user);
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    };
+    const cookieOptions = getCookieOptions(req);
 
 
     res.cookie("accessToken", accToken, {
@@ -268,13 +269,12 @@ const refreshAccessToken = (req, res) => {
       role: decoded.role,
     });
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    };
+    const cookieOptions = getCookieOptions(req);
 
-    res.cookie("accessToken", newAccessToken, cookieOptions);
+    res.cookie("accessToken", newAccessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
 
     res.json({
       message: "Access token refreshed",
@@ -308,11 +308,7 @@ const getCurrentUser = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  };
+  const cookieOptions = getCookieOptions(req);
   res.clearCookie("accessToken", cookieOptions);
   res.clearCookie("refreshToken", cookieOptions);
   return res.status(200).json({

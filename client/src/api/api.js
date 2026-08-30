@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api",
+    baseURL: (import.meta.env.VITE_API_URL || "https://localconnect-api-21lm.onrender.com") + "/api",
     withCredentials: true
 });
-
 
 api.interceptors.response.use(
     response => response,
