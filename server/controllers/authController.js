@@ -73,7 +73,7 @@ const googleCallback = async (req, res) => {
 
       // Google account is not registered in LocalConnect
       return res.redirect(
-        "http://localhost:5173/login?error=google_not_registered"
+        (process.env.FRONTEND_URL || "http://localhost:5173") + "/login?error=google_not_registered"
       );
     }
 
@@ -99,9 +99,9 @@ const googleCallback = async (req, res) => {
       ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    console.log("User Logged in with Google :", user);
+    console.log("User Logged in with Google ID:", user._id);
     // Redirect back to React
-    res.redirect("http://localhost:5173/oauth-success");
+    res.redirect((process.env.FRONTEND_URL || "http://localhost:5173") + "/oauth-success");
   } catch (error) {
     console.error("Google OAuth Error:", error);
 
@@ -163,9 +163,16 @@ const register = async (req, res) => {
         userId: newUser._id,
       });
     }
+    const userResponse = {
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      createdAt: newUser.createdAt
+    };
     res
       .status(201)
-      .json({ message: "User created successfully", user: newUser });
+      .json({ message: "User created successfully", user: userResponse });
   } catch (error) {
     return res
       .status(500)
@@ -228,7 +235,14 @@ const login = async (req, res) => {
       ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.status(200).json({ message: "Login successful", user });
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt
+    };
+    res.status(200).json({ message: "Login successful", user: userResponse });
   } catch (error) {
     return res
       .status(500)
@@ -293,7 +307,21 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+const logout = (req, res) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  };
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully"
+  });
+};
+
 module.exports = {
-  register, login, refreshAccessToken, googleLogin,
+  register, login, logout, refreshAccessToken, googleLogin,
   googleCallback, getCurrentUser
 };

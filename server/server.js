@@ -265,6 +265,26 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/reports", reportRoutes);
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler caught an error:", err.message);
+
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ success: false, message: "File size limit exceeded (max 5MB)." });
+  }
+
+  if (err.name === "MulterError" || err.message?.includes("MulterError") || err.message?.includes("format") || err.message?.includes("type")) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+
+  const status = err.status || 500;
+  return res.status(status).json({
+    success: false,
+    message: process.env.NODE_ENV === "production" ? "Internal server error" : err.message,
+    error: process.env.NODE_ENV === "production" ? undefined : err.stack
+  });
+});
+
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

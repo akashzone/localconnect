@@ -107,7 +107,7 @@ function Login() {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        window.location.href = "http://localhost:5000/api/auth/google";
+                                        window.location.href = (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api/auth/google";
                                     }}
                                     className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 my-2 rounded-lg font-medium text-[15px]
                          shadow-sm hover:shadow-md hover:border-gray-400

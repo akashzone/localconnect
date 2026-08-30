@@ -5,7 +5,7 @@ const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
 
 const {
-    register, login, refreshAccessToken,
+    register, login, logout, refreshAccessToken,
     googleLogin,
     googleCallback,
     getCurrentUser
@@ -13,6 +13,7 @@ const {
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/logout", authMiddleware, logout);
 router.post("/refresh", refreshAccessToken);
 router.get("/google", googleLogin);
 router.get("/google/callback", googleCallback);

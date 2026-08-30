@@ -33,10 +33,16 @@ export default function AuthProvider({ children }) {
         setUser(userData);
     };
 
-    const logout = () => {
-        localStorage.removeItem("user");
-        setUser(null);
-        setProfile(null);
+    const logout = async () => {
+        try {
+            await api.post("/auth/logout");
+        } catch (err) {
+            console.error("Logout request failed:", err);
+        } finally {
+            localStorage.removeItem("user");
+            setUser(null);
+            setProfile(null);
+        }
     };
 
     return (

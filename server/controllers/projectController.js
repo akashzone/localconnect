@@ -131,16 +131,31 @@ const updateProject = async (req, res) => {
   }
 
   try {
-    const updatedProject = await Project.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!updatedProject) {
+    const project = await Project.findById(id);
+    if (!project) {
       return res.status(404).json({
         success: false,
         message: "Project not found.",
       });
     }
+
+    // Verify ownership
+    if (project.businessOwnerId.toString() !== req.user.id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this project.",
+      });
+    }
+
+    // Prevent changing businessOwnerId in body (mass assignment protection)
+    if (req.body.businessOwnerId) {
+      delete req.body.businessOwnerId;
+    }
+
+    const updatedProject = await Project.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     console.log("Updated Project - ", updatedProject);
     res.status(200).json({
       success: true,
@@ -164,15 +179,25 @@ const deleteProject = async (req, res) => {
   }
 
   try {
-    const deletedProject = await Project.findByIdAndDelete(id);
-    console.log("Deleted Project - ", deletedProject);
-    if (!deletedProject) {
+    const project = await Project.findById(id);
+    if (!project) {
       return res.status(404).json({
         success: false,
         message: "Project not found.",
       });
     }
-    res.status(204).json({
+
+    // Verify ownership
+    if (project.businessOwnerId.toString() !== req.user.id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this project.",
+      });
+    }
+
+    const deletedProject = await Project.findByIdAndDelete(id);
+    console.log("Deleted Project - ", deletedProject);
+    res.status(200).json({
       success: true,
       message: "Project deleted successfully",
       data: deletedProject,
