@@ -29,6 +29,8 @@ import AdminSubmissions from "./pages/admin/AdminSubmissions";
 import AdminSubmissionDetails from "./pages/admin/AdminSubmissionDetails";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminReviewDetails from "./pages/admin/AdminReviewDetails";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminReportDetails from "./pages/admin/AdminReportDetails";
 
 //componentes
 import Navbar from "./components/Navbar"
@@ -198,6 +200,8 @@ function App() {
           <Route path="submissions/:id" element={<AdminSubmissionDetails />} />
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="reviews/:id" element={<AdminReviewDetails />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="reports/:id" element={<AdminReportDetails />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

@@ -56,7 +56,7 @@ const AdminLayout = () => {
     { label: "Applications", to: "/admin/applications", icon: faClipboardList, active: true },
     { label: "Work Submissions", to: "/admin/submissions", icon: faFileCode, active: true },
     { label: "Reviews", to: "/admin/reviews", icon: faStar, active: true },
-    { label: "Reports", to: "/admin/reports", icon: faFlag, active: false, badge: "Soon" },
+    { label: "Reports", to: "/admin/reports", icon: faFlag, active: true },
   ];
 
   const SidebarContent = () => (

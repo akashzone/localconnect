@@ -8,6 +8,7 @@ const { getAllProjects, getProjectById } = require("../controllers/adminProjects
 const { getAllApplications, getApplicationById } = require("../controllers/adminApplicationsController");
 const { getAllSubmissions, getSubmissionById } = require("../controllers/adminSubmissionsController");
 const { getAllReviews, getReviewById } = require("../controllers/adminReviewsController");
+const { getAllReports, getReportStats, getReportById, updateReportStatus } = require("../controllers/adminReportsController");
 
 router.get("/dashboard", authMiddleware, roleMiddleware("admin"), getAdminDashboard);
 router.get("/users", authMiddleware, roleMiddleware("admin"), getAllUsers);
@@ -20,5 +21,10 @@ router.get("/submissions", authMiddleware, roleMiddleware("admin"), getAllSubmis
 router.get("/submissions/:id", authMiddleware, roleMiddleware("admin"), getSubmissionById);
 router.get("/reviews", authMiddleware, roleMiddleware("admin"), getAllReviews);
 router.get("/reviews/:id", authMiddleware, roleMiddleware("admin"), getReviewById);
+
+router.get("/reports", authMiddleware, roleMiddleware("admin"), getAllReports);
+router.get("/reports/stats", authMiddleware, roleMiddleware("admin"), getReportStats);
+router.get("/reports/:id", authMiddleware, roleMiddleware("admin"), getReportById);
+router.patch("/reports/:id/status", authMiddleware, roleMiddleware("admin"), updateReportStatus);
 
 module.exports = router;
