@@ -378,10 +378,6 @@ function Profile() {
                                 {isStudent && (
                                     <StudentViewSection
                                         profile={profile}
-                                        resumeInputRef={resumeInputRef}
-                                        uploadingResume={uploadingResume}
-                                        onResumeChange={handleResumeChange}
-                                        onTriggerResume={triggerResumeInput}
                                     />
                                 )}
 

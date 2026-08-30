@@ -1,9 +1,15 @@
 const multer = require("multer");
 const path = require("path");
 
+const fs = require("fs");
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "./public/temp");
+        const dir = "./public/temp";
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
     },
     filename: function (req, file, cb) {
         // Generate a unique, safe filename to prevent traversal and name collisions

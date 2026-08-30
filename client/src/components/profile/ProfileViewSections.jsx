@@ -19,10 +19,6 @@ function LinkValue({ value, label }) {
 
 export function StudentViewSection({
   profile,
-  resumeInputRef,
-  uploadingResume,
-  onResumeChange,
-  onTriggerResume,
 }) {
   return (
     <div className="space-y-6">
@@ -75,54 +71,7 @@ export function StudentViewSection({
           <span className="block font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-widest text-[#9B9384] mb-1">
             Resume
           </span>
-
-          <input
-            type="file"
-            ref={resumeInputRef}
-            onChange={onResumeChange}
-            accept=".pdf,.doc,.docx"
-            className="hidden"
-          />
-
-          {profile.resume ? (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(profile.resume, "_blank", "noopener,noreferrer")
-                }
-                className="text-[12.5px] font-semibold text-[#0F6B5C] hover:underline cursor-pointer"
-              >
-                View Resume
-              </button>
-
-              <span className="text-[#D8D2C4]">|</span>
-
-              <button
-                type="button"
-                onClick={onTriggerResume}
-                disabled={uploadingResume}
-                className="text-[12.5px] font-semibold text-[#6B6459] hover:underline cursor-pointer disabled:opacity-50"
-              >
-                {uploadingResume ? "Uploading..." : "Replace"}
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <p className="text-[13px] text-[#9B9384] italic">
-                No resume uploaded.
-              </p>
-
-              <button
-                type="button"
-                onClick={onTriggerResume}
-                disabled={uploadingResume}
-                className="font-semibold text-[11px] px-3 py-1.5 rounded-[4px] bg-[#1B2430] text-[#FAF8F3] hover:bg-[#0F6B5C] transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {uploadingResume ? "Uploading..." : "Upload Resume"}
-              </button>
-            </div>
-          )}
+          <LinkValue value={profile.resume} label="Resume" />
         </div>
       </div>
     </div>
