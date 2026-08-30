@@ -7,6 +7,7 @@ import AcceptRejectModal from "../components/application/AcceptRejectModal";
 import RequestChangesModal from "../components/application/RequestChangesModal";
 import ApproveWorkModal from "../components/application/ApproveWorkModal";
 import ReviewModal from "../components/review/ReviewModal";
+import ReportModal from "../components/ReportModal";
 
 const statusConfig = {
     pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D]" },
@@ -32,7 +33,7 @@ const formatDate = (date) =>
         })
         : "—";
 
-function ApplicationRow({ app, onStatusUpdate, onReviewUpdate, reviewedProjectIds, onReviewSuccess }) {
+function ApplicationRow({ app, onStatusUpdate, onReviewUpdate, reviewedProjectIds, onReviewSuccess, onReport }) {
     const location = useLocation();
     const status = app.status?.toLowerCase() || "pending";
     const badge = statusConfig[status] || statusConfig.pending;
@@ -247,6 +248,14 @@ function ApplicationRow({ app, onStatusUpdate, onReviewUpdate, reviewedProjectId
                     View Profile
                 </Link>
 
+                {/* Report Action */}
+                <button
+                    onClick={() => onReport(app._id, student.name || "Student Proposal")}
+                    className="inline-block font-semibold text-sm px-4 py-2.5 rounded-[4px] border border-[#D8D2C4] text-[#B3452F] hover:border-[#B3452F]/40 hover:bg-[#FBE7E4] transition-colors duration-150 cursor-pointer"
+                >
+                    🚩 Report
+                </button>
+
                 {status === "accepted" && (
                     <Link
                         to={`/chat/${app._id}`}
@@ -344,6 +353,13 @@ function BusinessApplications() {
     const [activeFilter, setActiveFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [reviewedProjectIds, setReviewedProjectIds] = useState(new Set());
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportTarget, setReportTarget] = useState({});
+
+    const handleReport = (appId, targetName) => {
+        setReportTarget({ applicationId: appId, targetName });
+        setShowReportModal(true);
+    };
 
     useEffect(() => {
         const fetchWrittenReviews = async () => {
@@ -529,11 +545,22 @@ function BusinessApplications() {
                                         return next;
                                     });
                                 }}
+                                onReport={handleReport}
                             />
                         ))}
                     </div>
                 )}
             </div>
+            {showReportModal && (
+                <ReportModal
+                    applicationId={reportTarget.applicationId}
+                    targetName={reportTarget.targetName}
+                    onClose={() => {
+                        setShowReportModal(false);
+                        setReportTarget({});
+                    }}
+                />
+            )}
         </div>
     );
 }

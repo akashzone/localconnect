@@ -5,6 +5,7 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api.js";
 import SubmitWorkModal from "../components/application/SubmitWorkModal";
 import ReviewModal from "../components/review/ReviewModal";
+import ReportModal from "../components/ReportModal";
 
 const statusConfig = {
   pending: { label: "Pending", dot: "🟡", classes: "bg-[#FDF3D6] text-[#8A6D1D] border-[#F5E2B3]" },
@@ -21,7 +22,7 @@ const filterTabs = [
   { key: "withdrawn", label: "Withdrawn" },
 ];
 
-function ApplicationCard({ app, onWithdraw, onSubmitWork, reviewedProjectIds, onReviewSuccess }) {
+function ApplicationCard({ app, onWithdraw, onSubmitWork, reviewedProjectIds, onReviewSuccess, onReport }) {
   const status = app.status?.toLowerCase() || "pending";
   const badge = statusConfig[status] || statusConfig.pending;
   const project = app.projectId || {};
@@ -230,6 +231,14 @@ function ApplicationCard({ app, onWithdraw, onSubmitWork, reviewedProjectIds, on
             View Project
           </Link>
 
+          {/* Report Action */}
+          <button
+            onClick={() => onReport(app._id, project.title || "Project Application")}
+            className="inline-flex items-center justify-center font-medium text-xs px-3.5 py-2 bg-white text-[#B3452F] border border-[#D8D2C4] hover:border-[#B3452F]/40 hover:bg-[#FBE7E4] transition-colors duration-150 rounded-[4px] cursor-pointer"
+          >
+            🚩 Report
+          </button>
+
           {/* Status notices & review button for completed/under review */}
           {status === "accepted" && project.status?.toLowerCase() === "under review" && (
             <span className="font-['IBM_Plex_Mono'] text-xs font-semibold text-[#0F6B5C] bg-[#E9F5F1] px-3 py-1.5 rounded border border-[#0F6B5C]/15 inline-flex items-center gap-1.5">
@@ -324,6 +333,13 @@ function MyApplications() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [reviewedProjectIds, setReviewedProjectIds] = useState(new Set());
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportTarget, setReportTarget] = useState({});
+
+  const handleReport = (appId, targetName) => {
+    setReportTarget({ applicationId: appId, targetName });
+    setShowReportModal(true);
+  };
 
   useEffect(() => {
     const fetchWrittenReviews = async () => {
@@ -499,11 +515,22 @@ function MyApplications() {
                     return next;
                   });
                 }}
+                onReport={handleReport}
               />
             ))}
           </div>
         )}
       </div>
+      {showReportModal && (
+        <ReportModal
+          applicationId={reportTarget.applicationId}
+          targetName={reportTarget.targetName}
+          onClose={() => {
+            setShowReportModal(false);
+            setReportTarget({});
+          }}
+        />
+      )}
     </div>
   );
 }

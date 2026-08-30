@@ -1,12 +1,23 @@
+import { useState, useContext } from "react";
 import StarRating from "./StarRating";
+import { AuthContext } from "../../context/AuthContext";
+import ReportModal from "../ReportModal";
 
 function ReviewCard({ review, reviewerRole }) {
+  const { isAuthenticated, user } = useContext(AuthContext);
+  const [showReportModal, setShowReportModal] = useState(false);
+
   // If the reviewer is "business", the review was WRITTEN by a business owner for a student.
   // If the reviewer is "student", the review was WRITTEN by a student for a business owner.
   const authorName =
     review.reviewerRole === "business"
       ? review.businessOwnerId?.name || "Business Owner"
       : review.studentId?.name || "Student Developer";
+
+  const authorUserId =
+    review.reviewerRole === "business"
+      ? review.businessOwnerId?._id || review.businessOwnerId
+      : review.studentId?._id || review.studentId;
 
   const projectTitle = review.projectId?.title;
   const dateFormatted = review.createdAt
@@ -37,11 +48,27 @@ function ReviewCard({ review, reviewerRole }) {
               {dateFormatted}
             </span>
           )}
+          {isAuthenticated && user?.role !== "admin" && user?._id !== authorUserId && (
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="text-[10px] text-[#B3452F] hover:underline font-semibold cursor-pointer border-0 bg-transparent p-0 flex items-center gap-0.5"
+            >
+              🚩 Report
+            </button>
+          )}
         </div>
       </div>
       <p className="text-[#4A473F] text-[13.5px] leading-relaxed italic whitespace-pre-line font-['IBM_Plex_Sans']">
         "{review.description}"
       </p>
+
+      {showReportModal && (
+        <ReportModal
+          reviewId={review._id}
+          targetName={`Review by ${authorName}`}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </div>
   );
 }

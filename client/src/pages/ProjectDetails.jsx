@@ -6,6 +6,7 @@ import ApplicationForm from "../components/application/ApplicationForm";
 import AcceptRejectModal from "../components/application/AcceptRejectModal";
 import SubmitWorkModal from "../components/application/SubmitWorkModal";
 import ReviewModal from "../components/review/ReviewModal";
+import ReportModal from "../components/ReportModal";
 
 const statusStyles = {
   open: "bg-[#E9F5F1] text-[#0F6B5C]",
@@ -61,6 +62,8 @@ function ProjectDetails() {
   const [justApplied, setJustApplied] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportTarget, setReportTarget] = useState({});
 
   const isBusiness = user?.role === "business";
   const isOwner = isAuthenticated && isBusiness && project && (project.businessOwnerId === user?._id || project.businessOwnerId?._id === user?._id);
@@ -279,9 +282,22 @@ function ProjectDetails() {
 
           {/* Top row */}
           <div className="flex items-center justify-between mb-6">
-            <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">
-              POSTING #{id?.slice(-4).toUpperCase()}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="font-['IBM_Plex_Mono'] text-[11px] text-[#9B9384]">
+                POSTING #{id?.slice(-4).toUpperCase()}
+              </span>
+              {isAuthenticated && !isOwner && user?.role !== "admin" && (
+                <button
+                  onClick={() => {
+                    setReportTarget({ projectId: id, targetName: title });
+                    setShowReportModal(true);
+                  }}
+                  className="font-['IBM_Plex_Mono'] text-[10px] text-[#B3452F] hover:underline cursor-pointer border-0 bg-transparent p-0"
+                >
+                  🚩 Report Project
+                </button>
+              )}
+            </div>
             <span
               className={`font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-wide px-2.5 py-1 rounded-[3px] ${statusClass}`}
             >
@@ -810,12 +826,28 @@ function ProjectDetails() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setShowBusinessModal(false)}
-              className="w-full mt-6 font-semibold text-xs py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors"
-            >
-              Close
-            </button>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowBusinessModal(false)}
+                className="flex-1 font-semibold text-xs py-2.5 rounded-[4px] border-2 border-[#1B2430] text-[#1B2430] hover:bg-[#1B2430] hover:text-[#FAF8F3] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+              {isAuthenticated && user?.role === "student" && (
+                <button
+                  onClick={() => {
+                    setShowBusinessModal(false);
+                    const businessUserId = project.businessOwnerId?._id || project.businessOwnerId;
+                    const businessName = project.businessProfile?.businessName || project.businessOwnerId?.name || "Business Owner";
+                    setReportTarget({ reportedUserId: businessUserId, targetName: businessName });
+                    setShowReportModal(true);
+                  }}
+                  className="flex-1 font-semibold text-xs py-2.5 rounded-[4px] border border-[#B3452F] text-[#B3452F] hover:bg-[#FBE7E4] transition-colors cursor-pointer"
+                >
+                  🚩 Report Business
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -830,6 +862,18 @@ function ProjectDetails() {
           businessOwnerId={project?.businessOwnerId?._id || project?.businessOwnerId}
           projectId={project?._id}
           reviewerRole="student"
+        />
+      )}
+
+      {showReportModal && (
+        <ReportModal
+          reportedUserId={reportTarget.reportedUserId}
+          projectId={reportTarget.projectId}
+          targetName={reportTarget.targetName}
+          onClose={() => {
+            setShowReportModal(false);
+            setReportTarget({});
+          }}
         />
       )}
     </div>

@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import api from "../api/api.js";
 import RatingSummary from "../components/review/RatingSummary";
 import ReviewList from "../components/review/ReviewList";
+import { AuthContext } from "../context/AuthContext";
+import ReportModal from "../components/ReportModal";
 
 function StudentProfile() {
     const { studentId } = useParams();
     const location = useLocation();
+    const { isAuthenticated, user } = useContext(AuthContext);
 
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -15,6 +18,9 @@ function StudentProfile() {
     const [averageRating, setAverageRating] = useState(0);
     const [totalReviews, setTotalReviews] = useState(0);
     const [loadingReviews, setLoadingReviews] = useState(true);
+    const [showReportModal, setShowReportModal] = useState(false);
+
+    const isBusiness = user?.role === "business";
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -119,25 +125,36 @@ function StudentProfile() {
 
                 <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-8 sm:p-10 shadow-[6px_6px_0px_#1B2430]">
                     {/* Header */}
-                    <div className="flex items-center gap-5 mb-8">
-                        <div
-                            className="w-16 h-16 flex items-center justify-center rounded-[6px]
-              bg-[#1B2430] text-[#F5C445]
-              font-['Space_Grotesk'] font-bold text-xl rotate-[-2deg]
-              shadow-[3px_3px_0px_#F5C445]"
-                        >
-                            {initials}
+                    <div className="flex items-start justify-between gap-5 mb-8">
+                        <div className="flex items-center gap-5">
+                            <div
+                                className="w-16 h-16 flex items-center justify-center rounded-[6px]
+                  bg-[#1B2430] text-[#F5C445]
+                  font-['Space_Grotesk'] font-bold text-xl rotate-[-2deg]
+                  shadow-[3px_3px_0px_#F5C445]"
+                            >
+                                {initials}
+                            </div>
+
+                            <div>
+                                <h1 className="font-['Space_Grotesk'] font-bold text-2xl">
+                                    {name}
+                                </h1>
+
+                                <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-widest text-[#0F6B5C]">
+                                    Student
+                                </span>
+                            </div>
                         </div>
 
-                        <div>
-                            <h1 className="font-['Space_Grotesk'] font-bold text-2xl">
-                                {name}
-                            </h1>
-
-                            <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-widest text-[#0F6B5C]">
-                                Student
-                            </span>
-                        </div>
+                        {isAuthenticated && isBusiness && (
+                            <button
+                                onClick={() => setShowReportModal(true)}
+                                className="text-xs font-semibold px-3 py-1.5 rounded-[4px] border border-[#B3452F]/40 text-[#B3452F] hover:bg-[#FBE7E4] transition-colors cursor-pointer shrink-0"
+                            >
+                                🚩 Report Developer
+                            </button>
+                        )}
                     </div>
 
                     {/* Email */}
@@ -254,6 +271,13 @@ function StudentProfile() {
                     )}
                 </div>
             </div>
+            {showReportModal && (
+                <ReportModal
+                    reportedUserId={studentId}
+                    targetName={name}
+                    onClose={() => setShowReportModal(false)}
+                />
+            )}
         </div>
     );
 }
