@@ -2,7 +2,6 @@ import { useEffect, useState, useContext } from "react";
 import api from "../api/api.js";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import socket from "../socket/socket";
 
 const statusStyles = {
   pending: "bg-[#FDF3D6] text-[#8A6D1D] border-[#F5E2B3]",
