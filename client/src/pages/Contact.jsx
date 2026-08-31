@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
+import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
 const faqs = [
   {
@@ -16,28 +19,7 @@ const faqs = [
 ];
 
 function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
   const [openFaq, setOpenFaq] = useState(null);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      return alert("All fields are required");
-    }
-
-    // No backend wired up yet — swap this for an EmailJS call or an API request later.
-    alert("Message sent successfully!");
-    setFormData({ name: "", email: "", subject: "", message: "" });
-  };
 
   return (
     <div className="min-h-screen bg-[#FAF8F3] font-['IBM_Plex_Sans'] text-[#1B2430]">
@@ -62,7 +44,7 @@ function Contact() {
         <div className="max-w-6xl mx-auto px-6 grid gap-5 sm:grid-cols-3">
           {[
             { label: "Email", value: "support@localconnect.com", tag: "TAG · MAIL" },
-            { label: "Phone", value: "+91 XXXXX XXXXX", tag: "TAG · CALL" },
+            { label: "Phone", value: "+91 73043 885XX", tag: "TAG · CALL" },
             { label: "Address", value: "Mumbai, India", tag: "TAG · VISIT" },
           ].map((c) => (
             <div
@@ -82,93 +64,79 @@ function Contact() {
         </div>
       </section>
 
-      {/* ================= FORM ================= */}
+      {/* ================= CONNECT SECTION ================= */}
       <section className="py-20 border-b border-[#D8D2C4]">
         <div className="max-w-2xl mx-auto px-6">
           <div className="bg-white border border-[#D8D2C4] rounded-[6px] p-8 sm:p-10 shadow-[6px_6px_0px_#1B2430]">
             <span className="font-['IBM_Plex_Mono'] text-[11px] tracking-widest uppercase text-[#0F6B5C]">
-              Send a message
+              Connect with me
             </span>
             <h2 className="font-['Space_Grotesk'] font-bold text-2xl sm:text-3xl mt-2 mb-7">
-              We'd love to hear from you
+              Let's build something together
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your name"
-                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
-                               focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                               transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
-                               focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                               transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  placeholder="What's this about?"
-                  className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px]
-                             focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                             transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wide text-[#6B6459] mb-1.5">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Tell us what's on your mind..."
-                  rows={5}
-                  className="w-full border border-[#D8D2C4] rounded-[4px] px-3.5 py-2.5 text-[15px] resize-none
-                             focus:outline-none focus:border-[#0F6B5C] focus:ring-2 focus:ring-[#0F6B5C]/15
-                             transition-colors"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-[#1B2430] text-[#FAF8F3] py-3 rounded-[4px] font-semibold text-[15px]
-                           shadow-[4px_4px_0px_#F5C445] hover:shadow-[2px_2px_0px_#F5C445] hover:translate-x-[2px] hover:translate-y-[2px]
-                           transition-all duration-150"
+            <div className="space-y-4">
+              {/* Gmail Link */}
+              <a
+                href="mailto:akashnadar.dev@gmail.com"
+                className="flex items-center gap-4 p-4 border border-[#D8D2C4] rounded-[6px] bg-[#FAF8F3]
+                           shadow-[3px_3px_0px_#D8D2C4] hover:shadow-[1px_1px_0px_#D8D2C4] hover:translate-x-[2px] hover:translate-y-[2px]
+                           transition-all duration-150 group"
               >
-                Send Message
-              </button>
-            </form>
+                <div className="w-10 h-10 flex items-center justify-center rounded-[4px] bg-[#0F6B5C]/10 text-[#0F6B5C]">
+                  <FontAwesomeIcon icon={faEnvelope} className="text-lg" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-['Space_Grotesk'] font-bold text-sm text-[#1B2430]">Email</h4>
+                  <p className="text-xs sm:text-sm text-[#4A473F] truncate">akashnadar.dev@gmail.com</p>
+                </div>
+                <span className="font-['IBM_Plex_Mono'] text-xs text-[#0F6B5C] font-semibold group-hover:underline">
+                  Write Email &rarr;
+                </span>
+              </a>
+
+              {/* GitHub Link */}
+              <a
+                href="https://github.com/akashzone"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-4 border border-[#D8D2C4] rounded-[6px] bg-[#FAF8F3]
+                           shadow-[3px_3px_0px_#D8D2C4] hover:shadow-[1px_1px_0px_#D8D2C4] hover:translate-x-[2px] hover:translate-y-[2px]
+                           transition-all duration-150 group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center rounded-[4px] bg-[#1B2430]/10 text-[#1B2430]">
+                  <FontAwesomeIcon icon={faGithub} className="text-lg" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-['Space_Grotesk'] font-bold text-sm text-[#1B2430]">GitHub</h4>
+                  <p className="text-xs sm:text-sm text-[#4A473F] truncate">github.com/akashzone</p>
+                </div>
+                <span className="font-['IBM_Plex_Mono'] text-xs text-[#1B2430] font-semibold group-hover:underline">
+                  Visit Profile &rarr;
+                </span>
+              </a>
+
+              {/* LinkedIn Link */}
+              <a
+                href="https://www.linkedin.com/in/akashnadar-dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-4 border border-[#D8D2C4] rounded-[6px] bg-[#FAF8F3]
+                           shadow-[3px_3px_0px_#D8D2C4] hover:shadow-[1px_1px_0px_#D8D2C4] hover:translate-x-[2px] hover:translate-y-[2px]
+                           transition-all duration-150 group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center rounded-[4px] bg-[#0A66C2]/10 text-[#0A66C2]">
+                  <FontAwesomeIcon icon={faLinkedin} className="text-lg" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-['Space_Grotesk'] font-bold text-sm text-[#1B2430]">LinkedIn</h4>
+                  <p className="text-xs sm:text-sm text-[#4A473F] truncate">linkedin.com/in/akashnadar-dev</p>
+                </div>
+                <span className="font-['IBM_Plex_Mono'] text-xs text-[#0A66C2] font-semibold group-hover:underline">
+                  Let's Connect &rarr;
+                </span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -197,9 +165,8 @@ function Contact() {
                     {item.q}
                   </span>
                   <span
-                    className={`font-['IBM_Plex_Mono'] text-[#0F6B5C] transition-transform duration-200 ${
-                      openFaq === i ? "rotate-45" : ""
-                    }`}
+                    className={`font-['IBM_Plex_Mono'] text-[#0F6B5C] transition-transform duration-200 ${openFaq === i ? "rotate-45" : ""
+                      }`}
                   >
                     +
                   </span>
@@ -218,17 +185,7 @@ function Contact() {
         </div>
       </section>
 
-      {/* ================= MAP PLACEHOLDER ================= */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="border-2 border-dashed border-[#D8D2C4] rounded-[6px] h-64 flex flex-col items-center justify-center text-center bg-white/50">
-            <span className="text-3xl mb-2">📍</span>
-            <p className="font-['IBM_Plex_Mono'] text-[12px] text-[#9B9384]">
-              Map placeholder — embed Google Maps here
-            </p>
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 }
