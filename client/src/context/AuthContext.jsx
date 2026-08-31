@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../api/api.js";
+import socket from "../socket/socket.js";
 
 export const AuthContext = createContext();
 
@@ -26,6 +27,21 @@ export default function AuthProvider({ children }) {
             }
         };
         fetchProfile();
+    }, [user]);
+
+    // Handle Socket.IO connection based on user authentication state
+    useEffect(() => {
+        if (user) {
+            if (!socket.connected) {
+                console.log("Connecting socket for authenticated user...");
+                socket.connect();
+            }
+        } else {
+            if (socket.connected) {
+                console.log("Disconnecting socket (user unauthenticated)...");
+                socket.disconnect();
+            }
+        }
     }, [user]);
 
     const login = (userData) => {
