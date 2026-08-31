@@ -136,19 +136,11 @@ function DashboardLayout() {
           <span>Profile</span>
         </NavLink>
 
-        {/* Settings - disabled placeholder */}
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            alert("Settings is currently under development.");
-          }}
-          className="flex items-center gap-3 px-6 py-3 font-['IBM_Plex_Sans'] text-sm font-medium transition-all border-l-4 text-[#9B9384] border-transparent cursor-not-allowed"
-          title="Settings is under development"
-        >
+        {/* Settings */}
+        <NavLink to="/settings" className={getLinkClass}>
           <FontAwesomeIcon icon={faGear} className="w-5 text-center shrink-0" />
           <span>Settings</span>
-        </a>
+        </NavLink>
       </nav>
 
       {/* User Section and Logout */}

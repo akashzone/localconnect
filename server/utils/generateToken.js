@@ -6,6 +6,7 @@ const accessToken = (user) => {
     {
       id: user._id,
       role: user.role,
+      tokenVersion: user.tokenVersion || 0,
     },
     process.env.JWT_SECRET,
     { expiresIn: "15m" },
@@ -18,6 +19,7 @@ const refreshToken = (user) => {
     {
       id: user._id,
       role: user.role,
+      tokenVersion: user.tokenVersion || 0,
     },
     process.env.JWT_SECRET,
     { expiresIn: "7d" },

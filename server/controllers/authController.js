@@ -252,7 +252,7 @@ const login = async (req, res) => {
 };
 
 
-const refreshAccessToken = (req, res) => {
+const refreshAccessToken = async (req, res) => {
   const token = req.cookies.refreshToken;
 
   if (!token) {
@@ -264,10 +264,29 @@ const refreshAccessToken = (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const newAccessToken = accessToken({
-      _id: decoded.id,
-      role: decoded.role,
-    });
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      const cookieOptions = getCookieOptions(req);
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
+      return res.status(401).json({
+        message: "User not found",
+      });
+    }
+
+    const decodedTokenVersion = decoded.tokenVersion || 0;
+    const userTokenVersion = user.tokenVersion || 0;
+
+    if (decodedTokenVersion !== userTokenVersion) {
+      const cookieOptions = getCookieOptions(req);
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
+      return res.status(401).json({
+        message: "Session expired or invalidated. Please login again.",
+      });
+    }
+
+    const newAccessToken = accessToken(user);
 
     const cookieOptions = getCookieOptions(req);
 
@@ -280,6 +299,9 @@ const refreshAccessToken = (req, res) => {
       message: "Access token refreshed",
     });
   } catch (err) {
+    const cookieOptions = getCookieOptions(req);
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
     return res.status(403).json({
       message: "Invalid refresh token",
     });
@@ -288,15 +310,22 @@ const refreshAccessToken = (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({
         message: "User not found",
       });
     }
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
     res.status(200).json({
       message: "User fetched successfully",
-      user,
+      user: userResponse,
     });
   } catch (error) {
     console.error("Get Current User Error:", error);
@@ -317,7 +346,41 @@ const logout = (req, res) => {
   });
 };
 
+const logoutAllDevices = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
+    await user.save();
+
+    const cookieOptions = getCookieOptions(req);
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out of all devices successfully."
+    });
+  } catch (error) {
+    console.error("Logout All Devices Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
-  register, login, logout, refreshAccessToken, googleLogin,
-  googleCallback, getCurrentUser
+  register,
+  login,
+  logout,
+  refreshAccessToken,
+  googleLogin,
+  googleCallback,
+  getCurrentUser,
+  logoutAllDevices,
 };

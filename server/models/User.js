@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       enum: ["student", "business", "admin"],
     },
+
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

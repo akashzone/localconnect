@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import MyApplications from "./pages/MyApplications";
 import Profile from "./pages/Profile";
 import StudentProfile from "./pages/StudentProfile";
+import Settings from "./pages/Settings";
 import PageNotFound from "./pages/PageNotFound";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Chat from "./pages/Chat";
@@ -92,6 +93,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business"]}>
+                <Settings />
               </ProtectedRoute>
             }
           />
