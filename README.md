@@ -1,7 +1,9 @@
 # LocalConnect
 
 **Connecting local business owners with student developers for real-world projects.**
+🌐 Live Demo
 
+Explore the deployed LocalConnect application: https://localconnect-lake.vercel.app/
 <div align="center">
 
 [![Node.js](https://img.shields.io/badge/Node.js-v18+-3c873a?style=flat-square)](https://nodejs.org/)
